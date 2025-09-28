@@ -51,15 +51,22 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ error: "Credenciales invalidas" });
         }
 
+        // Buscar usuario en BD
+        const usuario = await Usuario.findOne({ where: { email } });
+
+        if (!usuario) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
         //comparar contrasena ingresada con la guardada en la DB
-        const isMatch = await bcrypt.compare(password, user.password_hash);
+        const isMatch = await bcrypt.compare(password, usuario.password_hash);
         if(!isMatch){
             return res.status(401).json({ error: "Credenciales invalidas" });
         }
 
         //Crear token JWT para autenticacion 
         const token = jwt.sign(
-            { id: user.id, rol: user.rol }, // Payload
+            { id: usuario.id, rol: usuario.rol }, // Payload
             process.env.JWTSECRET || "Secreto dev", // Clave secreta
             { expiresIn: "1h" }  //tiempo en el que expira
         );

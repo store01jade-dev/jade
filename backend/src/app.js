@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 // Usar rutas de usuarios bajo el perfijo /api/users
-app.use("/api/users", userRoutes);
+app.use("/", userRoutes);
 
 
 // Exportamos app para que pueda ser utilizado por server.js
