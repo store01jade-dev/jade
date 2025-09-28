@@ -2,7 +2,9 @@
 import express from "express";
 
 // Importamos las rutas
-import userRoutes from "../src/routes/userRoutes.js"
+import userRoutes from "../src/routes/userRoutes.js";
+import categoriasRoutes from "../src/routes/categoriaRoutes.js";
+import productoRoutes from "../src/routes/productoRoutes.js";
 
 // Creamos la instancia principal de la aplicacion Express
 const app = express();
@@ -11,7 +13,9 @@ const app = express();
 app.use(express.json());
 
 // Usar rutas de usuarios bajo el perfijo /api/users
-app.use("/", userRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/v1/categorias", categoriasRoutes);
+app.use("/api/v1/productos", productoRoutes);
 
 
 // Exportamos app para que pueda ser utilizado por server.js
