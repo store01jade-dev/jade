@@ -1,17 +1,162 @@
-:root {
-  --borderColor: #66CDAA;
-  --background3: #3B486D;
+.header {
+  background: var(--background-dark);
+  color: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  position: relative;
 }
 
-.header{
-    display: flex;
-    width: auto;
-    padding: 24px 25px;
-    justify-content: right;
+.logo img {
+  display: block;
+}
+
+/* --- Buscador (desktop) --- */
+.search {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  margin: 1rem 0.5rem;
+}
+
+.search input {
+  flex: 1;
+  border: none;
+  padding: 0.5rem 1rem;
+  outline: none;
+  font-family: var(--font-text);
+}
+
+.search button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.75rem;
+}
+
+/* --- Acciones --- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Lupa extra (solo móvil) */
+.mobileSearchBtn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Hamburguesa */
+.menuButton {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 22px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bar {
+  height: 3px;
+  width: 100%;
+  background: white;
+  border-radius: 2px;
+}
+
+/* Menú desplegable */
+.nav {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 1rem;
+  background: var(--background-dark);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-family: var(--font-text);
+}
+
+.nav a:hover {
+  color: #38bdf8;
+}
+
+.nav.active {
+  display: block;
+}
+
+/* --- Responsivo --- */
+@media (max-width: 768px) {
+  /* le cambiamos el tamno al logo para que quede del mismo que los otros icons*/
+  .logo Image{
+    width: 45px;
+    width: 45px;
+  }
+
+
+  /* Ocultamos la barra completa de búsqueda, pero dejamos la lupa */
+  .search {
+    display: none;
+  }
+
+   /* mostrar el botón móvil con el svg claro */
+  .mobileSearchBtn {
+    display: inline-flex;
     align-items: center;
-    gap: 23px;
+    justify-content: center;
+  }
 
-    border-radius: 10px;
-    border: 3px solid var(--borderColor, #66CDAA);
-    background: var(--background3, #3B486D);
+  .iconMobile {
+    width: 45px;
+    height: 45px;
+  }
+
+  /* Reducir también los otros íconos (login, carrito, etc.) en móvil */
+  .actions img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .nav {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: var(--background-dark);
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    width: auto;
+    display: none;
+  }
+
+  .nav.active {
+    display: flex;
+  }
+
+  .menuButton {
+    display: flex; /* se muestra en móvil */
+  }
 }
+

@@ -1,4 +1,7 @@
 import "./globals.css";
+import { bodoni, josefin } from "@/ui/fonts";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "Create Next App",
@@ -8,8 +11,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={``}>
-        {children}
+      <body className={`${bodoni.variable} ${josefin.variable}`}>
+        <Header/>
+        <main>
+          {children}
+        </main>
+        <Footer/>
       </body>
     </html>
   );

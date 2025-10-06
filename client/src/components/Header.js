@@ -1,49 +1,89 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
 import Image from "next/image";
-import styles from "./Header.module.css";
-import menu from "../../public/icons/Menu.png";
-import search from "../../public/icons/Search.png";
-import logo from "../../public/icons/Frame44.png";
-import register from "../../public/icons/Login.png";
+import logo from "../../public/assests/Logo-12.png";
+import buscar from "../../public/icons/Search.svg";
+import buscarLight from "../../public/icons/SearchLight.svg";
 import cart from "../../public/icons/shopingCard.png";
+import registro from "../../public/icons/Login.png";
+import catalogo from "../../public/icons/inInventoryDark.svg"
+import style from "./Header.module.css";
 
 
-export default function Header(){
-    return (
-        <div className={styles.header}>
-            <Image
-                src={menu}
-                alt="menu"
-                width={100}
-                height={100}
-            />
+export default function Header() {
+    const [search, setSearch] = useState("");
+    const [open, setOpen] = useState(false);
 
-            <Image
-                src={search}
-                alt="busqueda"
-                width={100}
-                height={100}
-            />
+  return (
+    <header className={style.header}>
+      {/*Izquierda: logo */}
+      <div className={style.log}>
+        <Image src={logo} alt="logo-Jade" width={100} height={100} />
+      </div>
 
-            <Image
-                src={logo}
-                alt="logo"
-                width={100}
-                height={100}
-            />
+      {/*Centro: Buscador*/}
+      <div className={style.search}>
+        <input
+            type="text"
+            placeholder="Encuentra tu producto"
+            value={search}
+            onChange={(e)=> setSearch(e.target.value)}
+        />
+        <button aria-label="Buscar">
+            <Image src={buscar} alt="lupa para buscar" width={50} height={50} />
+        </button>
+      </div>
 
-            <Image
-                src={register}
-                alt="login"
-                width={100}
-                height={100}
-            />
+      {/* Botón lupa móvil */}
+      <button className={style.mobileSearchBtn} aria-label="Buscar">
+        <Image
+            src={buscarLight}
+            alt="Buscar"
+            width={50}
+            height={50}
+            className={style.iconMobile}
+        />
+      </button>
 
-            <Image
-                src={cart}
-                alt="shopingCart"
-                width={100}
-                height={100}
-            />
-        </div>
-    )
+      {/* Botón hamburguesa (solo visible en móvil) */}
+      <button className={style.menuButton} onClick={() => setOpen(!open)} aria-label="Abrir menú" >
+        <span className={style.bar}></span>
+        <span className={style.bar}></span>
+        <span className={style.bar}></span>
+      </button>
+
+      {/*Derecha: Enlaces de accion */}
+      <nav className={style.actions}>
+        <Link href="/productos">
+            <Image src={catalogo} alt="catlogo de productos" width={50} height={50}/>
+        </Link>
+        <Link href="/carrito">
+            <Image src={cart} alt="carrito de compras" width={50} height={50} />
+        </Link>
+        <Link href="/login">
+            <Image src={registro} alt="inicio sesion" width={50} height={50} />
+        </Link>
+      </nav>
+
+      {/* Navegación */}
+      <nav className={`${style.nav} ${open ? style.showMenu : ""}`}>
+        <ul>
+          <li>
+            <Link href="/" onClick={() => setOpen(false)}>Inicio</Link>
+          </li>
+          <li>
+            <Link href="/acerca" onClick={() => setOpen(false)}>Acerca de</Link>
+          </li>
+          <li>
+            <Link href="/productos" onClick={() => setOpen(false)}>Productos</Link>
+          </li>
+          <li>
+            <Link href="/contacto" onClick={() => setOpen(false)}>Contacto</Link>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
 }
