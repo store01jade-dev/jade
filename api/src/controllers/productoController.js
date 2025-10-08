@@ -94,73 +94,67 @@ export const crearProducto = async (req, res) => {
 // --- FUNCIÓN SIMULADA DE SUBIDA ---
 // Esta función reemplaza la lógica de subida a Cloudinary/S3, 
 // devolviendo URLs simuladas y metadatos.
-const subirImagenesSimuladas = (files) => {
-    return files.map((file, index) => {
-        // En producción, la URL real vendría de la respuesta del servicio en la nube.
-        const url = `https://miserviciodealmacenamiento.com/productos/${Date.now()}_${file.originalname.replace(/\s/g, '_')}`;
-        
-        return {
-            url: url,
-            principal: index === 0, // El primer archivo subido es la imagen principal
-            sort_order: index,
-        };
-    });
-};
-// ----------------------------------
-
-// Crear un producto con imágenes asociadas
+// Crear un producto con VARIANTE (usando include de Sequelize) e IMÁGENES (separado)
 export const crearProducto = async (req, res) => {
-    // 1. Obtener datos y archivos
-    const { name, description, price, stock, variantes } = req.body;
-    const files = req.files; // <-- Archivos binarios de Multer
+    // Asegúrate de leer 'variantes' del cuerpo
+    const { 
+        nombre, descripcion, precio, stock, categoria_id, 
+        variantes // <-- LEER EL CAMPO VARIANTE
+    } = req.body;
+    const files = req.files; 
 
+    // Usaremos un objeto simple para el producto principal (sin variantes ni imágenes aún)
+    const datosProducto = {
+        nombre, 
+        descripcion, 
+        precio: parseFloat(precio), 
+        activo: activo === 'true', // CRÍTICO: Convertir el string 'true'/'false' de FormData a booleano
+        categoria_id: parseInt(categoria_id),
+        // CRÍTICO: El array de variantes DEBE estar en el objeto principal
+        variantes: variantes ? JSON.parse(variantes) : [] 
+    };
+    
+    // Si usas tu sintaxis de Sequelize, la transacción será implícita
+    // Nota: Asegúrate de que las propiedades (talla, color, etc.) coincidan con el modelo VarianteProducto.
     try {
-        // Validación básica (puedes expandirla)
-        if (!name || !price) {
-            return res.status(400).json({ error: "Faltan campos obligatorios (nombre, precio)." });
-        }
-
-        // 2. Crear el Producto principal (Sin imágenes por ahora)
-        const nuevoProducto = await Producto.create({ 
-            name, 
-            description, 
-            price: parseFloat(price), 
-            stock: parseInt(stock) 
+        // 1. CREAR PRODUCTO Y VARIANTES SIMULTÁNEAMENTE usando 'include'
+        const nuevoProducto = await Producto.create(datosProducto, {
+            // Asegúrate de que esta asociación 'as: "variantes"' sea la que definiste en tu modelo.
+            include: [{ model: VarianteProducto, as: "variantes" }] 
         });
 
-        // 3. Procesar y Asociar Imágenes
-        if (files && files.length > 0) {
-            
-            // a) Obtener datos de URL simuladas
-            const imagenData = subirImagenesSimuladas(files);
+        const nuevoProductoId = nuevoProducto.id;
 
-            // b) Preparar datos para la inserción masiva (bulkCreate)
+        // 2. Procesar y Asociar Imágenes (Lógica Asíncrona)
+        if (files && files.length > 0) {
+            // Sube las imágenes (simulado)
+            const imagenData = subirImagenesSimuladas(files);
+            
             const imagenesParaGuardar = imagenData.map(img => ({
                 ...img,
-                producto_id: nuevoProducto.id, // Enlaza con el ID del producto recién creado
+                producto_id: nuevoProductoId,
             }));
-
-            // c) Guardar todas las imágenes en la base de datos
+            
+            // Guardar en la tabla de imágenes (ESTE paso requiere una conexión/transacción separada o implícita)
             await ProductoImagen.bulkCreate(imagenesParaGuardar);
         }
 
-        // 4. Procesar y Asociar Variantes (Si decides implementarlo)
-        // La lógica de variantes es compleja ya que req.body está codificado como string
-        // en FormData, necesitarías: JSON.parse(variantes). Por ahora lo omitimos.
-
-
-        // 5. Devolver la respuesta completa
-        const productoFinal = await Producto.findByPk(nuevoProducto.id, {
-             // Asegúrate de que esta inclusión esté definida en tus asociaciones de Sequelize
-             include: [{ model: ProductoImagen, as: 'imagenes' }] 
+        // 3. Devolver la respuesta completa
+        const productoFinal = await Producto.findByPk(nuevoProductoId, {
+             include: [
+                 { model: ProductoImagen, as: 'imagenes' }, 
+                 { model: VarianteProducto, as: 'variantes' }
+             ] 
         });
 
         res.status(201).json(productoFinal);
 
     } catch (error) {
-        console.error("Error al crear producto con imágenes:", error);
-        // Si hay un error, puedes considerar eliminar el producto si ya se creó (transacción)
-        res.status(500).json({ error: "Error interno al crear el producto" });
+        // Si falla la creación, Sequelize intenta el rollback del producto/variantes.
+        // Si falla la subida de imágenes, el producto/variantes ya se crearon. 
+        // Se recomienda usar transacciones explícitas aquí si la creación de imágenes no está acoplada al ORM.
+        console.error("Error al crear producto con imágenes/variantes:", error);
+        res.status(500).json({ error: "Error interno al crear el producto. Revisar log del servidor." });
     }
 };
 
