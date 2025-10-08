@@ -182,7 +182,7 @@ export const crearProducto = async (req, res) => {
 //  PUT /api/v1/productos/:id
 //  - Actualizar un producto existente.
 
-export const updateProducto = async (req, res) => {
+export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
     const { 
         nombre, descripcion, precio, categoria_id, activo, 

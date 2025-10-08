@@ -51,7 +51,7 @@ router.get("/:id", obtenerProducto);
 
 // Rutas protegidas (solo admin o dev pueden modificar productos)
 router.post("/", authMiddleware, authorizeRoles("admin", "dev"), upload, crearProducto);
-router.put("/:id", authMiddleware, authorizeRoles("admin", "dev"), actualizarProducto);
+router.put("/:id", authMiddleware, authorizeRoles("admin", "dev"),upload, actualizarProducto);
 router.delete("/:id", authMiddleware, authorizeRoles("admin", "dev"), eliminarProducto);
 
 export default router;
