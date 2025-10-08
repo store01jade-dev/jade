@@ -1,174 +1,252 @@
 'use client';
 
-import ProtectedRoute from '../../../../../components/auth/ProtectedRoute';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../../../../context/AuthContext'; // Para obtener el token
-import { FaSave, FaArrowLeft } from 'react-icons/fa'; // Iconos
+import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from '../../../../../context/AuthContext';
+import ProtectedRoute from '../../../../../components/auth/ProtectedRoute'; 
+import VariantesInput from '../../../../../app/admin/variantes/VariantesInput'; 
+import style from '../../nuevo/NuevoProducto.module.css'; // Reutilizamos los estilos
 
-// El componente recibe los parámetros de la ruta, incluido el ID
-function EditProductContent({ params }) {
-    const productId = params.id;
+const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+
+function EditProductContent() {
     const router = useRouter();
+    const params = useParams(); // Para obtener el ID de la URL
     const { token } = useAuth();
+    const productId = params.id; // ID del producto a editar
+
+    const [categories, setCategories] = useState([]);
+    const [originalImages, setOriginalImages] = useState([]); // Imágenes que ya están en la DB
+    const [selectedFiles, setSelectedFiles] = useState([]); // Nuevas imágenes a subir
     
+    // Estado inicial que cargaremos con los datos del producto
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stock: '',
+        nombre: '', 
+        descripcion: '', 
+        precio: '', 
+        categoria_id: '', 
+        activo: true,
+        variantes: [],
     });
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const API_URL = `http://localhost:4000/api/productos/${productId}`; // Ruta específica
+    const API_URL_PRODUCTO = `${API_BASE_URL}/productos/${productId}`;
+    const API_URL_CATEGORIAS = `${API_BASE_URL}/categorias`;
 
-    // ----------------------------------------------------
-    // 1. CARGAR DATOS DEL PRODUCTO EXISTENTE (GET)
-    // ----------------------------------------------------
+    // ------------------------------------------------------------------
+    // 1. CARGA INICIAL: Producto y Categorías
+    // ------------------------------------------------------------------
     useEffect(() => {
         if (!token || !productId) return;
-        
-        const fetchProduct = async () => {
+
+        const fetchData = async () => {
+            setError(null);
+            setIsLoading(true);
             try {
-                const response = await fetch(API_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+                // Fetch de Categorías
+                const [productRes, categoriesRes] = await Promise.all([
+                    fetch(API_URL_PRODUCTO, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(API_URL_CATEGORIAS, { headers: { 'Authorization': `Bearer ${token}` } }),
+                ]);
 
-                const data = await response.json();
+                const productData = await productRes.json();
+                const categoriesData = await categoriesRes.json();
 
-                if (response.ok) {
-                    // Cargar los datos en el estado del formulario
-                    setFormData({
-                        name: data.name || '',
-                        description: data.description || '',
-                        price: data.price || '',
-                        stock: data.stock || '',
-                    });
-                } else {
-                    setError(data.message || 'No se pudo cargar el producto.');
+                if (!categoriesRes.ok) {
+                    throw new Error(categoriesData.message || 'Error al cargar categorías.');
                 }
+                setCategories(categoriesData);
+
+                if (!productRes.ok) {
+                    throw new Error(productData.message || 'Error al cargar el producto.');
+                }
+                
+                // CRÍTICO: Mapear los datos de la DB al estado del formulario
+                setFormData({
+                    nombre: productData.nombre || '',
+                    descripcion: productData.descripcion || '',
+                    precio: parseFloat(productData.precio) || 0,
+                    categoria_id: productData.categoria_id || (categoriesData.length > 0 ? categoriesData[0].id : ''),
+                    activo: productData.activo || false,
+                    // Asegúrate de que las variantes existan y sean un array
+                    variantes: productData.variantes || [], 
+                });
+                
+                // Guardar imágenes originales para mostrarlas
+                setOriginalImages(productData.imagenes || []); 
+
             } catch (err) {
-                setError('Error de conexión al cargar el producto.');
+                console.error("Error en fetchData:", err.message);
+                setError(err.message || 'Error de conexión al cargar datos.');
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchProduct();
-    }, [token, productId, API_URL]); // Se ejecuta al obtener el token y el id
-
+        fetchData();
+    }, [token, productId]);
+    
+    // ------------------------------------------------------------------
+    // 2. MANEJADORES DE ESTADO (Reutilizados de crearProducto)
+    // ------------------------------------------------------------------
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        
+        let newValue;
+        if (type === 'checkbox') {
+            newValue = checked; 
+        } else if (name === 'precio' || name === 'categoria_id') {
+            // Manejamos precio y categoria_id como números
+            newValue = name === 'categoria_id' ? parseInt(value) : parseFloat(value);
+        } else {
+            newValue = value;
+        }
+
+        setFormData(prev => ({ ...prev, [name]: newValue }));
     };
 
-    // ----------------------------------------------------
-    // 2. ACTUALIZAR PRODUCTO (PUT/PATCH)
-    // ----------------------------------------------------
+    const handleFileChange = (e) => {
+        // Al editar, esto añade nuevas imágenes a la cola
+        setSelectedFiles(Array.from(e.target.files));
+    };
+
+    // Función para eliminar una imagen que ya existe en la DB (Opcional)
+    const handleRemoveOriginalImage = (imageId) => {
+        // Lógica de eliminación de imagen. Esto requeriría un nuevo endpoint: DELETE /api/v1/productos/:id/imagenes/:imageId
+        alert(`Implementar endpoint DELETE para la imagen ID: ${imageId}`);
+    };
+
+    // ------------------------------------------------------------------
+    // 3. SUBMIT DEL FORMULARIO (Actualización)
+    // ------------------------------------------------------------------
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
-        if (!token) {
-            setError("Error: Token de autenticación no disponible.");
-            setIsSubmitting(false);
-            return;
-        }
+        // ... (Validaciones) ...
 
         try {
-            // Usamos 'PUT' o 'PATCH' dependiendo de tu API (PUT es común para reemplazo total)
-            const response = await fetch(API_URL, {
+            const dataToUpload = new FormData();
+            
+            // 1. Agregar datos del producto (con la corrección para 'activo' y 'variantes')
+            Object.keys(formData).forEach(key => {
+                if (key === 'variantes') {
+                    // Stringify el array de variantes
+                    dataToUpload.append(key, JSON.stringify(formData[key])); 
+                } else if (key === 'activo') {
+                    // Convertir booleano a string para FormData
+                    dataToUpload.append(key, formData[key].toString()); 
+                } else {
+                    dataToUpload.append(key, formData[key]);
+                }
+            });
+
+            // 2. Agregar los archivos de imágenes (nuevos)
+            selectedFiles.forEach((file) => {
+                dataToUpload.append(`images`, file); 
+            });
+            
+            // 3. CRÍTICO: Usar el método PUT para actualizar
+            const response = await fetch(API_URL_PRODUCTO, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`, 
                 },
-                body: JSON.stringify(formData),
+                body: dataToUpload, 
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 alert('Producto actualizado exitosamente!');
-                router.push('/admin/productos'); // Redirigir a la lista
+                router.push('/admin/productos');
             } else {
                 setError(data.message || 'Error al actualizar el producto.');
             }
         } catch (err) {
-            console.error('Error de conexión:', err);
+            console.error('Update error:', err);
             setError('No se pudo conectar con el servidor.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    if (isLoading) return <div style={loadingStyle}>Cargando datos del producto...</div>;
-    if (error && !isSubmitting) return <div style={errorStyle}>Error: {error}</div>;
+    if (isLoading) return <div className={style.container} style={{textAlign: 'center'}}>Cargando datos del producto...</div>;
+    
+    if (error && !isSubmitting) return <div className={`${style.container} ${style.error}`}>Error al cargar: {error}</div>;
 
+    // ------------------------------------------------------------------
+    // 4. Renderizado del Formulario (Similar a crearProducto)
+    // ------------------------------------------------------------------
     return (
-        <div style={containerStyle}>
-            <button onClick={() => router.push('/admin/productos')} style={backButtonStyle}>
-                <FaArrowLeft style={{ marginRight: '5px' }} /> Volver a Productos
-            </button>
-            <h1 style={headingStyle}>Editar Producto: {formData.name || productId}</h1>
+        <div className={style.container}> 
+            <h1 className={style.heading}>Editar Producto ID: {productId}</h1>
             
-            {error && <p style={formErrorStyle}>{error}</p>}
+            {error && <p className={style.error}>{error}</p>}
             
-            <form onSubmit={handleSubmit} style={formStyle}>
+            <form onSubmit={handleSubmit} className={style.form}> 
                 
-                <label style={labelStyle}>
-                    Nombre:
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required style={inputStyle} />
+                {/* CATEGORÍA */}
+                <label className={style.label}>
+                    Categoría:
+                    <select name="categoria_id" value={formData.categoria_id} onChange={handleChange} required className={style.select}> 
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                        ))}
+                    </select>
                 </label>
 
-                <label style={labelStyle}>
-                    Descripción:
-                    <textarea name="description" value={formData.description} onChange={handleChange} required rows="4" style={inputStyle}></textarea>
+                {/* NOMBRE, DESCRIPCIÓN, PRECIO */}
+                {/* ... (Usar campos name="nombre", name="descripcion", name="precio") ... */}
+
+                {/* ACTIVO/VISIBLE */}
+                <label className={style.checkboxLabel}> 
+                    <input type="checkbox" name="activo" checked={formData.activo} onChange={handleChange} className={style.checkboxInput} />
+                    Producto Activo / Visible
                 </label>
 
-                <label style={labelStyle}>
-                    Precio ($):
-                    <input type="number" name="price" value={formData.price} onChange={handleChange} required min="0.01" step="0.01" style={inputStyle} />
-                </label>
+                {/* VARIANTES INPUT */}
+                <VariantesInput 
+                    variantes={formData.variantes} 
+                    setVariantes={(v) => setFormData(prev => ({ ...prev, variantes: v }))} 
+                />
+                
+                {/* IMÁGENES EXISTENTES (Para referencia y eliminación) */}
+                <div style={{marginBottom: '20px', borderTop: '1px solid #eee', paddingTop: '15px'}}>
+                    <h3 style={{marginBottom: '10px'}}>Imágenes Actuales ({originalImages.length})</h3>
+                    {originalImages.map(img => (
+                        <div key={img.id} style={{display: 'inline-block', marginRight: '10px'}}>
+                            {/*  // Descomentar si usas un servicio */}
+                            <img src={img.url} alt={`Imagen ${img.id}`} width="100" height="100" style={{objectFit: 'cover'}} />
+                            <button type="button" onClick={() => handleRemoveOriginalImage(img.id)} style={{color: 'red', border: 'none', background: 'none', cursor: 'pointer'}}>X</button>
+                        </div>
+                    ))}
+                </div>
 
-                <label style={labelStyle}>
-                    Stock:
-                    <input type="number" name="stock" value={formData.stock} onChange={handleChange} required min="0" style={inputStyle} />
+                {/* NUEVAS IMÁGENES */}
+                <label className={style.label}>
+                    Cargar Nuevas Imágenes:
+                    <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" className={style.input} />
+                    <small style={{ color: '#666', marginTop: '5px' }}>{selectedFiles.length} archivo(s) nuevo(s) en cola.</small>
                 </label>
-
-                <button type="submit" disabled={isSubmitting} style={buttonStyle}>
-                    <FaSave style={{ marginRight: '8px' }} />
-                    {isSubmitting ? 'Guardando Cambios...' : 'Guardar Cambios'}
+                
+                {/* BOTÓN DE SUBMIT */}
+                <button type="submit" disabled={isSubmitting} className={style.button}>
+                    {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
             </form>
         </div>
     );
 }
 
-// --- Estilos ---
-const containerStyle = { padding: '40px', maxWidth: '800px', margin: '0 auto' };
-const headingStyle = { marginBottom: '30px', borderBottom: '2px solid #eee', paddingBottom: '10px' };
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '20px', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' };
-const labelStyle = { display: 'flex', flexDirection: 'column', fontWeight: 'bold' };
-const inputStyle = { padding: '12px', marginTop: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px' };
-const buttonStyle = { padding: '15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const backButtonStyle = { padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center' };
-const loadingStyle = { textAlign: 'center', padding: '100px', fontSize: '1.2rem', color: '#007bff' };
-const errorStyle = { color: 'red', textAlign: 'center', padding: '50px', border: '1px solid red', backgroundColor: '#fee' };
-const formErrorStyle = { color: 'red', border: '1px solid red', padding: '10px', borderRadius: '4px', marginBottom: '15px' };
-
-
-export default function EditProductPage({ params }) {
+export default function EditProductPage() {
     return (
         <ProtectedRoute requiredRole="admin">
-            {/* Pasamos los parámetros de la ruta al componente hijo */}
-            <EditProductContent params={params} />
+            <EditProductContent />
         </ProtectedRoute>
     );
 }

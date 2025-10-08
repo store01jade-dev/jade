@@ -1,0 +1,77 @@
+/* app/admin/productos/nuevo/NewProduct.module.css */
+
+.container {
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.heading {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.input, .select, .textarea {
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.checkboxLabel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.checkboxInput {
+    width: auto;
+}
+
+.button {
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.error {
+    color: red;
+    border: 1px solid red;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}

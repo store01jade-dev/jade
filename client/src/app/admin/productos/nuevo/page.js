@@ -3,8 +3,9 @@
 import ProtectedRoute from '../../../../components/auth/ProtectedRoute';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// Asumimos que tienes un hook o una función para obtener el JWT del Admin
-import { useAuth } from '../../../../context/AuthContext'; 
+import { useAuth } from '../../../../context/AuthContext';
+import style from "./NuevoProducto.module.css"; 
+import VariantesInput from '../../variantes/VariantesInput';
 
 // Componente para la lógica del formulario
 function NewProductContent() {
@@ -18,11 +19,12 @@ function NewProductContent() {
     
     
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stock: '',
+        nombre: '',
+        descripcion: '',
+        precio: '',
+        activo: true,
         categoria_id: '', // <-- Campo para el ID de la categoría
+        variantes: [],
     });
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,9 +75,17 @@ function NewProductContent() {
     // MANEJADORES DE ESTADO
     // ------------------------------------------------------------------
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        // Convertir a número si es necesario para campos numéricos/ID
-        const newValue = (name === 'price' || name === 'stock' || name === 'categoria_id') ? (name === 'categoria_id' ? parseInt(value) : parseFloat(value)) : value;
+        const { name, value, type, checked } = e.target;
+        
+        let newValue;
+        if (type === 'checkbox') {
+            newValue = checked; // Para el campo 'activo'
+        } else if (name === 'precio' || name === 'categoria_id') {
+            newValue = name === 'categoria_id' ? parseInt(value) : parseFloat(value);
+        } else {
+            newValue = value;
+        }
+
         setFormData(prev => ({ ...prev, [name]: newValue }));
     };
 
@@ -175,7 +185,14 @@ function NewProductContent() {
             // 1. Agregar los datos del producto (incluye categoria_id)
             Object.keys(formData).forEach(key => {
                 // El campo categoria_id debe ser un número para FormData
-                dataToUpload.append(key, formData[key]);
+                if (key === 'variantes') {
+                    dataToUpload.append(key, JSON.stringify(formData[key])); 
+                } else if (key === 'activo') {
+                    // CRÍTICO: Convertir el booleano a string ('true' o 'false') para FormData
+                    dataToUpload.append(key, formData[key].toString()); 
+                } else {
+                    dataToUpload.append(key, formData[key]);
+                }
             });
 
             // 2. Agregar los archivos de imágenes
@@ -217,90 +234,81 @@ function NewProductContent() {
     }
 
     return (
-        <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
-            <h1 style={{ marginBottom: '20px' }}>Crear Nuevo Producto</h1>
+        <div className={style.container}> {/* Aplicar clase container */}
+            <h1 className={style.heading}>Crear Nuevo Producto</h1> {/* Aplicar clase heading */}
             
-            {error && <p style={{ color: 'red', border: '1px solid red', padding: '10px' }}>{error}</p>}
+            {error && <p className={style.error}>{error}</p>} {/* Aplicar clase error */}
             
-            <form onSubmit={handleSubmit} style={formStyle}>
-
-                {/* --- NUEVO CAMPO DE CATEGORÍA --- */}
-                <label style={labelStyle}>
+            <form onSubmit={handleSubmit} className={style.form}> {/* Aplicar clase form */}
+                
+                {/* CATEGORÍA */}
+                <label className={style.label}>
                     Categoría:
                     <select 
                         name="categoria_id" 
                         value={formData.categoria_id} 
                         onChange={handleChange} 
                         required 
-                        style={inputStyle}
-                    >
-                        {categories.length === 0 ? (
-                            <option value="">No hay categorías disponibles</option>
-                        ) : (
-                            categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.nombre}
-                                </option>
-                            ))
-                        )}
+                        className={style.select} > {/* Aplicar clase select */}
+                    
+                        {/* ... options ... */}
                     </select>
                 </label>
-                {/* --------------------------------- */}
-                
-                <label style={labelStyle}>
+
+                {/* NOMBRE */}
+                <label className={style.label}>
                     Nombre:
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required style={inputStyle} />
+                    <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required className={style.input} />
                 </label>
 
-                <label style={labelStyle}>
+                {/* DESCRIPCIÓN */}
+                <label className={style.label}>
                     Descripción:
-                    <textarea name="description" value={formData.description} onChange={handleChange} required rows="4" style={inputStyle}></textarea>
+                    <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} required rows="4" className={style.input}></textarea>
                 </label>
 
-                <label style={labelStyle}>
+                {/* PRECIO */}
+                <label className={style.label}>
                     Precio ($):
-                    <input type="number" name="price" value={formData.price} onChange={handleChange} required min="0.01" step="0.01" style={inputStyle} />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} required min="0.01" step="0.01" className={style.input} />
                 </label>
 
-                <label style={labelStyle}>
-                    Stock:
-                    <input type="number" name="stock" value={formData.stock} onChange={handleChange} required min="0" style={inputStyle} />
-                </label>
-
-                {/* --- NUEVO CAMPO DE CARGA DE IMÁGENES --- */}
-                <label style={labelStyle}>
-                    Imágenes del Producto:
+                {/* ACTIVO/VISIBLE */}
+                <label className={style.checkboxLabel}> {/* Aplicar clase checkboxLabel */}
                     <input 
-                        type="file" 
-                        name="images" 
-                        onChange={handleFileChange} 
-                        multiple // Permite seleccionar varios archivos
-                        accept="image/*" // Solo acepta archivos de imagen
-                        style={inputStyle} 
-                    />
+                        type="checkbox" 
+                        name="activo" 
+                        checked={formData.activo} 
+                        onChange={handleChange} 
+                        className={style.checkboxInput} />{/* Aplicar clase checkboxInput */}
+
+                    Producto Activo / Visible
+                </label>
+
+                {/* VARIANTES INPUT - (Este componente VariantesInput.js también debería usar CSS Modules) */}
+                <VariantesInput
+                    variantes={formData.variantes} 
+                    setVariantes={(v) => setFormData(prev => ({ ...prev, variantes: v }))}  
+                />
+                
+                {/* IMÁGENES */}
+                <label className={style.label}>
+                    Imágenes del Producto:
+                    <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" className={style.input} />
                     <small style={{ color: '#666', marginTop: '5px' }}>
                         {selectedFiles.length} archivo(s) seleccionado(s).
-                        (El primer archivo se considerará la imagen principal)
                     </small>
                 </label>
-                {/* ------------------------------------------ */}
-
-                <button type="submit" disabled={isSubmitting} style={buttonStyle}>
-                    {isSubmitting ? 'Guardando...' : 'Crear Producto'}
+                
+                {/* BOTÓN DE SUBMIT */}
+                <button type="submit" disabled={isSubmitting} className={style.button}>
+                    {isSubmitting ? 'Creando...' : 'Crear Producto'}
                 </button>
             </form>
         </div>
     );
 }
 
-// ... (Exportaciones y estilos)
-const containerStyle = { padding: '40px', maxWidth: '800px', margin: '0 auto' };
-const headingStyle = { marginBottom: '30px', borderBottom: '2px solid #eee', paddingBottom: '10px' };
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '20px', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' };
-const labelStyle = { display: 'flex', flexDirection: 'column', fontWeight: 'bold' };
-const inputStyle = { padding: '12px', marginTop: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px' };
-const buttonStyle = { padding: '15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const formErrorStyle = { color: 'red', border: '1px solid red', padding: '10px', borderRadius: '4px', marginBottom: '15px' };
 
 
 export default function NewProductPage() {
