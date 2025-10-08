@@ -159,7 +159,7 @@ export const crearProducto = async (req, res) => {
 };
 
 //Actualizar producto
-export const actualizarProducto = async (req, res) => {
+/*export const actualizarProducto = async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, descripcion, categoria_id } = req.body;
@@ -177,6 +177,83 @@ export const actualizarProducto = async (req, res) => {
     console.error("Error al actualizar producto:", error);
     res.status(500).json({ error: "Error interno al actualizar producto" });
   }
+};*/
+
+//  PUT /api/v1/productos/:id
+//  - Actualizar un producto existente.
+
+export const updateProducto = async (req, res) => {
+    const { id } = req.params;
+    const { 
+        nombre, descripcion, precio, categoria_id, activo, 
+        variantes // JSON string de variantes
+    } = req.body;
+    const files = req.files; 
+    let transaction;
+
+    try {
+        transaction = await Producto.sequelize.transaction();
+        
+        const producto = await Producto.findByPk(id, { transaction });
+        if (!producto) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "Producto no encontrado para actualizar." });
+        }
+
+        // 1. Actualizar campos principales del Producto
+        await producto.update({
+            nombre,
+            descripcion,
+            precio: parseFloat(precio),
+            categoria_id: parseInt(categoria_id),
+            activo: activo === 'true',
+        }, { transaction });
+
+        // 2. Actualizar/Reemplazar Variantes
+        if (variantes) {
+            const variantesArray = JSON.parse(variantes);
+
+            // Opción Segura: Eliminar todas las variantes antiguas y crear las nuevas
+            await VarianteProducto.destroy({ where: { producto_id: id }, transaction });
+            
+            if (variantesArray.length > 0) {
+                const nuevasVariantes = variantesArray.map(v => ({
+                    ...v,
+                    producto_id: id,
+                }));
+                await VarianteProducto.bulkCreate(nuevasVariantes, { transaction });
+            }
+        }
+        
+        // 3. Subir y Asociar Nuevas Imágenes (No borramos las antiguas aquí, solo añadimos)
+        if (files && files.length > 0) {
+            const imagenData = subirImagenesSimuladas(files); // Usa tu función simulada
+            const imagenesParaGuardar = imagenData.map(img => ({
+                ...img,
+                producto_id: id,
+            }));
+            await ProductoImagen.bulkCreate(imagenesParaGuardar, { transaction });
+        }
+
+        // 4. Commit de la Transacción
+        await transaction.commit();
+
+        // 5. Devolver el producto actualizado
+        const productoFinal = await Producto.findByPk(id, {
+             include: [
+                 { model: ProductoImagen, as: 'imagenes' }, 
+                 { model: VarianteProducto, as: 'variantes' },
+                 { model: Categoria, as: 'Categoria' }
+             ] 
+        });
+
+        res.json(productoFinal); // 200 OK
+
+    } catch (error) {
+        if (transaction) await transaction.rollback();
+        console.error(" Error al actualizar producto:", error);
+        res.status(500).json({ error: "Error interno al actualizar el producto." });
+    }
 };
 
 // Eliminar producto
