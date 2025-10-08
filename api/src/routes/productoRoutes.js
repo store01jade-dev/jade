@@ -41,13 +41,13 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/roleMiddleware.js";
-import upload from "../middlewares/upload.js"
+import  upload  from "../middlewares/upload.js"
 
 const router = express.Router();
 
 // Rutas públicas
 router.get("/", listarProductos);
-router.get("/:id", obtenerProducto);
+router.get("/:id",upload, obtenerProducto);
 
 // Rutas protegidas (solo admin o dev pueden modificar productos)
 router.post("/", authMiddleware, authorizeRoles("admin", "dev"), upload, crearProducto);
