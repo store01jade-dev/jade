@@ -1,0 +1,99 @@
+/* app/login/login.module.css */
+
+.loginContainer {
+    max-width: 450px; /* Aumentamos el ancho ligeramente */
+    margin: 60px auto;
+    padding: 40px;
+    background-color: #ffffff; /* Fondo blanco para contraste */
+    border-radius: 12px; /* Esquinas más suaves */
+    /* Sombra más profunda para darle volumen */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); 
+    text-align: center;
+    border: 1px solid #eee; /* Borde muy sutil */
+}
+
+.loginTitle {
+    color: var(--background-dark);
+    margin-bottom: 30px;
+    font-size: 28px; /* Título más prominente */
+    font-weight: 600;
+    font-family: var(--font-title);
+}
+
+.errorMessage {
+    /* Mantenemos el estilo de error */
+    background-color: #ffe6e6; 
+    color: #cc0000;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #ff9999;
+}
+
+/* app/login/login.module.css */
+
+.formGroup {
+    text-align: left;
+    margin-bottom: 20px; /* Más espacio entre campos */
+    font-family: var(--font-text);
+
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500; /* Menos negrita */
+    color: var(--background-dark);
+    font-size: 14px;
+}
+
+.formGroup input {
+    width: 100%;
+    padding: 12px 15px; /* Más padding para que se vea más grande */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+    border-color: #3f51b5; /* Un color de enfoque agradable (ej. Azul/Púrpura) */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+.loginForm button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--background-dark); /* Color primario fuerte (puedes cambiarlo a tu color de marca) */
+    color: var(--background-light);
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-top: 15px;
+}
+
+.loginForm button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-1px); /* Efecto 3D sutil */
+}
+
+.loginForm button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.registerLink {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+.registerLink a {
+    color: var(--background-dark); /* El mismo color del botón */
+    font-weight: bold;
+    text-decoration: none;
+}

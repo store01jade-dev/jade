@@ -64,14 +64,19 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ error: "Credenciales invalidas" });
         }
 
+        // Obtener los datos planos del usuario
+        const userData = usuario.toJSON(); // <-- ¡CRÍTICO: Convierte la instancia a un objeto JS plano!
+        //console.log("Datos del usuario para firmar JWT:", userData); 
+
         //Crear token JWT para autenticacion 
         const token = jwt.sign(
-            { id: usuario.id, rol: usuario.rol }, // Payload
+            { id: userData.id, rol: userData.rol }, // Payload
             process.env.JWTSECRET || "Secreto dev", // Clave secreta
             { expiresIn: "1h" }  //tiempo en el que expira
         );
 
-        res.json({ mesaage: "Login existoso", token});
+        //res.json({ mesaage: "Login existoso", token});
+        return res.status(200).json({ token });
     } catch (error) {
         console.error("Error en LoginUser: ", error);
         res.status(500).json({ error: "Errror en el servidor"});

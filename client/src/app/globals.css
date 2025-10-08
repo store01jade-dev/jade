@@ -11,16 +11,18 @@
 
 html {
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  padding: 0; 
+  height: 100%;
 }
 
 body {
   margin: 0; 
-  padding: 6px 12px;   /* margen superior/inferior 6px, laterales 12px */
+  padding: 0.5rem; 
   font-family: var(--font-text);
   background: #f1f5f9;
   color: #0f172a;
+  display: flex;
+  flex-direction: column;
 }
 
 h1,h2,h3,h4{

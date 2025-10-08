@@ -1,16 +1,21 @@
 .header {
   background: var(--background-dark);
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
   position: relative;
+  width: auto;
 }
 
-.logo img {
-  display: block;
+.log{
+  display: flex;
+}
+
+.log h1 {
+  color: var(--background-light);
 }
 
 /* --- Buscador (desktop) --- */
@@ -44,6 +49,11 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  font-family: var(--font-title);
+}
+
+.actions h1 {
+  color: var(--background-light);
 }
 
 /* Lupa extra (solo móvil) */

@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   text-align: center;
-  padding: 1rem;
+  padding: 0.5rem;
   width: auto;  /* igual que el header */
   border-radius: 8px;
   font-family: var(--font-text);
