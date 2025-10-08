@@ -1,75 +1,3 @@
-//importamos el modelo de categoria
-/*import Categoria from "../models/Categoria.js";
-
-// crear categoria
-export const crearCategoria = async(req, res) => {
-    try {
-        const { nombre, imagen_url } = req.body; // recogemos nombre e imagen
-        //creamos la categoira en la BD
-        const categoria = await Categoria.create({ nombre, imagen_url });
-        res.status(201).json({ message: "Categoria creada ", categoria});
-    } catch (error) {
-        console.error("Error en crearCategoria: ", error);
-        res.status(201).json({ error: "Error al crear categoria" });
-    }
-};
-
-//listar categorias
-export const listarCategorias = async(req, res) => {
-    try {
-        const categorias = await Categoria.findAll();
-        res.json(categorias);
-    } catch (error) {
-        console.error("Error en listarCategorias: ", error);
-        res.status(500).json({ error: "Error al listar categorias" });
-    }
-};
-
-// Obtner una categoria por ID
-export const obtenerCategoria = async(req, res) => {
-    try {
-        const categoria = await Categoria.findByPk(req.params.id);
-        if(!categoria){
-            return res.status(401).json({ error: "Categoira no encontrada" });
-        }
-        req.json(categoria);
-    } catch (error) {
-        console.error("Error en obtenerCategoria: ", error);
-        res.status(500).json({ error: " Error al obtener categoria" });
-    }
-};
-
-// Actualizar una categoria
-export const actualizarCategoria = async (req, res) => {
-    try {
-        const categoria = await Categoria.findByPk(req.params.id);
-        if(!categoria){
-            return res.status(404).json({ error: "Categoria no encontrada" });
-        }
-        await categoria.update(req.boy);
-        res.json({ message: "Categoria actualizada", categoria });
-    } catch (error) {
-        console.error( "Error en la actualizarCategoria: ", error);
-        res.status(500).json({ error: "Error al actualizar categoria"})
-    }
-};
-
-// Eliminar categoria
-export const eliminarCategoria = async (req, res) => {
-    try {
-        const categoria = await Categoria.findByPk(req.params.id);
-        if(!categoria){
-            return res.status(404).json({ error: "Categoria no encontrada" });
-        }
-        await categoria.destroy();
-        res.json({ message: "Categoira eliminada" });
-    } catch (error) {
-        console.error("Error en eliminarCategoria:", error);
-        res.status(500).json({ error: "Error al eliminar categoria" });
-    }
-};*/
-
-// src/controllers/categoriaController.js
 
 // Importamos los modelos que necesitamos desde el index central de modelos.
 // Usamos desestructuring porque models/index.js exporta los modelos con nombre.
@@ -103,7 +31,7 @@ export const getCategorias = async (req, res) => {
     return res.json(categorias); // 200 implícito
   } catch (error) {
     // Log detallado en servidor para depuración
-    console.error("❌ Error en getCategorias:", error);
+    console.error("Error en getCategorias:", error);
     // Respuesta genérica al cliente (no exponer errores internos).
     return res.status(500).json({ message: "Error al obtener categorías" });
   }
@@ -129,7 +57,7 @@ export const getCategoriaById = async (req, res) => {
     // Devolver la categoría encontrada.
     return res.json(categoria); // 200
   } catch (error) {
-    console.error("❌ Error en getCategoriaById:", error);
+    console.error("Error en getCategoriaById:", error);
     return res.status(500).json({ message: "Error al obtener la categoría" });
   }
 };
@@ -177,7 +105,7 @@ export const createCategoria = async (req, res) => {
       return res.status(409).json({ message: "Ya existe una categoría con ese nombre" });
     }
 
-    console.error("❌ Error en createCategoria:", error);
+    console.error("Error en createCategoria:", error);
     return res.status(500).json({ message: "Error al crear la categoría" });
   }
 };
@@ -234,7 +162,7 @@ export const updateCategoria = async (req, res) => {
     // Responder con la categoría actualizada.
     return res.json(categoria);
   } catch (error) {
-    console.error("❌ Error en updateCategoria:", error);
+    console.error("Error en updateCategoria:", error);
     return res.status(500).json({ message: "Error al actualizar la categoría" });
   }
 };
@@ -272,7 +200,7 @@ export const deleteCategoria = async (req, res) => {
     // Responder éxito.
     return res.json({ message: "Categoría eliminada correctamente" });
   } catch (error) {
-    console.error("❌ Error en deleteCategoria:", error);
+    console.error("Error en deleteCategoria:", error);
     return res.status(500).json({ message: "Error al eliminar la categoría" });
   }
 };

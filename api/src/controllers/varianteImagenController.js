@@ -1,65 +1,7 @@
-/*import ProductoImagen  from "../models/ProductoImagen.js";
-
-// Crear imagen
-export async function createImagen(req, res) {
-  try {
-    const imagen = await ProductoImagen.create(req.body);
-    res.status(201).json(imagen);
-  } catch (error) {
-    res.status(500).json({ error: "Error al crear la imagen" });
-  }
-}
-
-// Listar imágenes
-export async function getImagenes(req, res) {
-  try {
-    const imagenes = await ProductoImagen.findAll();
-    res.json(imagenes);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener imágenes" });
-  }
-}
-
-// Obtener imagen por ID
-export async function getImagenById(req, res) {
-  try {
-    const imagen = await ProductoImagen.findByPk(req.params.id);
-    if (!imagen) return res.status(404).json({ error: "Imagen no encontrada" });
-    res.json(imagen);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener la imagen" });
-  }
-}
-
-// Actualizar imagen
-export async function updateImagen(req, res) {
-  try {
-    const imagen = await ProductoImagen.findByPk(req.params.id);
-    if (!imagen) return res.status(404).json({ error: "Imagen no encontrada" });
-
-    await imagen.update(req.body);
-    res.json(imagen);
-  } catch (error) {
-    res.status(500).json({ error: "Error al actualizar la imagen" });
-  }
-}
-
-// Eliminar imagen
-export async function deleteImagen(req, res) {
-  try {
-    const imagen = await ProductoImagen.findByPk(req.params.id);
-    if (!imagen) return res.status(404).json({ error: "Imagen no encontrada" });
-
-    await imagen.destroy();
-    res.json({ message: "Imagen eliminada correctamente" });
-  } catch (error) {
-    res.status(500).json({ error: "Error al eliminar la imagen" });
-  }
-}*/
 
 import { ProductoImagen, VarianteProducto } from "../models/index.js";
 
-// 📌 Listar todas las imágenes
+// Listar todas las imágenes
 export const listarImagenes = async (req, res) => {
   try {
     const imagenes = await ProductoImagen.findAll({
@@ -72,7 +14,7 @@ export const listarImagenes = async (req, res) => {
   }
 };
 
-// 📌 Obtener una imagen específica
+// Obtener una imagen específica
 export const obtenerImagen = async (req, res) => {
   try {
     const imagen = await ProductoImagen.findByPk(req.params.id, {
@@ -88,7 +30,7 @@ export const obtenerImagen = async (req, res) => {
   }
 };
 
-// 📌 Crear una imagen
+// Crear una imagen
 export const crearImagen = async (req, res) => {
   try {
     const { variante_id, url, principal } = req.body;
@@ -106,7 +48,7 @@ export const crearImagen = async (req, res) => {
   }
 };
 
-// 📌 Actualizar una imagen
+// Actualizar una imagen
 export const actualizarImagen = async (req, res) => {
   try {
     const { id } = req.params;
@@ -126,7 +68,7 @@ export const actualizarImagen = async (req, res) => {
   }
 };
 
-// 📌 Eliminar una imagen
+// Eliminar una imagen
 export const eliminarImagen = async (req, res) => {
   try {
     const { id } = req.params;

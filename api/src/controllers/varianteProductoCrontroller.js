@@ -1,67 +1,7 @@
-/*import VarianteProducto  from "../models/VarianteProducto.js";
-
-// Crear variante
-export async function createVariante(req, res) {
-  try {
-    const variante = await VarianteProducto.create(req.body);
-    res.status(201).json(variante);
-  } catch (error) {
-    res.status(500).json({ error: "Error al crear la variante" });
-  }
-}
-
-// Listar variantes
-export async function getVariantes(req, res) {
-  try {
-    const variantes = await VarianteProducto.findAll();
-    res.json(variantes);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener variantes" });
-  }
-}
-
-// Obtener variante por ID
-export async function getVarianteById(req, res) {
-  try {
-    const variante = await VarianteProducto.findByPk(req.params.id);
-    if (!variante) return res.status(404).json({ error: "Variante no encontrada" });
-    res.json(variante);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener variante" });
-  }
-}
-
-// Actualizar variante
-export async function updateVariante(req, res) {
-  try {
-    const variante = await VarianteProducto.findByPk(req.params.id);
-    if (!variante) return res.status(404).json({ error: "Variante no encontrada" });
-
-    await variante.update(req.body);
-    res.json(variante);
-  } catch (error) {
-    res.status(500).json({ error: "Error al actualizar variante" });
-  }
-}
-
-// Eliminar variante
-export async function deleteVariante(req, res) {
-  try {
-    const variante = await VarianteProducto.findByPk(req.params.id);
-    if (!variante) return res.status(404).json({ error: "Variante no encontrada" });
-
-    await variante.destroy();
-    res.json({ message: "Variante eliminada correctamente" });
-  } catch (error) {
-    res.status(500).json({ error: "Error al eliminar variante" });
-  }
-}*/
-
-// src/controllers/varianteController.js
 
 import { VarianteProducto, Producto, ProductoImagen } from "../models/index.js";
 
-// 📌 Listar todas las variantes
+// Listar todas las variantes
 export const listarVariantes = async (req, res) => {
   try {
     const variantes = await VarianteProducto.findAll({
@@ -77,7 +17,7 @@ export const listarVariantes = async (req, res) => {
   }
 };
 
-// 📌 Obtener una variante específica
+// Obtener una variante específica
 export const obtenerVariante = async (req, res) => {
   try {
     const variante = await VarianteProducto.findByPk(req.params.id, {
@@ -96,7 +36,7 @@ export const obtenerVariante = async (req, res) => {
   }
 };
 
-// 📌 Crear una variante
+// Crear una variante
 export const crearVariante = async (req, res) => {
   try {
     const { producto_id, sku, color, talla, precio, stock } = req.body;
@@ -117,7 +57,7 @@ export const crearVariante = async (req, res) => {
   }
 };
 
-// 📌 Actualizar una variante
+// Actualizar una variante
 export const actualizarVariante = async (req, res) => {
   try {
     const { id } = req.params;
@@ -139,7 +79,7 @@ export const actualizarVariante = async (req, res) => {
   }
 };
 
-// 📌 Eliminar una variante
+// Eliminar una variante
 export const eliminarVariante = async (req, res) => {
   try {
     const { id } = req.params;

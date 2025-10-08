@@ -41,6 +41,7 @@ import {
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/roleMiddleware.js";
+import upload from "../middlewares/upload.js"
 
 const router = express.Router();
 
@@ -49,7 +50,7 @@ router.get("/", listarProductos);
 router.get("/:id", obtenerProducto);
 
 // Rutas protegidas (solo admin o dev pueden modificar productos)
-router.post("/", authMiddleware, authorizeRoles("admin", "dev"), crearProducto);
+router.post("/", authMiddleware, authorizeRoles("admin", "dev"), upload, crearProducto);
 router.put("/:id", authMiddleware, authorizeRoles("admin", "dev"), actualizarProducto);
 router.delete("/:id", authMiddleware, authorizeRoles("admin", "dev"), eliminarProducto);
 

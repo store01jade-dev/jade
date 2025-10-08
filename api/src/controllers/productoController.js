@@ -1,108 +1,3 @@
-/*import Producto from "../models/Producto.js";
-import Categoria from "../models/Categoria.js";
-
-// Crear un producto
-export const createProducto = async (req, res) => {
-    try {
-        const { nombre, descripcion, precio, activo, categoria_id } = req.body;
-        
-        // Validar que exista la categoria
-        const categoria = await Categoria.findByPk(categoria_id);
-        if(!categoria){
-            return res.status(400).json({ message: "Lacategoria no existe"});
-        }
-
-        const producto = await Producto.create({
-            nombre,
-            descripcion,
-            precio,
-            activo,
-            categoria_id,
-        });
-
-        res.status(201).json({ message: "Produto creado con exito", producto });
-    } catch (error) {
-        console.error("Error en createProducto: ", error);
-        res.status(500).json({ message: "Error interno en el servidor" });
-    }
-};
-
-// Lsitar productos con su categoria
-export const listProductos = async (req, res) =>{
-    try {
-        const productos = await Producto.findAll({
-            include: {
-                model: Categoria,
-                as: "categoria",
-                attributes: ["id", "nombre"],
-            },
-        });
-
-        res.json(productos);
-    } catch (error) {
-        console.error("Error en listProductos ", error);
-        res.status(500).json({ message: "Error ineterno en el servidor"});
-    }
-};
-
-// Obtener productos
-export const getProducto = async(req, res) => {
-    try {
-        const { id } = req.params;
-        const producto = await Producto.findByPk(id, {
-            include: { 
-                model: Categoria, 
-                as: "categoria", 
-                attributes: ["id", "nombre"]
-            },
-        });
-        if(!producto){
-            return res.status(400).json({ error: "Producto no encontrado" });
-        }
-
-        res.json(producto);
-    } catch (error) {
-        console.error("Error en getProducto: ", error);
-        res.status(500).json({ message: "Error interno en el servidor"});
-    }
-};
-
-// actualizar producto
-export const updateProducto = async (req, res) =>{
-    try {
-        const { id } = req.params;
-        const { nombre, descripcion, precio, categoria_ad } = req.body;
-
-        const producto = await Producto.findByPk(id);
-        if(!producto) {
-            return res.status(404).json({ message: "Prodcto no encontrado" });
-        }
-
-        await producto.update({nombre, descripcion, precio, categoria_id });
-        res.json({message: "Prdroducto actualizado con exito", producto });
-    } catch (error) {
-        console.error("Error en updateProducto: ", error);
-        res.status(500).json({ message: "Error interno en l servidor" });
-    }
-};
-
-// Eliminar producto
-export const deleteProducto = async(req, res) => {
-    try {
-        const { id } = req.params;
-        const producto = await Producto.findByPk(id);
-
-        if (!producto){
-            return res.status(404).json({ message: "Producto no encontrado" });
-        }
-
-        await producto.destroy();
-        res.json({ message: "Producto eliminado con exito"});
-    } catch (error) {
-        console.error("Error en deleteProdcuto: ", error);
-        res.status(500).json({ message: "Error interno en el servidor" });
-    }
-};*/
 
 import {
   Producto,
@@ -111,7 +6,7 @@ import {
   ProductoImagen,
 } from "../models/index.js";
 
-// 📌 Listar todos los productos con categorías, variantes e imágenes
+// Listar todos los productos con categorías, variantes e imágenes
 export const listarProductos = async (req, res) => {
   try {
     const productos = await Producto.findAll({
@@ -145,7 +40,7 @@ export const listarProductos = async (req, res) => {
   }
 };
 
-// 📌 Obtener un producto específico con todos sus detalles
+// Obtener un producto específico con todos sus detalles
 export const obtenerProducto = async (req, res) => {
   try {
     const producto = await Producto.findByPk(req.params.id, {
@@ -173,7 +68,7 @@ export const obtenerProducto = async (req, res) => {
   }
 };
 
-// 📌 Crear un producto nuevo
+// Crear un producto nuevo
 /*export const crearProducto = async (req, res) => {
   try {
     const { nombre, descripcion, categoria_id, activo } = req.body;
@@ -183,7 +78,7 @@ export const obtenerProducto = async (req, res) => {
     console.error("Error al crear producto:", error);
     res.status(500).json({ error: "Error interno al crear producto" });
   }
-};*/
+};
 export const crearProducto = async (req, res) => {
   try {
     const producto = await Producto.create(req.body, {
@@ -194,9 +89,82 @@ export const crearProducto = async (req, res) => {
     console.error("Error al crear producto:", error);
     res.status(500).json({ error: "Error al crear producto" });
   }
+};*/
+
+// --- FUNCIÓN SIMULADA DE SUBIDA ---
+// Esta función reemplaza la lógica de subida a Cloudinary/S3, 
+// devolviendo URLs simuladas y metadatos.
+const subirImagenesSimuladas = (files) => {
+    return files.map((file, index) => {
+        // En producción, la URL real vendría de la respuesta del servicio en la nube.
+        const url = `https://miserviciodealmacenamiento.com/productos/${Date.now()}_${file.originalname.replace(/\s/g, '_')}`;
+        
+        return {
+            url: url,
+            principal: index === 0, // El primer archivo subido es la imagen principal
+            sort_order: index,
+        };
+    });
+};
+// ----------------------------------
+
+// Crear un producto con imágenes asociadas
+export const crearProducto = async (req, res) => {
+    // 1. Obtener datos y archivos
+    const { name, description, price, stock, variantes } = req.body;
+    const files = req.files; // <-- Archivos binarios de Multer
+
+    try {
+        // Validación básica (puedes expandirla)
+        if (!name || !price) {
+            return res.status(400).json({ error: "Faltan campos obligatorios (nombre, precio)." });
+        }
+
+        // 2. Crear el Producto principal (Sin imágenes por ahora)
+        const nuevoProducto = await Producto.create({ 
+            name, 
+            description, 
+            price: parseFloat(price), 
+            stock: parseInt(stock) 
+        });
+
+        // 3. Procesar y Asociar Imágenes
+        if (files && files.length > 0) {
+            
+            // a) Obtener datos de URL simuladas
+            const imagenData = subirImagenesSimuladas(files);
+
+            // b) Preparar datos para la inserción masiva (bulkCreate)
+            const imagenesParaGuardar = imagenData.map(img => ({
+                ...img,
+                producto_id: nuevoProducto.id, // Enlaza con el ID del producto recién creado
+            }));
+
+            // c) Guardar todas las imágenes en la base de datos
+            await ProductoImagen.bulkCreate(imagenesParaGuardar);
+        }
+
+        // 4. Procesar y Asociar Variantes (Si decides implementarlo)
+        // La lógica de variantes es compleja ya que req.body está codificado como string
+        // en FormData, necesitarías: JSON.parse(variantes). Por ahora lo omitimos.
+
+
+        // 5. Devolver la respuesta completa
+        const productoFinal = await Producto.findByPk(nuevoProducto.id, {
+             // Asegúrate de que esta inclusión esté definida en tus asociaciones de Sequelize
+             include: [{ model: ProductoImagen, as: 'imagenes' }] 
+        });
+
+        res.status(201).json(productoFinal);
+
+    } catch (error) {
+        console.error("Error al crear producto con imágenes:", error);
+        // Si hay un error, puedes considerar eliminar el producto si ya se creó (transacción)
+        res.status(500).json({ error: "Error interno al crear el producto" });
+    }
 };
 
-// 📌 Actualizar producto
+//Actualizar producto
 export const actualizarProducto = async (req, res) => {
   try {
     const { id } = req.params;
@@ -217,7 +185,7 @@ export const actualizarProducto = async (req, res) => {
   }
 };
 
-// 📌 Eliminar producto
+// Eliminar producto
 export const eliminarProducto = async (req, res) => {
   try {
     const { id } = req.params;
