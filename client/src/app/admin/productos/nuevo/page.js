@@ -1,7 +1,7 @@
 'use client';
 
 import ProtectedRoute from '../../../../components/auth/ProtectedRoute';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 // Asumimos que tienes un hook o una función para obtener el JWT del Admin
 import { useAuth } from '../../../../context/AuthContext'; 
@@ -9,22 +9,81 @@ import { useAuth } from '../../../../context/AuthContext';
 // Componente para la lógica del formulario
 function NewProductContent() {
     const router = useRouter();
-    // const { token } = useAuth(); // Necesitas el token para la ruta protegida
+    const { token } = useAuth(); // Necesitas el token para la ruta protegida
     // --- NUEVO ESTADO PARA MANEJAR ARCHIVOS ---
     const [selectedFiles, setSelectedFiles] = useState([]);
+    // --- NUEVOS ESTADOS PARA CATEGORÍAS ---
+    const [categories, setCategories] = useState([]);
+    const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+    
     
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
         stock: '',
+        categoria_id: '', // <-- Campo para el ID de la categoría
     });
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const API_BASE_URL = 'http://localhost:4000/api/v1'; // ¡Ajusta tu URL de Express!
 
-    const API_URL = 'http://localhost:4000/api/v1/productos'; // ¡Ajusta tu URL de Express!
+    // Endpoint de productos
+    const API_URL_PRODUCTOS = `${API_BASE_URL}/productos`; 
+    const API_URL_CATEGORIAS = `${API_BASE_URL}/categorias`; 
 
+    // ------------------------------------------------------------------
+    // FUNCIÓN PARA CARGAR CATEGORÍAS (CRUD: READ)
+    // ------------------------------------------------------------------
+    useEffect(() => {
+        if (!token) return;
+
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch(API_URL_CATEGORIAS, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    setCategories(data);
+                    // Opcional: Establecer una categoría por defecto si existen
+                    if (data.length > 0) {
+                        setFormData(prev => ({ ...prev, categoria_id: data[0].id }));
+                    }
+                } else {
+                    setError('Error al cargar categorías: ' + data.message);
+                }
+            } catch (err) {
+                setError('Error de conexión al cargar categorías.');
+            } finally {
+                setIsCategoriesLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, [token]); // Recarga cuando el token esté disponible
+    
+    // ------------------------------------------------------------------
+    // MANEJADORES DE ESTADO
+    // ------------------------------------------------------------------
     const handleChange = (e) => {
+        const { name, value } = e.target;
+        // Convertir a número si es necesario para campos numéricos/ID
+        const newValue = (name === 'price' || name === 'stock' || name === 'categoria_id') ? (name === 'categoria_id' ? parseInt(value) : parseFloat(value)) : value;
+        setFormData(prev => ({ ...prev, [name]: newValue }));
+    };
+
+    const handleFileChange = (e) => {
+        setSelectedFiles(Array.from(e.target.files));
+    };
+
+    /*const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -87,7 +146,75 @@ function NewProductContent() {
         } finally {
             setIsSubmitting(false);
         }
+    };*/
+
+    // ------------------------------------------------------------------
+    // SUBMIT DEL FORMULARIO
+    // ------------------------------------------------------------------
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+
+        if (!token) {
+            setError("Error: Token de autenticación no disponible.");
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Validación de categoría_id
+        if (!formData.categoria_id) {
+            setError("Debe seleccionar una categoría.");
+            setIsSubmitting(false);
+            return;
+        }
+
+        try {
+            const dataToUpload = new FormData();
+            
+            // 1. Agregar los datos del producto (incluye categoria_id)
+            Object.keys(formData).forEach(key => {
+                // El campo categoria_id debe ser un número para FormData
+                dataToUpload.append(key, formData[key]);
+            });
+
+            // 2. Agregar los archivos de imágenes
+            selectedFiles.forEach((file) => {
+                dataToUpload.append(`images`, file); 
+            });
+
+            const response = await fetch(API_URL_PRODUCTOS, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`, 
+                },
+                body: dataToUpload, 
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Producto creado exitosamente!');
+                router.push('/admin/productos');
+            } else {
+                setError(data.message || 'Error al crear el producto.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('No se pudo conectar con el servidor.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    // Si las categorías están cargando, mostramos un mensaje
+    if (isCategoriesLoading) {
+        return <div style={{ textAlign: 'center', padding: '100px' }}>Cargando categorías...</div>;
+    }
+
+    if (error && !isSubmitting) {
+        return <div style={{ color: 'red', textAlign: 'center', padding: '100px' }}>Error Crítico: {error}</div>;
+    }
 
     return (
         <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
@@ -96,6 +223,29 @@ function NewProductContent() {
             {error && <p style={{ color: 'red', border: '1px solid red', padding: '10px' }}>{error}</p>}
             
             <form onSubmit={handleSubmit} style={formStyle}>
+
+                {/* --- NUEVO CAMPO DE CATEGORÍA --- */}
+                <label style={labelStyle}>
+                    Categoría:
+                    <select 
+                        name="categoria_id" 
+                        value={formData.categoria_id} 
+                        onChange={handleChange} 
+                        required 
+                        style={inputStyle}
+                    >
+                        {categories.length === 0 ? (
+                            <option value="">No hay categorías disponibles</option>
+                        ) : (
+                            categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.nombre}
+                                </option>
+                            ))
+                        )}
+                    </select>
+                </label>
+                {/* --------------------------------- */}
                 
                 <label style={labelStyle}>
                     Nombre:
@@ -143,11 +293,14 @@ function NewProductContent() {
     );
 }
 
-// Estilos básicos (puedes moverlos a CSS)
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '15px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' };
+// ... (Exportaciones y estilos)
+const containerStyle = { padding: '40px', maxWidth: '800px', margin: '0 auto' };
+const headingStyle = { marginBottom: '30px', borderBottom: '2px solid #eee', paddingBottom: '10px' };
+const formStyle = { display: 'flex', flexDirection: 'column', gap: '20px', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' };
 const labelStyle = { display: 'flex', flexDirection: 'column', fontWeight: 'bold' };
-const inputStyle = { padding: '10px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' };
-const buttonStyle = { padding: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '10px' };
+const inputStyle = { padding: '12px', marginTop: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px' };
+const buttonStyle = { padding: '15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const formErrorStyle = { color: 'red', border: '1px solid red', padding: '10px', borderRadius: '4px', marginBottom: '15px' };
 
 
 export default function NewProductPage() {
