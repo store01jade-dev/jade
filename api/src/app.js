@@ -14,6 +14,7 @@ const app = express();
 
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Usar rutas de usuarios bajo el perfijo /api/users
 app.use("/api/users", userRoutes);
