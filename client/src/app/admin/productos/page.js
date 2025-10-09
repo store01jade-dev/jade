@@ -121,11 +121,12 @@ function ProductManagementContent() {
                 <table className={styles.table}>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Categoría</th> {/* <-- Nueva Columna */}
-                            <th>Precio Base</th>
-                            <th>Acciones</th>
+                            <>  <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th> {/* <-- Nueva Columna */}
+                                <th>Precio Base</th>
+                                <th>Acciones</th>
+                            </>
                         </tr>
                     </thead>
                     <tbody>

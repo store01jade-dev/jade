@@ -1,4 +1,4 @@
-/* components/admin/VariantesInput.module.css */
+/* components/admin/VariantesInput.module.css (REVISADO) */
 
 .container {
     border: 1px dashed #ccc;
@@ -16,7 +16,7 @@
 }
 
 .addButton {
-    padding: 8px 15px;
+    padding: 10px 18px; /* Un poco más grande */
     background-color: #007bff;
     color: white;
     border: none;
@@ -25,7 +25,8 @@
     margin-bottom: 15px;
     display: flex;
     align-items: center;
-    transition: background-color 0.3s;
+    gap: 8px; /* Espacio entre el icono y el texto */
+    transition: background-color 0.3s ease;
 }
 
 .addButton:hover {
@@ -34,26 +35,43 @@
 
 .row {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    flex-wrap: wrap; /* Permitir que los elementos se envuelvan en pantallas pequeñas */
+    gap: 10px; /* Espacio entre los elementos */
+    margin-bottom: 15px; /* Más espacio entre filas */
     align-items: center;
+    border: 1px solid #eee; /* Borde sutil para cada variante */
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff;
 }
 
 .input {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    flex-grow: 1;
+    flex: 1 1 100px; /* Permite que crezca, se encoja, y tenga una base de 100px */
+    min-width: 80px; /* Un mínimo para que no se colapse demasiado */
+    box-sizing: border-box; /* Asegura que padding no añada ancho extra */
 }
 
+/* Estilo específico para el input de SKU si necesitas que sea más ancho */
+/*
+.input[name="sku"] {
+    flex: 2 1 150px; 
+}
+*/
+
 .removeButton {
-    padding: 8px 12px;
+    padding: 8px 10px; /* Reducir padding para que sea más compacto */
     background-color: #dc3545;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: flex; /* Para centrar el icono */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
 }
 
 .removeButton:hover {
@@ -64,4 +82,5 @@
     text-align: center;
     color: #6c757d;
     font-style: italic;
+    margin-top: 20px;
 }

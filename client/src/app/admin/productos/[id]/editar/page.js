@@ -63,6 +63,19 @@ function EditProductContent() {
                 if (!productRes.ok) {
                     throw new Error(productData.message || 'Error al cargar el producto.');
                 }
+
+                // Limpieza y mapeo de variantes antes de asignar al estado
+                const cleanedVariantes = (productData.variantes || []).map(v => ({
+                    // Si el valor es null/undefined, usa '' o 0 según el tipo
+                    id: v.id || null, // Mantener el ID si existe
+                    sku: v.sku || '',             // <-- CRÍTICO: Usar '' si es null
+                    talla: v.talla || '',         // Usar '' si es null
+                    color: v.color || '',         // Usar '' si es null
+                    stock: v.stock || 0,
+                    precio: parseFloat(v.precio) || 0,
+                    peso: parseFloat(v.peso) || 0,
+                    // ... incluir otros campos de variante si existen
+                }));
                 
                 // CRÍTICO: Mapear los datos de la DB al estado del formulario
                 setFormData({
@@ -72,7 +85,7 @@ function EditProductContent() {
                     categoria_id: productData.categoria_id || (categoriesData.length > 0 ? categoriesData[0].id : ''),
                     activo: productData.activo || false,
                     // Asegúrate de que las variantes existan y sean un array
-                    variantes: productData.variantes || [], 
+                    variantes: cleanedVariantes, 
                 });
                 
                 // Guardar imágenes originales para mostrarlas
@@ -200,8 +213,45 @@ function EditProductContent() {
                     </select>
                 </label>
 
-                {/* NOMBRE, DESCRIPCIÓN, PRECIO */}
-                {/* ... (Usar campos name="nombre", name="descripcion", name="precio") ... */}
+                {/* CRÍTICO: REINTRODUCIR CAMPO NOMBRE */}
+                <label className={style.label}>
+                    Nombre:
+                    <input 
+                        type="text" 
+                        name="nombre" 
+                        value={formData.nombre} 
+                        onChange={handleChange} 
+                        required 
+                        className={style.input} 
+                    />
+                </label>
+
+                {/* CRÍTICO: REINTRODUCIR CAMPO DESCRIPCIÓN */}
+                <label className={style.label}>
+                    Descripción:
+                    <textarea 
+                        name="descripcion" 
+                        value={formData.descripcion} 
+                        onChange={handleChange} 
+                        required 
+                        rows="4" 
+                        className={style.input}
+                    ></textarea>
+                </label>
+
+                {/* CRÍTICO: REINTRODUCIR CAMPO PRECIO */}
+                <label className={style.label}>
+                    Precio ($):
+                    <input 
+                        type="number" 
+                        name="precio" 
+                        value={formData.precio} 
+                        onChange={handleChange} 
+                        required 
+                        min="0.01" 
+                        step="0.01" 
+                        className={style.input} />
+                </label>
 
                 {/* ACTIVO/VISIBLE */}
                 <label className={style.checkboxLabel}> 
