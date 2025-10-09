@@ -120,14 +120,11 @@ function ProductManagementContent() {
             ) : (
                 <table className={styles.table}>
                     <thead>
-                        <tr>
-                            <>  <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th> {/* <-- Nueva Columna */}
-                                <th>Precio Base</th>
-                                <th>Acciones</th>
-                            </>
-                        </tr>
+                        <tr> <th>ID</th>
+                             <th>Nombre</th>
+                             <th>Categoría</th>
+                             <th>Precio Base</th>
+                             <th>Acciones</th> </tr>
                     </thead>
                     <tbody>
                         {products.map(product => (
