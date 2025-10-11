@@ -42,10 +42,10 @@ const VarianteProducto = sequelize.define(
             allowNull: false
         },
 
-        peso: {
+        /*peso: {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: true,
-        }
+        }*/
     },
 
     {
@@ -57,7 +57,7 @@ const VarianteProducto = sequelize.define(
 export default VarianteProducto;
 
 /*Producto.hasMany(VarianteProducto, {
-    foreignKey: "producto-id",
+    foreignKey: "producto_id",
     as: "variantes"
 });
 

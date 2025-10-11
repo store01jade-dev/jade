@@ -17,7 +17,7 @@ const Productoimagen = sequelize.define(
             allowNull: true,
         },
 
-        varianteId: {
+        variante_id: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -64,7 +64,7 @@ VarianteProducto.hasMany(Productoimagen,{
 });
 
 Productoimagen.belongsTo(VarianteProducto, {
-    foreignKey: "varaiante_id",
+    foreignKey: "variante_id",
     as: "variante"
 });
 

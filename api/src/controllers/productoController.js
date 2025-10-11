@@ -1,3 +1,15 @@
+// Función auxiliar para transformar los archivos de Multer en objetos listos para Sequelize
+const subirImagenesSimuladas = (files) => {
+    // 1. Obtiene los archivos que Multer ha colocado en req.files
+    // 2. Transforma cada archivo en un objeto con el formato de la DB
+    return files.map((file, index) => ({
+        // Usamos una URL simulada basada en el nombre original
+        // Esto asume que estás simulando la subida a un servicio externo
+        url: `/uploads/${file.originalname.replace(/\s/g, '_')}-${Date.now()}_${index}`,
+        principal: index === 0, // La primera imagen es la principal
+        sort_order: index,
+    }));
+};
 
 import {
   Producto,
@@ -241,18 +253,30 @@ export const actualizarProducto = async (req, res) => {
         // 5. Devolver el producto actualizado
         const productoFinal = await Producto.findByPk(id, {
              include: [
-                 { model: ProductoImagen, as: 'imagenes' }, 
+                 { model: ProductoImagen, as: 'imagenesProducto' }, 
                  { model: VarianteProducto, as: 'variantes' },
-                 { model: Categoria, as: 'Categoria' }
+                 { model: Categoria, as: 'categoria' }
              ] 
         });
 
         res.json(productoFinal); // 200 OK
 
     } catch (error) {
-        if (transaction) await transaction.rollback();
-        console.error(" Error al actualizar producto:", error);
-        res.status(500).json({ error: "Error interno al actualizar el producto." });
+        if (transaction && transaction.finished !== 'commit') {
+            try {
+                // Solo intenta rollback si la transacción NO ha finalizado con commit
+                await transaction.rollback(); 
+                console.log("Transacción revertida debido a un error de ejecución.");
+            } catch (rollbackError) {
+                // Captura el error si el rollback falló por estar ya terminado, 
+                // pero no lo reporta al cliente, ya que el error original es el importante.
+                console.error("Error al intentar rollback:", rollbackError.message);
+            }
+        }
+      
+      console.error("❌ Error al actualizar producto:", error);
+      res.status(500).json({ error: "Error interno al actualizar el producto." });
+        
     }
 };
 

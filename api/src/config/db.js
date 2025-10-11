@@ -3,6 +3,7 @@ import {Sequelize} from "sequelize";
 // Importamos dotenv para poder usar variables de entorno desde el archivo .env
 import dotenv from "dotenv";
 
+
 // Cargamos las variables de entorno (DB_HOST, DB_USER, etc.)
 dotenv.config();
 
@@ -21,6 +22,8 @@ const sequelize = new Sequelize(
     }
        
 );
+
+
 
 /*Funcion para probar conexxion (Se puede hacer un llamado en server.js)
 export const testConnection = async () => {

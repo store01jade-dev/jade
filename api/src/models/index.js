@@ -46,8 +46,8 @@ ProductoImagen.belongsTo(Producto, { foreignKey: "producto_id", as: "producto" }
 
 // VarianteProducto <-> ProductoImagen
 // Una variante puede tener muchas imágenes (imágenes específicas de variante).
-VarianteProducto.hasMany(ProductoImagen, { foreignKey: "varianteId", as: "imagenesVariante" });
-ProductoImagen.belongsTo(VarianteProducto, { foreignKey: "varianteId", as: "variante" });
+VarianteProducto.hasMany(ProductoImagen, { foreignKey: "variante_id", as: "imagenesVariante" });
+ProductoImagen.belongsTo(VarianteProducto, { foreignKey: "variante_id", as: "variante" });
 
 // Usuario <-> Pedido
 // Un usuario puede tener muchos pedidos; un pedido pertenece a un usuario.
