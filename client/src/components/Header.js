@@ -34,7 +34,7 @@ export default function Header() {
         <Link href="/">
           <Image src={logo} alt="logo-Jade" width={100} height={100} />
         </Link>
-        <Link href="/productos">
+        <Link href="/catalogo">
             <h1>Catalogo</h1>
         </Link>
       </nav>

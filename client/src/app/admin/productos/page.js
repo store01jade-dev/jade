@@ -120,11 +120,13 @@ function ProductManagementContent() {
             ) : (
                 <table className={styles.table}>
                     <thead>
-                        <tr> <th>ID</th>
-                             <th>Nombre</th>
-                             <th>Categoría</th>
-                             <th>Precio Base</th>
-                             <th>Acciones</th> </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Precio Base</th>
+                            <th>Acciones</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {products.map(product => (
@@ -133,9 +135,12 @@ function ProductManagementContent() {
                                 <td>{product.nombre}</td>
                                 <td>
                                     {/* Asumo que la categoría viene anidada como 'Categoria' o 'Category' */}
-                                    {product.Categoria ? product.Categoria.nombre : 'Sin Categoría'}
+                                    {product.categoria ? product.categoria.nombre : 'Sin Categoría'}
                                 </td>
-                                <td>${product.precio ? parseFloat(product.precio).toFixed(2) : 'N/A'}</td>
+                                <td>{product.variantes && product.variantes.length > 0
+                                        ? `$${parseFloat(product.variantes[0].precio).toFixed(2)}`
+                                        : '$N/A'}
+                                </td>
                                 <td>
                                     <Link href={`/admin/productos/${product.id}/editar`} passHref>
                                         <button className={`${styles.actionButton} ${styles.editButton}`}>

@@ -1,54 +1,99 @@
-// components/products/ProductList.js
-'use client'; 
+// src/components/productos/ProductList.js
 
-import { useState, useEffect } from 'react';
-// Importamos el componente que muestra la tarjeta con carrusel
-import CarouselCard from './CarouselCard'; 
+'use client'; // 📌 1. Convertir a Componente Cliente
+
+import React, { useState, useEffect, useCallback } from 'react';
+import CardSimple from './CardSimple'; // Usamos CardSimple para la visualización
+import Filtros from './Filtros';
+// import CarouselCard from './CarouselCard'; // Usa este si quieres el carrusel
+import style from './ProductList.module.css'; // Si usas módulos CSS
+
+// La URL base de tu API
+const API_BASE_URL = 'http://localhost:4000/api/v1'; 
 
 export default function ProductList() {
-  // Estados para la lógica de la página
   const [productos, setProductos] = useState([]);
   const [filtros, setFiltros] = useState({
     nombre: '',
-    categoria: '',
+    categoria: '', // Asumimos que es el ID de la categoría
     precioMin: 0,
     precioMax: 1000,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [categorias, setCategorias] = useState([]); // 📌 Estado para las categorías del filtro
 
-  // 1. Lógica de Fetching de Productos (se comunicará con tu API de Express)
-  useEffect(() => {
-    const fetchProductos = async () => {
-      // Implementar la lógica para llamar a tu backend de Express 
-      // (ej: GET /api/productos)
+  //Función para obtener la lista de productos basada en los filtros
+  const fetchProductos = useCallback(async () => {
+    setIsLoading(true);
+    
+    // 1. Construir la Query String (URLSearchParams)
+    const params = new URLSearchParams();
+    if (filtros.nombre) params.append('nombre', filtros.nombre);
+    if (filtros.categoria) params.append('categoria_id', filtros.categoria);
+    if (filtros.precioMin > 0) params.append('precioMin', filtros.precioMin);
+    if (filtros.precioMax < 1000) params.append('precioMax', filtros.precioMax);
+    
+    const queryString = params.toString();
+    const url = `${API_BASE_URL}/productos?${queryString}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: Fallo al obtener productos`);
+      }
+      const data = await response.json();
+      setProductos(data);
+    } catch (error) {
+      console.error("Error fetching productos:", error);
+      setProductos([]); // Limpiar la lista en caso de error
+    } finally {
       setIsLoading(false);
-      // setProductos(datosObtenidos);
+    }
+  }, [filtros]);
+
+  // Función para obtener las categorías (solo una vez)
+  useEffect(() => {
+    const fetchCategorias = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/categorias`);
+            const data = await response.json();
+            setCategorias(data);
+        } catch (error) {
+            console.error("Error fetching categorías:", error);
+        }
     };
+    fetchCategorias();
+  }, []);
+
+  // 2. Ejecutar fetchProductos cuando cambian los filtros
+  useEffect(() => {
     fetchProductos();
-  }, [filtros]); // Se vuelve a ejecutar al cambiar los filtros
+  }, [fetchProductos]); // Dependencia del useCallback
 
-  // 2. Componente de Filtros (Estructura)
-  const FiltrosComponent = () => (
-    <div className="filtros-container">
-      {/* Inputs para Nombre, Categoría, Precio Min/Max. */}
-      {/* Cada input debe llamar a setFiltros al cambiar su valor. */}
-      <h4>Filtros</h4>
-      {/* ... Inputs y lógica de setFiltros ... */}
-    </div>
-  );
+  if (isLoading) return <div className="text-center py-10">Cargando productos...</div>;
 
-  if (isLoading) return <div>Cargando productos...</div>;
 
   return (
-    <div className="catalogo-wrapper">
-      <FiltrosComponent />
+    <div className={style.catalogoWrapper}>
+      <Filtros
+        filtros={filtros}
+        setFiltros={setFiltros}
+        categorias={categorias}
+      />
 
-      <div className="productos-grid">
-        {/* Renderiza las tarjetas de productos */}
-        {productos.map(producto => (
-          <CarouselCard key={producto.id} producto={producto} />
-        ))}
-        {productos.length === 0 && <p>No se encontraron productos.</p>}
+      <div className={style.productosGrid}>
+        {productos.length > 0 ? (
+          <>
+            {productos.map(producto => (
+              // Usar CardSimple o CarouselCard según prefieras
+              <CardSimple key={producto.id} producto={producto} /> 
+            ))}
+          </>
+        ) : (
+          <p className="text-center text-xl text-gray-600">
+            No se encontraron productos que coincidan con los filtros.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ const subirImagenesSimuladas = (files) => {
     }));
 };
 
+import { Op } from "sequelize";
 import {
   Producto,
   Categoria,
@@ -18,7 +19,7 @@ import {
   ProductoImagen,
 } from "../models/index.js";
 
-// Listar todos los productos con categorías, variantes e imágenes
+/* Listar todos los productos con categorías, variantes e imágenes
 export const listarProductos = async (req, res) => {
   try {
     const productos = await Producto.findAll({
@@ -50,6 +51,79 @@ export const listarProductos = async (req, res) => {
     console.error("Error al listar productos:", error);
     res.status(500).json({ error: "Error interno al listar productos" });
   }
+};*/
+
+// Listar todos los productos con categorías, variantes e imágenes (con filtros)
+export const listarProductos = async (req, res) => {
+    // 1. Leer los parámetros de la URL
+    const { nombre, categoria_id, precioMin, precioMax } = req.query;
+
+    // Objeto base para las condiciones WHERE de la tabla Producto
+    const whereProducto = {}; 
+    
+    // 2. Filtro por Nombre (búsqueda parcial, case-insensitive)
+    if (nombre) {
+        // Usar [Op.like] para buscar coincidencias parciales
+        whereProducto.nombre = { [Op.like]: `%${nombre}%` };
+    }
+
+    // 3. Filtro por Categoría
+    if (categoria_id) {
+        whereProducto.categoria_id = categoria_id;
+    }
+    
+    // 4. Filtro por Precio (Asumiendo que el campo 'precio' es el precio base en la tabla Producto)
+    // NOTA: Si solo quieres filtrar por precios de variantes, esta lógica debe ser más compleja.
+    if (precioMin || precioMax) {
+        whereProducto.precio = {};
+        if (precioMin) whereProducto.precio[Op.gte] = parseFloat(precioMin); // Mayor o igual
+        if (precioMax) whereProducto.precio[Op.lte] = parseFloat(precioMax); // Menor o igual
+    }
+
+    try {
+        const productos = await Producto.findAll({
+            //  5. Aplicar la cláusula WHERE a la tabla Producto
+            where: whereProducto, // Si tienes filtros
+            include: [
+                { 
+                  model: Categoria,
+                  as: "categoria",
+                  attributes: ["id", "nombre"] 
+                },
+
+                // 📌 1. INCLUSIÓN DE IMAGEN GENERAL DEL PRODUCTO (¡NUEVO BLOQUE!)
+                // Necesario para obtener la imagen principal del catálogo.
+                {
+                    model: ProductoImagen, 
+                    as: "imagenesProducto", // Alias para la relación Producto -> ProductoImagen
+                    where: { principal: true }, // Solo la imagen principal
+                    required: false,           // No requiere que exista una imagen
+                    attributes: ["id", "url", "principal"] 
+                },
+
+                // 2. INCLUSIÓN DE VARIANTES Y SUS IMÁGENES
+                {
+                    model: VarianteProducto,
+                    as: "variantes",
+                    attributes: ["id", "color", "talla", "precio", "stock"],
+                    include: [
+                        { 
+                          model: ProductoImagen, 
+                          as: "imagenesVariante", // Alias para la relación Variante -> ProductoImagen
+                          where: {principal: true}, 
+                          required: false,         
+                          attributes: ["id", "url", "principal"] 
+                        }
+                    ],
+                },
+            ],
+        });
+
+        res.json(productos);
+    } catch (error) {
+        console.error("Error al listar productos con filtros:", error);
+        res.status(500).json({ error: "Error interno al listar productos" });
+    }
 };
 
 // Obtener un producto específico con todos sus detalles
@@ -65,6 +139,10 @@ export const obtenerProducto = async (req, res) => {
           as: "variantes",
           attributes: ["id", "color", "talla", "precio", "stock"],
           include: [{ model: ProductoImagen, as: "imagenesVariante", attributes: ["id", "url", "principal"] }],
+        },
+        { 
+          model: ProductoImagen, 
+          as: 'imagenesProducto', // ❗ DEBE COINCIDIR con el alias de la asociación
         },
       ],
     });
@@ -110,7 +188,7 @@ export const crearProducto = async (req, res) => {
 export const crearProducto = async (req, res) => {
     // Asegúrate de leer 'variantes' del cuerpo
     const { 
-        nombre, descripcion, precio, stock, categoria_id, 
+        nombre, descripcion, precio, activo, categoria_id, 
         variantes // <-- LEER EL CAMPO VARIANTE
     } = req.body;
     const files = req.files; 
@@ -139,13 +217,13 @@ export const crearProducto = async (req, res) => {
 
         // 2. Procesar y Asociar Imágenes (Lógica Asíncrona)
         if (files && files.length > 0) {
-            // Sube las imágenes (simulado)
-            const imagenData = subirImagenesSimuladas(files);
-            
-            const imagenesParaGuardar = imagenData.map(img => ({
-                ...img,
+            //Procesar los archivos de disco
+            const imagenesParaGuardar = files.map(file => ({
+                // CRÍTICO: '/uploads/' + el nombre de archivo que Multer guardó en disco
+                url: `/uploads/${file.filename}`, 
+                principal: true, // Asigna tu lógica de principal
                 producto_id: nuevoProductoId,
-            }));
+            }))
             
             // Guardar en la tabla de imágenes (ESTE paso requiere una conexión/transacción separada o implícita)
             await ProductoImagen.bulkCreate(imagenesParaGuardar);
@@ -154,7 +232,7 @@ export const crearProducto = async (req, res) => {
         // 3. Devolver la respuesta completa
         const productoFinal = await Producto.findByPk(nuevoProductoId, {
              include: [
-                 { model: ProductoImagen, as: 'imagenes' }, 
+                 { model: ProductoImagen, as: 'imagenesProducto' }, 
                  { model: VarianteProducto, as: 'variantes' }
              ] 
         });
@@ -239,9 +317,11 @@ export const actualizarProducto = async (req, res) => {
         
         // 3. Subir y Asociar Nuevas Imágenes (No borramos las antiguas aquí, solo añadimos)
         if (files && files.length > 0) {
-            const imagenData = subirImagenesSimuladas(files); // Usa tu función simulada
-            const imagenesParaGuardar = imagenData.map(img => ({
-                ...img,
+            // Procesar los archivos de disco
+            const imagenesParaGuardar = files.map(file => ({
+                // CRÍTICO: '/uploads/' + el nombre de archivo que Multer guardó en disco
+                url: `/uploads/${file.filename}`, 
+                principal: true, // Asigna tu lógica de principal
                 producto_id: id,
             }));
             await ProductoImagen.bulkCreate(imagenesParaGuardar, { transaction });

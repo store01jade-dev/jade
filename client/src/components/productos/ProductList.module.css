@@ -1,0 +1,27 @@
+/* Estilos ÚNICAMENTE para la lista/cuadrícula de productos */
+
+.catalogoWrapper {
+    /* Aquí puedes definir un padding global si quieres */
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.productosGrid {
+    display: grid; 
+    gap: 1.5rem; 
+    grid-template-columns: 1fr; /* 1 columna por defecto */
+}
+
+/* Media Query para 2 columnas */
+@media (min-width: 640px) {
+    .productosGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Media Query para 4 columnas */
+@media (min-width: 1024px) {
+    .productosGrid {
+        grid-template-columns: repeat(4, 1fr); 
+    }
+}

@@ -1,0 +1,44 @@
+/* src/components/productos/CardSimple.module.css */
+
+.cardSimple {
+    /* 📌 CRÍTICO: Usamos display flex y flex-direction column para apilar */
+    display: flex; 
+    flex-direction: column; 
+    
+    /* Propiedades de tarjeta */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s;
+    text-decoration: none; /* Quita el subrayado del Link */
+    color: inherit; /* Mantiene el color del texto por defecto */
+    height: 100%; /* Permite que la tarjeta se estire uniformemente en la cuadrícula */
+    align-items: center;
+    padding: 12px;
+}
+
+.cardSimple:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.imagenWrapper {
+    /* Mantiene las dimensiones y el contenedor de la imagen */
+    position: relative;
+    width: 300px;
+    height: 300px; /* O el valor que mejor se vea */
+    flex-shrink: 0; /* Evita que la imagen se encoja si el nombre es muy largo */
+
+}
+
+/* 📌 Estilo del Nombre para centrarlo y darle espacio */
+.nombreProducto {
+    /* El padding ayuda a centrarlo visualmente */
+    padding: 1rem 0.5rem; 
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center; /* Centra el texto */
+    /* Empuja el contenido hacia arriba para que quede bien distribuido */
+    width: 100%;
+    margin-top: auto; 
+}

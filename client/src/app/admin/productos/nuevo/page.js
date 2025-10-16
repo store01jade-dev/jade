@@ -14,8 +14,8 @@ function NewProductContent() {
     // --- NUEVO ESTADO PARA MANEJAR ARCHIVOS ---
     const [selectedFiles, setSelectedFiles] = useState([]);
     // --- NUEVOS ESTADOS PARA CATEGORÍAS ---
-    const [categories, setCategories] = useState([]);
-    const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+    const [categorias, setCategorias] = useState([]);
+    const [isCategoriasLoading, setIsCategoriasLoading] = useState(true);
     
     
     const [formData, setFormData] = useState({
@@ -53,7 +53,7 @@ function NewProductContent() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setCategories(data);
+                    setCategorias(data);
                     // Opcional: Establecer una categoría por defecto si existen
                     if (data.length > 0) {
                         setFormData(prev => ({ ...prev, categoria_id: data[0].id }));
@@ -64,7 +64,7 @@ function NewProductContent() {
             } catch (err) {
                 setError('Error de conexión al cargar categorías.');
             } finally {
-                setIsCategoriesLoading(false);
+                setIsCategoriasLoading(false);
             }
         };
 
@@ -225,7 +225,7 @@ function NewProductContent() {
     };
 
     // Si las categorías están cargando, mostramos un mensaje
-    if (isCategoriesLoading) {
+    if (isCategoriasLoading) {
         return <div style={{ textAlign: 'center', padding: '100px' }}>Cargando categorías...</div>;
     }
 
@@ -244,14 +244,35 @@ function NewProductContent() {
                 {/* CATEGORÍA */}
                 <label className={style.label}>
                     Categoría:
-                    <select 
+                    {/*<select 
                         name="categoria_id" 
                         value={formData.categoria_id} 
                         onChange={handleChange} 
                         required 
                         className={style.select} > {/* Aplicar clase select */}
                     
-                        {/* ... options ... */}
+                        {/* ... options ... 
+                    </select>*/}
+
+                    <select 
+                        id="categoria" 
+                        name="categoria_id" 
+                        value={formData.categoria_id} 
+                        onChange={handleChange}
+                        className={style.select} 
+                    >
+                        {/* Opción por defecto */}
+                        <option value="">Selecciona una categoría</option>
+                        
+                        {/* 📌 Paso Crítico 3: Mapear la data */}
+                        {categorias.map((cat) => (
+                            <option 
+                                key={cat.id} 
+                                value={cat.id} // El valor debe ser el ID que el backend espera (categoria_id)
+                            >
+                                {cat.nombre} {/* Mostrar el nombre de la categoría */}
+                            </option>
+                        ))}
                     </select>
                 </label>
 
