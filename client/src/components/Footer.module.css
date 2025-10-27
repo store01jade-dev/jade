@@ -54,22 +54,22 @@
   gap: 1rem;
 }
 
-.contacto {
+/*.comments {
   background: var(--background-option);
   padding: 0.5rem;
   border-end-end-radius: 8px;
   border-start-end-radius: 8px;
 }
 
-/* Inputs y botones */
-.contacto form {
+Inputs y botones
+.comments form {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
-.contacto input,
-.contacto textarea {
+.comments input,
+.comments textarea {
   width: 95%;  
   padding: 0.5rem;
   border: none;
@@ -78,7 +78,7 @@
   font-family: var(--font-text);
 }
 
-.contacto button {
+.comments button {
   align-self: flex-end;  
   background: var(--background-dark);
   border: none;
@@ -90,8 +90,74 @@
   transition: background 0.3s ease;
 }
 
-.contacto button:hover {
+.comments button:hover {
   background: #0ea5e9;
+}*/
+
+.comments {
+    /* Contenedor principal para centrar el formulario */
+    padding: 2rem;
+    background-color: var(--background-option); /* Fondo ligero para destacarse */
+    border-top: 1px solid #eee;
+    border-start-end-radius: 8px;
+    border-end-end-radius: 8px;
+}
+
+.form {
+    /* Limita el ancho del formulario para que no sea demasiado largo en pantallas grandes */
+    max-width: 600px;
+    margin: 0 auto; /* Centra el formulario */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio uniforme entre los elementos del formulario */
+}
+
+.form input[type="text"],
+.form input[type="email"],
+.form textarea {
+    /* Estilos base para los campos de texto y área de texto */
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Asegura que el padding no aumente el width */
+    transition: border-color 0.3s;
+}
+
+.form input[type="text"]:focus,
+.form input[type="email"]:focus,
+.form textarea:focus {
+    border-color: #0070f3; /* Color de enfoque azul de Next.js */
+    outline: none; /* Quita el borde de enfoque por defecto del navegador */
+    box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.2);
+}
+
+.form textarea {
+    /* Estilos específicos para el área de texto */
+    resize: vertical; /* Solo permite redimensionar verticalmente */
+    min-height: 100px;
+}
+
+.form button {
+    /* Estilos del botón de envío */
+    padding: 12px 20px;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    align-self: flex-end; /* Para que el botón no ocupe todo el ancho */
+    width: 100%; /* Si quieres que ocupe todo el ancho del contenedor */
+    max-width: 200px; /* Limita el ancho del botón para que no se vea gigante */
+}
+
+.form button:hover {
+    background-color: #005bb5;
+    transform: translateY(-1px);
 }
 
 /* --- CopyRight --- */
@@ -120,12 +186,12 @@
     justify-content: center;
   }
 
-  .contacto form {
+  .comments form {
     align-items: center;
   }
 
-  .contacto input,
-  .contacto textarea {
+  .comments input,
+  .comments textarea {
     width: 100%;
   }
 }

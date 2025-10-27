@@ -91,7 +91,7 @@ export const listarProductos = async (req, res) => {
                   attributes: ["id", "nombre"] 
                 },
 
-                // 📌 1. INCLUSIÓN DE IMAGEN GENERAL DEL PRODUCTO (¡NUEVO BLOQUE!)
+                // INCLUSIÓN DE IMAGEN GENERAL DEL PRODUCTO (¡NUEVO BLOQUE!)
                 // Necesario para obtener la imagen principal del catálogo.
                 {
                     model: ProductoImagen, 
@@ -142,7 +142,7 @@ export const obtenerProducto = async (req, res) => {
         },
         { 
           model: ProductoImagen, 
-          as: 'imagenesProducto', // ❗ DEBE COINCIDIR con el alias de la asociación
+          as: 'imagenesProducto', // DEBE COINCIDIR con el alias de la asociación
         },
       ],
     });
@@ -198,7 +198,7 @@ export const crearProducto = async (req, res) => {
         nombre, 
         descripcion, 
         precio: parseFloat(precio), 
-        activo: activo === 'true', // CRÍTICO: Convertir el string 'true'/'false' de FormData a booleano
+        activo: activo === 'true', // Convertir el string 'true'/'false' de FormData a booleano
         categoria_id: parseInt(categoria_id),
         // CRÍTICO: El array de variantes DEBE estar en el objeto principal
         variantes: variantes ? JSON.parse(variantes) : [] 
@@ -354,7 +354,7 @@ export const actualizarProducto = async (req, res) => {
             }
         }
       
-      console.error("❌ Error al actualizar producto:", error);
+      console.error("Error al actualizar producto:", error);
       res.status(500).json({ error: "Error interno al actualizar el producto." });
         
     }
@@ -374,5 +374,94 @@ export const eliminarProducto = async (req, res) => {
     console.error("Error al eliminar producto:", error);
     res.status(500).json({ error: "Error interno al eliminar producto" });
   }
+};
+
+export const getNewProducts = async (req, res) => {
+    try {
+        const products = await Producto.findAll({
+            // ORDENAR por createdAt (DESC = Más reciente primero)
+            order: [['createdAt', 'DESC']], 
+            // Limitar a 4 productos
+            limit: 4, 
+            include: [{ model: ProductoImagen, as: 'imagenesProducto' }],
+        });
+        res.json(products);
+    } catch (error) {
+        console.error("Error fetching new products:", error);
+        res.status(500).json({ message: 'Error interno al obtener novedades' });
+    }
+};
+
+export const getCatalogProducts = async (req, res) => {
+    try {
+        const products = await Producto.findAll({
+            // ORDENAR por createdAt (ASC = Más Antiguo primero)
+            order: [['createdAt', 'ASC']], 
+            // Limitar a 5 productos
+            limit: 5, 
+            include: [{ model: ProductoImagen, as: 'imagenesProducto' }],
+        });
+        res.status(200).json(products);
+    } catch (error) {
+        console.error("Error fetching catalog products:", error);
+        res.status(500).json({ message: 'Error interno al obtener el catálogo' });
+    }
+};
+
+export const getTrendingProducts = async (req, res) => {
+    try {
+        const products = await Producto.findAll({
+            // Filtro para EXCLUIR productos sin votos
+            // Esto asegura que si solo hay 1 voto, solo se muestra 1 producto.
+            where: {
+                rating: {
+                    [Op.gt]: 0 // Solo rating mayor que 0
+                }
+            },
+            
+            // 📌 Ordenar por rating DESC (el mayor primero)
+            order: [['rating', 'DESC']], 
+            
+            // 📌 Limitar a un máximo de 4, sin importar cuántos votados haya.
+            limit: 4, 
+            include: [{ model: ProductoImagen, as: 'imagenesProducto' }],
+        });
+        
+        // 📌 Opcional: Si el array está vacío, puedes devolver un status 204 No Content
+        // Aunque 200 con [] es estándar para endpoints de lista.
+        res.status(200).json(products);
+    } catch (error) {
+        console.error("Error fetching trending products:", error);
+        res.status(500).json({ message: 'Error interno al obtener tendencias' });
+    }
+};
+
+
+export const voteProduct = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        
+        // 1. Usar findByPk para asegurar que el producto existe
+        const producto = await Producto.findByPk(id);
+
+        if (!producto) {
+            return res.status(404).json({ message: 'Producto no encontrado para votar.' });
+        }
+
+        // 2. Incrementar la columna 'rating' en 1 (Sequelize uses increment)
+        await producto.increment('rating', { by: 1 });
+
+        // 3. Opcional: Obtener el producto actualizado para devolver el nuevo rating
+        await producto.reload(); 
+
+        res.status(200).json({ 
+            message: 'Voto registrado con éxito',
+            newRating: producto.rating 
+        });
+
+    } catch (error) {
+        console.error("Error al votar por el producto:", error);
+        res.status(500).json({ message: 'Error interno al registrar el voto' });
+    }
 };
 

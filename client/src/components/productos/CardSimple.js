@@ -44,7 +44,10 @@ export default function CardSimple({ producto }) {
       </div>
       
       {/* 2. Nombre */}
-      <h3 className={style.nombreProducto}>{producto.nombre}</h3>
+      <h3 className={style.nombreProducto}>
+        {producto.nombre}
+      </h3>
+      
     </Link>
   );
 }

@@ -6,16 +6,17 @@
     flex-direction: column; 
     
     /* Propiedades de tarjeta */
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--background-option);
     border-radius: 8px;
     overflow: hidden; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transition: box-shadow 0.2s;
     text-decoration: none; /* Quita el subrayado del Link */
     color: inherit; /* Mantiene el color del texto por defecto */
-    height: 100%; /* Permite que la tarjeta se estire uniformemente en la cuadrícula */
+    /*height: 100%; Permite que la tarjeta se estire uniformemente en la cuadrícula */
     align-items: center;
-    padding: 12px;
+    padding: 8px;
+    justify-content: space-between;
 }
 
 .cardSimple:hover {
@@ -23,22 +24,75 @@
 }
 
 .imagenWrapper {
-    /* Mantiene las dimensiones y el contenedor de la imagen */
+    /* Mantiene las dimensiones y el contenedor de la imagen
     position: relative;
     width: 300px;
-    height: 300px; /* O el valor que mejor se vea */
+    height: 300px; /* O el valor que mejor se vea 
     flex-shrink: 0; /* Evita que la imagen se encoja si el nombre es muy largo */
+    position: relative;
+    /* Cambiar a un ancho del 100% del contenedor de la tarjeta */
+    width: 100%; 
+    
+    /* Usar padding-top para mantener la proporción 1:1 (cuadrada) */
+    padding-top: 100%; 
+    height: 0; /* Lo ponemos a 0 ya que padding-top lo define */
+    
+    overflow: hidden; 
+    flex-shrink: 0; 
+    border-radius: 4px;
+}
 
+/* El componente Image debe ocupar este wrapper */
+.imagenWrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Para que se ajuste sin cortar */
+    border-radius: 4px;
 }
 
 /* 📌 Estilo del Nombre para centrarlo y darle espacio */
 .nombreProducto {
     /* El padding ayuda a centrarlo visualmente */
-    padding: 1rem 0.5rem; 
-    font-size: 1.1rem;
+    padding: 0.2rem 0.5rem; 
+    font-size: 1rem;
     font-weight: 600;
     text-align: center; /* Centra el texto */
     /* Empuja el contenido hacia arriba para que quede bien distribuido */
     width: 100%;
-    margin-top: auto; 
+    /*margin-top: auto;*/ 
+    color: var(--font-text);
+}
+
+/* components/products/CardSimple.module.css (Fragmento) */
+
+.voteContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+}
+
+.heartIcon {
+    cursor: pointer;
+    font-size: 1.5rem; /* Ajusta el tamaño del corazón */
+    transition: transform 0.1s;
+    /* Los emojis '🤍' y '❤️' son por defecto, pero si usas SVG, define el color aquí */
+}
+
+.heartIcon:hover {
+    transform: scale(1.1);
+}
+
+.heartFilled {
+    /* No siempre necesario si usas el emoji rojo, pero útil para íconos */
+    color: red; 
+}
+
+.ratingCount {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #555;
 }

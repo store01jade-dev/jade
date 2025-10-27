@@ -1,14 +1,16 @@
 .header {
   background: var(--background-dark);
   color: white;
-  padding: 0.5rem;
+  padding: 0.8rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
   position: relative;
   width: auto;
+  margin: 0.5rem;
 }
+
 
 .log{
   display: flex;

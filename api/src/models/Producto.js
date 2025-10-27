@@ -26,6 +26,13 @@ const Producto = sequelize.define(
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
+
+        //NUEVA COLUMNA: Rating (Calificación)
+        rating: {
+        type: DataTypes.FLOAT, // Usamos FLOAT para manejar valores como 4.5
+        defaultValue: 0, 
+        allowNull: false,
+        },
     },
 
     {

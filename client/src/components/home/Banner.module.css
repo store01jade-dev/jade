@@ -1,0 +1,25 @@
+/* components/home/Banner.module.css */
+
+.banner {
+    /* 📌 CRÍTICO: Ocupa todo el espacio de la celda del grid */
+    width: 100%; 
+    height: 100%;
+    border-radius: 10px; 
+    
+    /* ELIMINAR O REDUCIR: Estos causaban que el componente se desbordara */
+    /* min-height: 70vh; <--- ELIMINADO */
+    /* padding: 20px; <--- REDUCIR O USAR INTERNAMENTE */
+    
+    background-color: #f0f0f0; 
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    /*Añade el padding al contenido INTERNO */
+    box-sizing: border-box; 
+    padding: 1rem; 
+}
+/* Asegúrate de que los elementos internos (.bannerContent) estén centrados */

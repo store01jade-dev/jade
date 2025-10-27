@@ -110,3 +110,28 @@
 .areaCompra button:hover {
     background-color: #005bb5;
 }
+
+/* components/products/ProductDetail.module.css (Fragmento) */
+
+.voteContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: -10px; /* Acércarlo al nombre si es necesario */
+}
+
+.heartIcon {
+    cursor: pointer;
+    font-size: 2rem;
+    transition: transform 0.1s;
+}
+
+.heartIcon:hover {
+    transform: scale(1.1);
+}
+
+.ratingCount {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #555;
+}

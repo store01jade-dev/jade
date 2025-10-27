@@ -1,0 +1,50 @@
+/* components/home/CommentsSection.module.css */
+
+.commentsSection {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1rem; 
+    display: flex;
+    flex-direction: column;
+}
+
+.sectionTitle {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px; 
+}
+
+.commentsGrid {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    
+    /* 📌 CRÍTICO: Ajustar para span 2. Si son 3 comentarios, usar 3 columnas */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+}
+
+.commentCard {
+    background-color: var(--background-option); /* Usa el color de fondo definido en page.js */
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.commentContent {
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.commentAuthor {
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--color-primary); 
+    text-align: right;
+}

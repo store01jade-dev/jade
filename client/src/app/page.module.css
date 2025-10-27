@@ -1,9 +1,9 @@
 .page{
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(12, 1fr);
+  grid-template-rows: repeat(12, auto);
   gap: 8px;
-  height: 100vh;
+  /*height: 100vh;*/
   padding: 0.5rem;
 }
 
@@ -20,7 +20,6 @@
   grid-column-start: 4;
   background: var(--background-dark);
   border-radius: 10px;
-
 }
 
 .catalogo{

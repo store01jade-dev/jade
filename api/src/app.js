@@ -10,6 +10,7 @@ import categoriasRoutes from "../src/routes/categoriaRoutes.js";
 import productoRoutes from "../src/routes/productoRoutes.js";
 import varianteImagenRoutes from "../src/routes/productoImagenRoutes.js";
 import varianteProductoRoutes from "../src/routes/varianteProductoRoutes.js";
+import commetRoutes from "../src/routes/commentsRoutes.js";
 
 
 // Creamos la instancia principal de la aplicacion Express
@@ -39,6 +40,7 @@ const UPLOADS_PATH = path.join(__dirname, 'uploads');
 // LOG: Muestra la ruta en la consola para VERIFICAR si es correcta
 console.log(`Sirviendo archivos estáticos desde la ruta: ${UPLOADS_PATH}`); 
 
+app.use(express.json());
 
 // 2. CRÍTICO: Configurar el middleware estático
 // Primer argumento: el prefijo URL que el navegador usará (/uploads)
@@ -51,6 +53,9 @@ app.use("/api/v1/categorias", categoriasRoutes);
 app.use("/api/v1/productos", productoRoutes);
 app.use("/api/v1/variantes", varianteProductoRoutes);
 app.use("/api/v1/imagenes", varianteImagenRoutes);
+
+// Montar Rutas de comentarios
+app.use('/api/v1/comments', commetRoutes);
 
 // Exportamos app para que pueda ser utilizado por server.js
 export default app;

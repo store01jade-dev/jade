@@ -111,18 +111,22 @@ const API_BASE_URL = 'http://localhost:4000'
 
 
 export default function ProductDetail({ productoId }) {
-    // ... (Estados y useEffect) ...
-    // ... (Tu lógica para obtener precioPrincipal sigue siendo CRÍTICA) ...
+  // ... (Estados y useEffect) ...
+  // ... (Tu lógica para obtener precioPrincipal sigue siendo CRÍTICA) ...
   const [producto, setProducto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-   // Lógica para cargar el producto específico
+  // Usamos el rating actual del producto como estado inicial (o 0 si no existe)
+  const [currentRating, setCurrentRating] = useState(producto?.rating || 0);
+  const [hasVoted, setHasVoted] = useState(false); // Para limitar el voto en el cliente
+
+  // Lógica para cargar el producto específico
   useEffect(() => {
     const loadProduct = async () => {
       setIsLoading(true);
       
-      // 📌 CRÍTICO: Usar el productoId para llamar al endpoint GET /productos/:id
+      // Usar el productoId para llamar al endpoint GET /productos/:id
       const url = `${BASE_URL_API}/productos/${productoId}`; 
 
       try {
@@ -170,6 +174,30 @@ export default function ProductDetail({ productoId }) {
             setSelectedVariant(producto.variantes[0]);
         }
     }, [producto]);
+
+    const handleVote = async () => {
+        if (hasVoted) return;
+
+        try {
+            const response = await fetch(`${BASE_URL_API}/productos/vote/${producto.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Fallo al registrar el voto');
+            }
+
+            const data = await response.json();
+            setCurrentRating(data.newRating);
+            setHasVoted(true);
+            
+        } catch (error) {
+            console.error("Error al votar:", error);
+        }
+    };
 
 
     if (isLoading) return <div>Cargando detalles del producto...</div>;
@@ -222,6 +250,26 @@ export default function ProductDetail({ productoId }) {
                         ))}
                         
                     </div>
+                </div>
+
+                <div className={styles.infoPrincipal}>
+                  <h1>{producto.nombre}</h1>
+                  <p className={styles.sku}>SKU: {producto.sku}</p>
+    
+                  {/* 📌 RENDERIZADO DEL VOTO */}
+                  <div className={styles.voteContainer}>
+                    <span className={styles.ratingCount}>{currentRating} Likes</span>
+                    <span 
+                    onClick={handleVote} 
+                    className={`${styles.heartIcon} ${hasVoted ? styles.heartFilled : ''}`}
+                    title={hasVoted ? "Ya votaste" : "Me gusta"}
+                    >
+                      {hasVoted ? '❤️' : '🤍'} 
+                    </span>
+                  </div>
+    
+                  {/* <p className={styles.precio}>${precioSimple}</p>
+                   ... (resto de la info, tabla de variantes, etc.) ... */}
                 </div>
                 
                 {/* 4. Área de Compra */}
