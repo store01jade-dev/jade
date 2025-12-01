@@ -12,12 +12,14 @@ import cerrarSesion from "../../public/icons/Logoutlight.svg";
 import style from "./Header.module.css";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useCart } from "./context/CartContext";
 
 export default function Header() {
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
     const { isAuthenticated, logout, user } = useAuth();
     const router = useRouter();
+    const { totalItems } = useCart();
 
     const handleLogout = () => {
         logout();
@@ -72,9 +74,15 @@ export default function Header() {
 
       {/*Derecha: Enlaces de accion */}
       <nav className={style.actions}>
-        <Link href="/carrito">
+        <div className={style.cartWrapper}>
+          <Link href="/carrito">
             <Image src={cart} alt="carrito de compras" width={50} height={50} />
-        </Link>
+          </Link>
+          {/* Mostrar la burbuja de notificación si hay ítems */}
+          {totalItems > 0 && (
+          <span className={style.cartBadge}>{totalItems}</span>
+          )}
+        </div>
 
         {isAuthenticated ? (
           < >

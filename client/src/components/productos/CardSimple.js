@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import placeHolder from '../../../public/assests/placeholer.jpg'
+import placeHolder from '../../../public/assests/placeholder.jpg'
 import style from './CardSimple.module.css'
 
 // Recibe las propiedades del producto

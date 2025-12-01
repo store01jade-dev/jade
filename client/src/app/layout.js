@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import { CommentRefreshProvider } from "@/components/context/CommentRefreshContext";
+import { CartProvider } from "@/components/context/CartContext";
+
 
 
 export const metadata = {
@@ -16,13 +18,15 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${bodoni.variable} ${josefin.variable}`}>
         <AuthProvider>
-          <CommentRefreshProvider>
+          <CartProvider>
+            <CommentRefreshProvider>
             <Header/>
               <main>
                 {children}
               </main>
             <Footer />
           </CommentRefreshProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

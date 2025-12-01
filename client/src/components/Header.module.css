@@ -58,6 +58,32 @@
   color: var(--background-light);
 }
 
+/* components/layout/Header.module.css */
+
+.cartWrapper {
+    /* Esencial para posicionar el badge relativo al wrapper */
+    position: relative; 
+    display: inline-block;
+}
+
+.cartBadge {
+    position: absolute;
+    top: -5px;         /* Ajusta la posición vertical */
+    right: -10px;      /* Ajusta la posición horizontal */
+    
+    /* Estilos visuales */
+    background-color: red;
+    color: white;
+    border-radius: 50%; /* Forma de círculo */
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1.2;
+    pointer-events: none; /* Asegura que no interfiera con el clic en el Link */
+}
+
 /* Lupa extra (solo móvil) */
 .mobileSearchBtn {
   display: none;
