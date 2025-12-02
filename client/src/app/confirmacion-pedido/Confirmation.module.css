@@ -1,0 +1,71 @@
+/* src/app/confirmacion-pedido/Confirmation.module.css */
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background-color: #f4f7f9;
+    padding: 20px;
+}
+
+.card {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+}
+
+.icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 2rem;
+    color: #28a745; /* Verde de éxito */
+    margin-bottom: 15px;
+}
+
+.message {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.details {
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 30px;
+}
+
+.buttonPrimary, .buttonSecondary {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+}
+
+.buttonPrimary {
+    background-color: #007bff;
+    color: white;
+}
+
+.buttonPrimary:hover {
+    background-color: #0056b3;
+}
+
+.buttonSecondary {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.buttonSecondary:hover {
+    background-color: #d8dadf;
+}

@@ -96,6 +96,13 @@ if (isLoading || isAuthenticated) {
             required
             disabled={isSubmitting}
           />
+          
+          {/* ENLACE DE RESTABLECIMIENTO AÑADIDO */}
+          <div className={style.forgotPasswordLinkContainer}>
+            <a href="/forgot-password" className={style.forgotPasswordLink}>
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
         </div>
         
         {/* Botón de Envío */}
@@ -103,7 +110,7 @@ if (isLoading || isAuthenticated) {
           {isSubmitting ? 'Cargando...' : 'Iniciar Sesión'}
         </button>
         
-        {/* Enlace a Registro (futuro) */}
+        {/* Enlace a Registro */}
         <p className={style.registerLink}>
             ¿No tienes cuenta? <a href="/registro">Regístrate aquí</a>
         </p>

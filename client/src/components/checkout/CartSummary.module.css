@@ -1,0 +1,89 @@
+/* src/components/checkout/CartSummary.module.css */
+
+.summaryCard {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.productItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.itemDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.itemName {
+    font-weight: 600;
+}
+
+.itemQuantity {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.itemPrice {
+    font-weight: 600;
+}
+
+.divider {
+    border: none;
+    border-top: 1px dashed #ddd;
+    margin: 15px 0;
+}
+
+.costBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.costRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+}
+
+.costRow span:first-child {
+    color: #666;
+}
+
+.totalRow {
+    font-size: 1.2rem;
+    color: #333;
+    border-top: 2px solid #333;
+    padding-top: 10px;
+}
+
+.totalRow strong {
+    font-weight: 700;
+}
+
+.processingText {
+    text-align: center;
+    margin-top: 15px;
+    color: #007bff;
+    font-style: italic;
+}
+
+.empty {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-style: italic;
+}

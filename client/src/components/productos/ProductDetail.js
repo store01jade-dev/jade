@@ -219,7 +219,7 @@ export default function ProductDetail({ productoId }) {
 
         // 🚨 CRÍTICO: Usar la VARIANTE SELECCIONADA, no el producto padre
         // La lógica de CartContext.js debe usar: variante.id, variante.precio, etc.
-        addItemToCart(varianteSeleccionada, quantity); 
+        addItemToCart(varianteSeleccionada, quantity, finalSrc); 
         
         alert(`¡${quantity}x ${varianteSeleccionada.talla}/${varianteSeleccionada.color} añadido!`);
     };

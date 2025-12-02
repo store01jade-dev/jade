@@ -4,7 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/components/context/CartContext';
+import { useRouter } from 'next/navigation';
 import styles from './CartPage.module.css';
+import { useAuth } from '@/context/AuthContext';
+
 
 // -----------------------------------------------------------
 // Componente de una sola fila de producto
@@ -55,6 +58,20 @@ const CartItem = ({ item }) => {
 // -----------------------------------------------------------
 export default function CartPage() {
     const { cartItems, cartTotal, clearCart } = useCart();
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
+
+    //Funcion que maneja la navegacion
+    const handleCheckout = () => {
+        if(isAuthenticated) {
+            //Si el usuario esta logueado, ve al checkout
+            router.push('/checkout');
+        } else {
+            //Si no esta logueado ve a login 
+            // La página de login debe redirigir al checkout después del inicio de sesión.
+            router.push('/login?redirect=/checkout');
+        }
+    }
 
     if (cartItems.length === 0) {
         return (
@@ -89,7 +106,7 @@ export default function CartPage() {
                     <span>${cartTotal.toFixed(2)}</span>
                 </div>
                 
-                <button className={styles.checkoutButton}>
+                <button className={styles.checkoutButton} onClick={handleCheckout}>
                     Proceder al Pago (Checkout)
                 </button>
                 <button onClick={clearCart} className={styles.clearCartButton}>
