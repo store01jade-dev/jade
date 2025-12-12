@@ -22,20 +22,22 @@ export default function CardSimple({ producto }) {
   const imagenUrl = imagenObjeto?.url || DEFAULT_IMAGE_URL;*/ 
 
   // ... lógica para obtener imagenObjeto (ya corregida)
-  const imagenObjeto = producto.imagenesProducto ? producto.imagenesProducto[0] : null; 
-  const imagenUrlRelativa = imagenObjeto?.url;
+  //const imagenObjeto = producto.imagenesProducto ? producto.imagenesProducto[0] : null; 
+  const imagenPrincipal = producto.imagenesProducto.find(img => img.principal === true) || producto.imagenesProducto[0]; // Si no hay principal, toma la primera.
+  const imagenUrlRelativa = imagenPrincipal?.url;
   
   // Construye la URL absoluta
   const finalSrc = imagenUrlRelativa 
     ? `${BASE_URL_API}${imagenUrlRelativa}` // Ej: http://localhost:4000/uploads/...
     : DEFAULT_IMAGE_URL;
-
+    
+  const cacheBuster = Date.now();
 
   return (
     <Link href={`/productos/${producto.id}`} className={style.cardSimple}>
       {/* 1. Imagen del Producto */}
       <div className={style.imagenWrapper}>
-        <Image src={finalSrc} 
+        <Image src={`${finalSrc}?v=${cacheBuster}`} 
           alt={`Imagen de ${producto.nombre}`} 
           width={300} 
           height={300} 

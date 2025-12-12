@@ -68,7 +68,7 @@ router.get("/:id", multerInstance.array('images', 10), obtenerProducto);
 
 // Rutas protegidas (solo admin o dev pueden modificar productos)
 router.post("/", authMiddleware, authorizeRoles("admin", "dev"), multerInstance.array('images', 10), crearProducto);
-router.put("/:id", authMiddleware, authorizeRoles("admin", "dev"), multerInstance.array('images', 10), actualizarProducto);
+router.patch("/:id", authMiddleware, authorizeRoles("admin", "dev"), multerInstance.array('images', 10), actualizarProducto);
 router.delete("/:id", authMiddleware, authorizeRoles("admin", "dev"), eliminarProducto);
 
 export default router;

@@ -1,108 +1,8 @@
-/* components/products/ProductDetail.js
-'use client'; 
-
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import style from './ProductoDetail.module.css';
-
-// La URL base de tu API (la misma que usaste en ProductList)
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
-
-// Se asume que este componente recibirá el ID del producto de la URL
-export default function ProductDetail({ productoId }) {
-  const [producto, setProducto] = useState(null);
-  const [cantidad, setCantidad] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-   // Lógica para cargar el producto específico
-  useEffect(() => {
-    const loadProduct = async () => {
-      setIsLoading(true);
-      
-      // 📌 CRÍTICO: Usar el productoId para llamar al endpoint GET /productos/:id
-      const url = `${API_BASE_URL}/productos/${productoId}`; 
-
-      try {
-          const response = await fetch(url);
-          if (!response.ok) {
-              // Si el ID es inválido, arroja un error para mostrar "Producto no encontrado"
-              throw new Error("Producto no encontrado o error en el servidor.");
-          }
-          const data = await response.json();
-          setProducto(data);
-      } catch (error) {
-          console.error("Error fetching product detail:", error);
-          setProducto(null); // Asegura que el estado sea null si hay error
-      } finally {
-          setIsLoading(false);
-      }
-    };
-    
-    // Solo carga si tenemos un ID
-    if (productoId) {
-        loadProduct();
-    }
-    
-  }, [productoId]); // La dependencia es correcta
-  
-  // Función para agregar al carrito (se usará el CartContext más adelante)
-  const handleAddToCart = () => {
-    console.log(`Agregando ${cantidad} de ${producto.nombre} al carrito.`);
-    // Implementar lógica de CartContext.addToCart
-  };
-
-  if (isLoading) return <div>Cargando detalles del producto...</div>;
-  if (error) return <div>{error}</div>; 
-  if (!producto) return <div>Producto no encontrado.</div>;
-
-  const precioPrincipal = producto.variantes?.[0]?.precio;
-
-  return (
-    <div className={style.productoDetalleGrid}>
-      {/* 1. Carrusel/Galería de Imágenes ///
-      <div className={style.galeriaImagenes}>
-        {/* Muestra varias imágenes del producto ///
-      </div>
-
-      {/* 2. Información Principal ///
-      <div className={style.infoPrincipal}>
-        <h1>{producto.nombre}</h1>
-        <p className={style.precio}>${parseFloat(precioPrincipal)?.toFixed(2)}</p>
-        <p className={style.descripcion}>{producto.descripcion}</p>
-        
-        {/* Tallas y Colores (variantes de producto) ///
-        <div className={style.opcionesVariantes}>
-            {/* Componente de selección de Talla y Color ///
-        </div>
-        
-        {/* 3. Área de Compra ///
-        <div className={style.areaCompra}>
-          <input 
-            type="number" 
-            min="1" 
-            value={cantidad} 
-            onChange={(e) => setCantidad(Number(e.target.value))}
-          />
-          <button onClick={handleAddToCart}>Agregar al Carrito</button>
-        </div>
-        
-        {/* 4. Reseñas y Calificaciones (Componente futuro) ///
-        <div className={style.seccionReviews}>
-          {/* Aquí irá el componente para mostrar y agregar reseñas ///
-        </div>
-      </div>
-    </div>
-  );
-}*/
-
-// components/products/ProductDetail.js
-
 // components/productos/ProductDetail.js
 'use client'; 
 import Image from 'next/image';
 import { useState, useEffect, useMemo } from 'react';
-import { useCart } from '@/components/context/CartContext'; // Corregí la ruta de importación
+import { useCart } from '@/components/context/CartContext'; 
 import styles from './ProductoDetail.module.css'; 
 
 const BASE_URL_API = 'http://localhost:4000/api/v1'; 
@@ -125,8 +25,14 @@ export default function ProductDetail({ productoId }) {
     const [currentRating, setCurrentRating] = useState(0); 
     const [hasVoted, setHasVoted] = useState(false);
 
+    // NUEVO ESTADO CRÍTICO: Precio que realmente se muestra
+    const [precioVisible, setPrecioVisible] = useState(0); 
+    
+    // Estado para la imagen principal seleccionada
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
     // ------------------------------------------
-    // Lógica de Carga de Datos (Server-Side approach is better, but this works)
+    // Lógica de Carga de Datos
     // ------------------------------------------
     useEffect(() => {
         const loadProduct = async () => {
@@ -142,9 +48,18 @@ export default function ProductDetail({ productoId }) {
                 }
                 const data = await response.json();
                 
-                // 📌 INICIALIZACIÓN: Establecer el rating y el producto
+                // INICIALIZACIÓN: Establecer el rating y el producto
                 setProducto(data);
                 setCurrentRating(data.rating || 0);
+
+                // 📌 INICIALIZACIÓN DEL PRECIO: Usar precio_base por defecto
+                const basePrice = parseFloat(data.precio_base) || 0;
+                setPrecioVisible(basePrice);
+                
+                // 📌 INICIALIZACIÓN DE IMAGEN: Seleccionar la imagen principal
+                const principalIndex = data.imagenesProducto?.findIndex(img => img.principal === true);
+                setSelectedImageIndex(principalIndex !== -1 ? principalIndex : 0);
+
 
             } catch (error) {
                 console.error("Error fetching product detail:", error);
@@ -165,7 +80,6 @@ export default function ProductDetail({ productoId }) {
     // LÓGICA MEMORIZADA: Encuentra la variante coincidente
     // ------------------------------------------
     const varianteSeleccionada = useMemo(() => {
-        // La validación de !producto se hace en el renderizado inferior.
         if (!producto || !producto.variantes || !selectedTalla || !selectedColor) {
             return null; 
         }
@@ -174,6 +88,29 @@ export default function ProductDetail({ productoId }) {
             v => v.talla === selectedTalla && v.color === selectedColor
         );
     }, [producto, selectedTalla, selectedColor]);
+
+
+    // ------------------------------------------
+    // 📌 LÓGICA DINÁMICA DEL PRECIO
+    // ------------------------------------------
+    useEffect(() => {
+        if (!producto) return;
+
+        const basePrice = parseFloat(producto.precio_base) || 0;
+
+        // Intentamos obtener el precio de la variante seleccionada
+        const variantPrice = parseFloat(varianteSeleccionada?.precio);
+
+        // REGLA: Si hay una variante seleccionada Y tiene un precio válido (> 0)
+        if (varianteSeleccionada && !isNaN(variantPrice) && variantPrice > 0) {
+            // Usar el precio de la variante
+            setPrecioVisible(variantPrice);
+        } else {
+            // En cualquier otro caso, usar el precio base
+            setPrecioVisible(basePrice);
+        }
+        
+    }, [varianteSeleccionada, producto]); 
 
     // ------------------------------------------
     // LÓGICA DE VOTACIÓN (No modificada)
@@ -201,34 +138,70 @@ export default function ProductDetail({ productoId }) {
     };
 
     // ------------------------------------------
-    // LÓGICA DE AÑADIR AL CARRITO (CORREGIDA)
+    // LÓGICA DE AÑADIR AL CARRITO (Asegura la estructura correcta)
     // ------------------------------------------
+    
+    const hasVariantes = producto?.variantes?.length > 0;
+    
     const handleAddToCart = () => {
-        if (!selectedTalla || !selectedColor) {
-            alert('Por favor, selecciona una Talla y un Color antes de añadir al carrito.');
-            return;
-        }
-        if (!varianteSeleccionada) {
-            alert('La combinación de Talla y Color seleccionada no está disponible.');
-            return;
-        }
         if (quantity <= 0) {
             alert('La cantidad debe ser mayor a cero.');
             return;
         }
 
-        // 🚨 CRÍTICO: Usar la VARIANTE SELECCIONADA, no el producto padre
-        // La lógica de CartContext.js debe usar: variante.id, variante.precio, etc.
-        addItemToCart(varianteSeleccionada, quantity, finalSrc); 
+        let itemToAdd = null;
         
-        alert(`¡${quantity}x ${varianteSeleccionada.talla}/${varianteSeleccionada.color} añadido!`);
+        // CASO A: Producto CON variantes
+        if (hasVariantes) {
+            if (!selectedTalla || !selectedColor) {
+                alert('Por favor, selecciona Talla y Color antes de añadir.');
+                return;
+            }
+            if (!varianteSeleccionada) {
+                 alert('La combinación seleccionada no está disponible.');
+                 return;
+            }
+            // CRÍTICO: Aseguramos que el precio que se añade al carrito es el precio final visible
+            itemToAdd = { ...varianteSeleccionada, precio: precioVisible }; 
+        } 
+        // CASO B: Producto SIN variantes
+        else {
+            const basePrice = parseFloat(producto.precio_base);
+
+            if (isNaN(basePrice) || basePrice <= 0) {
+                alert('Este producto no tiene precio de venta válido.');
+                return;
+            }
+            
+            // Creamos una "variante" con la estructura necesaria para CartContext
+            itemToAdd = {
+                id: producto.id, 
+                nombre: producto.nombre,
+                talla: null, 
+                color: null, 
+                precio: basePrice, 
+                sku: producto.id.toString(), 
+            };
+        }
+
+        // --- Obtener Imagen URL ---
+        const imagenObjeto = producto?.imagenesProducto?.find((_, index) => index === selectedImageIndex) || producto?.imagenesProducto?.[0];
+        const finalSrc = imagenObjeto?.url ? `${API_BASE_URL}${imagenObjeto.url}` : DEFAULT_IMAGE_URL;
+
+        // 3. Añadir al carrito
+        addItemToCart(itemToAdd, quantity, finalSrc); 
+        
+        const itemDescription = hasVariantes 
+            ? `${itemToAdd.talla}/${itemToAdd.color}` 
+            : `(Unidad)`;
+
+        alert(`¡${quantity}x ${producto.nombre} ${itemDescription} añadido!`);
     };
 
     // ------------------------------------------
     // Renderizado de Selectores (Optimizados)
     // ------------------------------------------
 
-    // Usamos Set para obtener listas únicas de tallas y colores disponibles
     const availableTallas = useMemo(() => {
         if (!producto || !producto.variantes) return [];
         return [...new Set(producto.variantes.map(v => v.talla))];
@@ -236,77 +209,103 @@ export default function ProductDetail({ productoId }) {
 
     const availableColores = useMemo(() => {
         if (!producto || !producto.variantes) return [];
-        // Filtra colores disponibles basados en la talla actual para un mejor UX
         return [...new Set(producto.variantes
             .filter(v => !selectedTalla || v.talla === selectedTalla)
             .map(v => v.color))];
     }, [producto, selectedTalla]);
 
-    // Lógica para construir la URL de la imagen
-    const imagenObjeto = producto?.imagenesProducto?.[0];
-
-    // 2. Obtener la URL relativa (ej: /uploads/images-...)
-
-    const imagenUrlRelativa = imagenObjeto?.url;
-
-    // 3. Construir la URL final (con fallback)
-    const finalSrc = imagenUrlRelativa 
-        ? `${API_BASE_URL}${imagenUrlRelativa}` 
-        : DEFAULT_IMAGE_URL;
-
     // ------------------------------------------
-    // Renderizado Condicional
+    // Renderizado Condicional y Formato
     // ------------------------------------------
 
     if (isLoading) return <div className={styles.loadingMessage}>Cargando detalles del producto...</div>;
     if (error) return <div className={styles.errorMessage}>{error}</div>; 
     if (!producto) return <div className={styles.errorMessage}>Producto no encontrado.</div>;
 
-    // El precio mostrado será el de la variante seleccionada, o el primero, o 0.
-    const displayPrice = varianteSeleccionada?.precio || producto?.variantes?.[0]?.precio || 0;
+    // Formato del precio
+    const formattedPrice = parseFloat(precioVisible);
+    const priceDisplay = isNaN(formattedPrice) || formattedPrice <= 0 
+        ? 'N/A' 
+        : `$${formattedPrice.toFixed(2)}`;
+
+    // 📌 Lógica para obtener todas las URLs de imágenes (con Cache-Busting)
+    const allImageUrls = producto?.imagenesProducto?.map(img => {
+        const imageUpdateTimestamp = new Date(img.updatedAt).getTime();
+        // Aplicamos Cache-Busting: el timestamp cambia si la imagen es actualizada.
+        return `${API_BASE_URL}${img.url}?v=${imageUpdateTimestamp}`; 
+    }) || [DEFAULT_IMAGE_URL];
+
+    const currentImageUrl = allImageUrls[selectedImageIndex] || DEFAULT_IMAGE_URL;
+
+    const basePriceValid = parseFloat(producto?.precio_base) > 0;
+
+    const isPurchaseValid = hasVariantes 
+        ? (varianteSeleccionada !== null)
+        : basePriceValid;
 
     return (
         <div className={styles.productoDetalleGrid}>
             
             {/* 1. Carrusel/Galería de Imágenes */}
-            <div className={styles.galeriaImagenes}>
-                <Image 
-                    src={finalSrc} 
-                    alt={`Imagen de ${producto.nombre}`} 
-                    width={500} 
-                    height={500} 
-                    style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
-                />
+            <div className={styles.galeriaWrapper}> 
+                
+                {/* Miniaturas de Navegación */}
+                <div className={styles.miniaturas}>
+                    {allImageUrls.map((url, index) => (
+                        <div 
+                            key={index} 
+                            className={`${styles.miniaturaItem} ${index === selectedImageIndex ? styles.activeMin : ''}`}
+                            onClick={() => setSelectedImageIndex(index)}
+                        >
+                            <Image 
+                                src={url} 
+                                alt={`Vista ${index + 1}`} 
+                                width={100} 
+                                height={100} 
+                                style={{ objectFit: 'cover' }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Imagen Principal */}
+                <div className={styles.galeriaImagenes}>
+                    <Image 
+                        src={currentImageUrl} 
+                        alt={`Imagen de ${producto.nombre}`} 
+                        width={600} 
+                        height={600} 
+                        style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
+                    />
+                </div>
             </div>
 
             {/* 2. Información Principal */}
             <div className={styles.infoPrincipal}>
+                
+                {/* 1. Título */}
                 <h1>{producto.nombre}</h1>
-                <p className={styles.sku}>SKU: {producto.sku}</p>
 
-                {/* 📌 PRECIO DINÁMICO */}
-                <p className={styles.precio}>${(parseFloat(displayPrice)?.toFixed(2) || '0.00')}</p>
+                {/* 2. PRECIO DINÁMICO */}
+                <p className={styles.precio}>{priceDisplay}</p>
+                
+                {/* 3. Descripción */}
                 <p className={styles.descripcion}>{producto.descripcion || 'Sin descripción.'}</p>
                 
-                {/* Voto */}
-                <div className={styles.voteContainer}>
-                    <span className={styles.ratingCount}>{currentRating} Likes</span>
-                    <span 
-                    onClick={handleVote} 
-                    className={`${styles.heartIcon} ${hasVoted ? styles.heartFilled : ''}`}
-                    title={hasVoted ? "Ya votaste" : "Me gusta"}
-                    >
-                      {hasVoted ? '❤️' : '🤍'} 
-                    </span>
-                </div>
-                
                 {/* ----------------- SELECTORES ----------------- */}
+                {producto.variantes.length > 0 && (
                 <div className={styles.opcionesCompra}>
-                    
                     {/* SELECTOR DE TALLA */}
                     <div className={styles.selectGroup}>
                         <label>Talla:</label>
-                        <select onChange={(e) => setSelectedTalla(e.target.value)} value={selectedTalla || ''}>
+                        <select 
+                            onChange={(e) => {
+                                setSelectedTalla(e.target.value);
+                                // 📌 MEJORA UX: Resetear color al cambiar talla
+                                setSelectedColor(null); 
+                            }} 
+                            value={selectedTalla || ''}
+                        >
                             <option value="" disabled>Selecciona una Talla</option>
                             {availableTallas.map(talla => (
                                 <option key={talla} value={talla}>{talla}</option>
@@ -325,13 +324,14 @@ export default function ProductDetail({ productoId }) {
                         </select>
                     </div>
                 </div>
+                )}
                 
-                {/* 📌 MENSAJE DE SELECCIÓN FALTANTE */}
+                {/* MENSAJE DE SELECCIÓN FALTANTE */}
                 {!varianteSeleccionada && selectedTalla && selectedColor && (
                     <p className={styles.warningMessage}>Combinación no disponible.</p>
                 )}
 
-                {/* 4. Área de Compra */}
+                {/* 4. ÁREA DE COMPRA Y ACCIÓN */}
                 <div className={styles.productActions}>
                   {/* Input de Cantidad */}
                   <input 
@@ -345,11 +345,27 @@ export default function ProductDetail({ productoId }) {
                   <button 
                       className={styles.addToCartButton} 
                       onClick={handleAddToCart}
-                      disabled={!varianteSeleccionada || quantity <= 0} // Deshabilitar si no hay variante o cantidad inválida
+                      disabled={!isPurchaseValid || quantity <= 0} 
                   >
                       Añadir al Carrito
                   </button>
+                  
+                  {/* BOTÓN DE VOTO */}
+                  <div className={styles.voteContainer}>
+                      <span 
+                      onClick={handleVote} 
+                      className={`${styles.heartIcon} ${hasVoted ? styles.heartFilled : ''}`}
+                      title={hasVoted ? "Ya votaste" : "Me gusta"}
+                      >
+                        {hasVoted ? '❤️' : '🤍'} 
+                      </span>
+                      <span className={styles.ratingCount}>{currentRating}</span>
+                  </div>
                 </div>
+
+                {/* 5. SKU 
+                <p className={styles.skuReference}>SKU: {producto.sku}</p>
+                */}
             </div>
         </div>
     );

@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+//import NextImage from 'next/image';
 import ProtectedRoute from '../../../../components/auth/ProtectedRoute';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,6 +15,7 @@ function NewProductContent() {
     const { token } = useAuth(); // Necesitas el token para la ruta protegida
     // --- NUEVO ESTADO PARA MANEJAR ARCHIVOS ---
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [mainImageIndex, setMainImageIndex] = useState(0); //estado: Índice de la imagen principal
     // --- NUEVOS ESTADOS PARA CATEGORÍAS ---
     const [categorias, setCategorias] = useState([]);
     const [isCategoriasLoading, setIsCategoriasLoading] = useState(true);
@@ -21,7 +24,7 @@ function NewProductContent() {
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
-        precio: '',
+        precio_base: '',
         activo: true,
         categoria_id: '', // <-- Campo para el ID de la categoría
         variantes: [],
@@ -78,10 +81,12 @@ function NewProductContent() {
         const { name, value, type, checked } = e.target;
         
         let newValue;
-        if (type === 'checkbox') {
+        if(name === 'precio_base'){
+            newValue = value === '' ? '' : parseFloat(value);
+        } else if (type === 'checkbox') {
             newValue = checked; // Para el campo 'activo'
-        } else if (name === 'precio' || name === 'categoria_id') {
-            newValue = name === 'categoria_id' ? parseInt(value) : parseFloat(value);
+        } else if (name === 'categoria_id') {
+            newValue = parseInt(value);
         } else {
             newValue = value;
         }
@@ -89,9 +94,9 @@ function NewProductContent() {
         setFormData(prev => ({ ...prev, [name]: newValue }));
     };
 
-    const handleFileChange = (e) => {
+    /*const handleFileChange = (e) => {
         setSelectedFiles(Array.from(e.target.files));
-    };
+    };*/
 
     /*const handleChange = (e) => {
         const { name, value } = e.target;
@@ -158,6 +163,14 @@ function NewProductContent() {
         }
     };*/
 
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setSelectedFiles(files);
+        // Resetea el índice principal si no hay archivos
+        setMainImageIndex(files.length > 0 ? 0 : null); 
+    };
+
     // ------------------------------------------------------------------
     // SUBMIT DEL FORMULARIO
     // ------------------------------------------------------------------
@@ -196,8 +209,15 @@ function NewProductContent() {
             });
 
             // 2. Agregar los archivos de imágenes
-            selectedFiles.forEach((file) => {
+            selectedFiles.forEach((file, index) => {
                 dataToUpload.append(`images`, file); 
+                // AÑADIR LA BANDERA PRINCIPAL
+                if (index === mainImageIndex) {
+                    // Envía un indicador para el Backend que debe ser 'true' para la principal
+                    dataToUpload.append(`isPrincipal`, 'true'); 
+                } else {
+                    dataToUpload.append(`isPrincipal`, 'false');
+                }
             });
 
             const response = await fetch(API_URL_PRODUCTOS, {
@@ -234,45 +254,33 @@ function NewProductContent() {
     }
 
     return (
-        <div className={style.container}> {/* Aplicar clase container */}
-            <h1 className={style.heading}>Crear Nuevo Producto</h1> {/* Aplicar clase heading */}
+        <div className={style.container}>
+            {/* ... heading y error ... */}
             
-            {error && <p className={style.error}>{error}</p>} {/* Aplicar clase error */}
-            
-            <form onSubmit={handleSubmit} className={style.form}> {/* Aplicar clase form */}
+            <form onSubmit={handleSubmit} className={style.form}>
                 
                 {/* CATEGORÍA */}
                 <label className={style.label}>
                     Categoría:
-                    {/*<select 
-                        name="categoria_id" 
-                        value={formData.categoria_id} 
-                        onChange={handleChange} 
-                        required 
-                        className={style.select} > {/* Aplicar clase select */}
-                    
-                        {/* ... options ... 
-                    </select>*/}
-
                     <select 
                         id="categoria" 
                         name="categoria_id" 
                         value={formData.categoria_id} 
                         onChange={handleChange}
-                        className={style.select} 
+                        className={style.select} // 📌 USO CORRECTO DE .select
                     >
-                        {/* Opción por defecto */}
+                        {/* ... options ... */}
                         <option value="">Selecciona una categoría</option>
-                        
-                        {/* 📌 Paso Crítico 3: Mapear la data */}
+
                         {categorias.map((cat) => (
                             <option 
                                 key={cat.id} 
-                                value={cat.id} // El valor debe ser el ID que el backend espera (categoria_id)
+                                value={cat.id} // El valor debe ser el ID (número)
                             >
-                                {cat.nombre} {/* Mostrar el nombre de la categoría */}
+                                {cat.nombre} {/* Mostrar el nombre */}
                             </option>
                         ))}
+
                     </select>
                 </label>
 
@@ -285,27 +293,35 @@ function NewProductContent() {
                 {/* DESCRIPCIÓN */}
                 <label className={style.label}>
                     Descripción:
-                    <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} required rows="4" className={style.input}></textarea>
+                    <textarea 
+                        name="descripcion" 
+                        value={formData.descripcion} 
+                        onChange={handleChange} 
+                        required 
+                        rows="4" 
+                        className={style.textarea} // 📌 USO CORRECTO DE .textarea
+                    ></textarea>
                 </label>
 
                 {/* PRECIO */}
                 <label className={style.label}>
                     Precio ($):
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} required min="0.01" step="0.01" className={style.input} />
+                    <input type="number" name="precio_base" value={formData.precio_base} onChange={handleChange} required={formData.variantes.length === 0} min="0.01" step="0.01" className={style.input} />
                 </label>
 
                 {/* ACTIVO/VISIBLE */}
-                <label className={style.checkboxLabel}> {/* Aplicar clase checkboxLabel */}
+                <label className={style.checkboxLabel}>
                     <input 
                         type="checkbox" 
                         name="activo" 
                         checked={formData.activo} 
                         onChange={handleChange} 
-                        className={style.checkboxInput} />{/* Aplicar clase checkboxInput */}
+                        className={style.checkboxInput} />
 
                     Producto Activo / Visible
                 </label>
 
+                {/* VARIANTES INPUT */}
                 {/* VARIANTES INPUT - (Este componente VariantesInput.js también debería usar CSS Modules) */}
                 <VariantesInput
                     variantes={formData.variantes} 
@@ -316,6 +332,34 @@ function NewProductContent() {
                 <label className={style.label}>
                     Imágenes del Producto:
                     <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" className={style.input} />
+
+                    {/* NUEVO BLOQUE DE PREVISUALIZACIÓN */}
+                    {selectedFiles.length > 0 && (
+                        <div className={style.imagePreviewContainer}>
+                            <h4 style={{ marginBottom: '10px' }}>Selecciona la Imagen Principal:</h4>
+                            <div className={style.imageGrid}>
+                                {selectedFiles.map((file, index) => (
+                                    <div key={index} className={`${style.imageItem} ${index === mainImageIndex ? style.mainImage : ''}`}>
+                                        <Image 
+                                            src={URL.createObjectURL(file)} 
+                                            alt={`Previsualización ${index + 1}`} 
+                                            width={100} 
+                                            height={100} 
+                                            style={{ objectFit: 'cover' }}
+                                        />
+                                        <button 
+                                            type="button"
+                                            className={style.selectMainButton}
+                                            onClick={() => setMainImageIndex(index)}
+                                        >
+                                            {index === mainImageIndex ? 'Principal' : 'Elegir'}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <small style={{ color: '#666', marginTop: '5px' }}>
                         {selectedFiles.length} archivo(s) seleccionado(s).
                     </small>

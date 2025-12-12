@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../../context/AuthContext';
@@ -8,6 +9,7 @@ import VariantesInput from '../../../../../app/admin/variantes/VariantesInput';
 import style from '../../nuevo/NuevoProducto.module.css'; // Reutilizamos los estilos
 
 const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+const BASE_URL_API = 'http://localhost:4000'
 
 function EditProductContent() {
     const router = useRouter();
@@ -17,13 +19,14 @@ function EditProductContent() {
 
     const [categories, setCategories] = useState([]);
     const [originalImages, setOriginalImages] = useState([]); // Imágenes que ya están en la DB
+    const [mainImageKey, setMainImageKey] = useState(null); // Identificador de la imagen principal
     const [selectedFiles, setSelectedFiles] = useState([]); // Nuevas imágenes a subir
     
     // Estado inicial que cargaremos con los datos del producto
     const [formData, setFormData] = useState({
         nombre: '', 
         descripcion: '', 
-        precio: '', 
+        precio_base: '', 
         categoria_id: '', 
         activo: true,
         variantes: [],
@@ -76,12 +79,14 @@ function EditProductContent() {
                     peso: parseFloat(v.peso) || 0,
                     // ... incluir otros campos de variante si existen
                 }));
+
+                const existingImages = productData.imagenesProducto || [];
                 
                 // CRÍTICO: Mapear los datos de la DB al estado del formulario
                 setFormData({
                     nombre: productData.nombre || '',
                     descripcion: productData.descripcion || '',
-                    precio: parseFloat(productData.precio) || 0,
+                    precio_base: parseFloat(productData.precio_base) || 0,
                     categoria_id: productData.categoria_id || (categoriesData.length > 0 ? categoriesData[0].id : ''),
                     activo: productData.activo || false,
                     // Asegúrate de que las variantes existan y sean un array
@@ -89,7 +94,13 @@ function EditProductContent() {
                 });
                 
                 // Guardar imágenes originales para mostrarlas
-                setOriginalImages(productData.imagenes || []); 
+                setOriginalImages(existingImages);
+                // Ajustar la inicialización de imágenes para definir el mainImageKey inicial
+                // Dentro de fetchData, después de setOriginalImages:
+                const principalImg = existingImages.find(img => img.principal === true);
+                if (principalImg) {
+                    setMainImageKey(`existing-${principalImg.id}`); // Formato: existing-{ID}
+                } 
 
             } catch (err) {
                 console.error("Error en fetchData:", err.message);
@@ -111,9 +122,11 @@ function EditProductContent() {
         let newValue;
         if (type === 'checkbox') {
             newValue = checked; 
-        } else if (name === 'precio' || name === 'categoria_id') {
-            // Manejamos precio y categoria_id como números
-            newValue = name === 'categoria_id' ? parseInt(value) : parseFloat(value);
+        // 📌 CORRECCIÓN: Usar precio_base y manejar el string vacío
+        } else if (name === 'precio_base') { 
+            newValue = value === '' ? '' : parseFloat(value);
+        } else if (name === 'categoria_id') {
+            newValue = parseInt(value);
         } else {
             newValue = value;
         }
@@ -126,10 +139,19 @@ function EditProductContent() {
         setSelectedFiles(Array.from(e.target.files));
     };
 
-    // Función para eliminar una imagen que ya existe en la DB (Opcional)
+    // Función para eliminar una imagen que ya existe en la DB (quitándola del estado)
     const handleRemoveOriginalImage = (imageId) => {
-        // Lógica de eliminación de imagen. Esto requeriría un nuevo endpoint: DELETE /api/v1/productos/:id/imagenes/:imageId
-        alert(`Implementar endpoint DELETE para la imagen ID: ${imageId}`);
+        if (!confirm('¿Estás seguro de que quieres eliminar esta imagen? Se borrará al guardar los cambios.')) return;
+        
+        // La imagen se elimina del estado `originalImages`
+        setOriginalImages(prevImages => prevImages.filter(img => img.id !== imageId));
+        
+        // El Backend recibirá la lista reducida de IDs a mantener y borrará la que falta.
+    };
+
+    // Función para marcar una imagen (existente o nueva) como principal
+    const setAsMainImage = (key) => {
+        setMainImageKey(key);
     };
 
     // ------------------------------------------------------------------
@@ -141,6 +163,7 @@ function EditProductContent() {
         setIsSubmitting(true);
 
         // ... (Validaciones) ...
+        console.log("El estado mainImageKey al hacer submit es:", mainImageKey);
 
         try {
             const dataToUpload = new FormData();
@@ -160,23 +183,61 @@ function EditProductContent() {
 
             // 2. Agregar los archivos de imágenes (nuevos)
             selectedFiles.forEach((file) => {
-                dataToUpload.append(`images`, file); 
+                dataToUpload.append(`newImages`, file); 
             });
+
+            // CRÍTICO: Enviar los IDs de las imágenes que DEBEN PERMANECER en la DB.
+            // Las que no estén en esta lista serán eliminadas por el Backend.
+            const imagesToKeepIds = originalImages.map(img => img.id);
+            dataToUpload.append('existingImageIds', JSON.stringify(imagesToKeepIds));
+
             
-            // 3. CRÍTICO: Usar el método PUT para actualizar
+            dataToUpload.append('mainImageKey', mainImageKey || ''); // Envía la clave
+
+            // 3. CRÍTICO: Usar el método PATCH para actualizar
             const response = await fetch(API_URL_PRODUCTO, {
-                method: 'PUT',
+                method: 'PATCH', // USAR PATCH (no PUT) para actualización parcial con FormData
                 headers: {
                     'Authorization': `Bearer ${token}`, 
+                    // ;NO USAR Content-Type: 'application/json'
                 },
                 body: dataToUpload, 
             });
 
             const data = await response.json();
 
+            console.log("Respuesta del Backend - Lista de Imágenes:", data.imagenesProducto);
+
             if (response.ok) {
                 alert('Producto actualizado exitosamente!');
-                router.push('/admin/productos');
+
+                // 1. Re-inicializar OriginalImages para forzar el re-renderizado
+                const updatedImages = data.imagenesProducto || [];
+                setOriginalImages(updatedImages);
+
+                // 2. Recalcular el mainImageKey a partir de la nueva data del Backend
+                const principalImg = updatedImages.find(img => img.principal === true);
+                console.log("Imagen principal reportada por el Backend:", principalImg);
+                
+                if (principalImg) {
+                    // CRÍTICO: El nuevo principal debe ser el que acabamos de guardar
+                    setMainImageKey(`existing-${principalImg.id}`);
+                    console.log("Nueva clave principal establecida:", `existing-${principalImg.id}`); 
+                } else {
+                    // Si por alguna razón no hay principal (ej. se eliminó el único principal), resetear
+                    setMainImageKey(null);
+                }
+                
+                // 3. Opcional: Recargar la página (o redirigir) si el cambio es global
+                //Ejecutar la redirección (router.replace no devuelve promesa)
+                router.replace('/admin/productos'); 
+                
+                // 2. Forzar la recarga de la ventana después de un breve retraso 
+                //    para dar tiempo a que la redirección se inicie.
+                // Esto asegura que se anule la caché del navegador.
+                setTimeout(() => {
+                    window.location.reload(); 
+                }, 100); // 100 milisegundos es suficiente
             } else {
                 setError(data.message || 'Error al actualizar el producto.');
             }
@@ -242,15 +303,7 @@ function EditProductContent() {
                 {/* CRÍTICO: REINTRODUCIR CAMPO PRECIO */}
                 <label className={style.label}>
                     Precio ($):
-                    <input 
-                        type="number" 
-                        name="precio" 
-                        value={formData.precio} 
-                        onChange={handleChange} 
-                        required 
-                        min="0.01" 
-                        step="0.01" 
-                        className={style.input} />
+                    <input type="number" name="precio_base" value={formData.precio_base} onChange={handleChange} required={formData.variantes.length === 0} min="0.01" step="0.01" className={style.input} />
                 </label>
 
                 {/* ACTIVO/VISIBLE */}
@@ -268,13 +321,64 @@ function EditProductContent() {
                 {/* IMÁGENES EXISTENTES (Para referencia y eliminación) */}
                 <div style={{marginBottom: '20px', borderTop: '1px solid #eee', paddingTop: '15px'}}>
                     <h3 style={{marginBottom: '10px'}}>Imágenes Actuales ({originalImages.length})</h3>
-                    {originalImages.map(img => (
-                        <div key={img.id} style={{display: 'inline-block', marginRight: '10px'}}>
-                            {/*  // Descomentar si usas un servicio */}
-                            <img src={img.url} alt={`Imagen ${img.id}`} width="100" height="100" style={{objectFit: 'cover'}} />
-                            <button type="button" onClick={() => handleRemoveOriginalImage(img.id)} style={{color: 'red', border: 'none', background: 'none', cursor: 'pointer'}}>X</button>
-                        </div>
-                    ))}
+                    
+                    {/* 📌 ELIMINA EL PRIMER BLOQUE DUPLICADO Y SOLO USA ESTE: */}
+                    {originalImages.map(img => {
+                        const key = `existing-${img.id}`;
+                        const isMain = mainImageKey === key;
+                        return (
+                            <div key={img.id} style={{display: 'inline-block', marginRight: '10px', position: 'relative'}}>
+                                
+                                {/* 1. CONCATENACIÓN CRÍTICA DE LA URL */}
+                                <Image 
+                                    src={`${BASE_URL_API}${img.url}`} // Esto debe mostrar la imagen
+                                    alt={`Imagen ${img.id}`} 
+                                    width="100" 
+                                    height="100" 
+                                    style={{objectFit: 'cover'}} 
+                                />
+
+                                {/* Botón/Indicador de Principal */}
+                                <button 
+                                    type="button" 
+                                    onClick={() => setAsMainImage(key)} // Llama al handler con la clave
+                                    style={{
+                                        position: 'absolute', 
+                                        bottom: 0, 
+                                        left: 0, 
+                                        width: '100%', 
+                                        backgroundColor: isMain ? '#007bff' : 'rgba(0,0,0,0.6)', 
+                                        color: 'white',
+                                        padding: '5px',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                    title={isMain ? "Principal" : "Establecer como principal"}
+                                >
+                                    {isMain ? '★ Principal' : 'Hacer Principal'}
+                                </button>
+                                
+                                {/* 2. BOTÓN DE ELIMINACIÓN */}
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleRemoveOriginalImage(img.id)} 
+                                    style={{
+                                        position: 'absolute', // Permite posicionar el botón encima de la imagen
+                                        top: 0,
+                                        right: 0,
+                                        color: 'white', 
+                                        backgroundColor: 'rgba(220, 53, 69, 0.8)', // Rojo semi-transparente
+                                        border: 'none', 
+                                        cursor: 'pointer',
+                                        borderRadius: '0 0 0 5px',
+                                        padding: '3px 6px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                    X
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* NUEVAS IMÁGENES */}
@@ -283,6 +387,13 @@ function EditProductContent() {
                     <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" className={style.input} />
                     <small style={{ color: '#666', marginTop: '5px' }}>{selectedFiles.length} archivo(s) nuevo(s) en cola.</small>
                 </label>
+
+                <input 
+                    type="hidden" 
+                    name="mainImageKey" 
+                    value={mainImageKey || ''} 
+                    readOnly
+                />
                 
                 {/* BOTÓN DE SUBMIT */}
                 <button type="submit" disabled={isSubmitting} className={style.button}>

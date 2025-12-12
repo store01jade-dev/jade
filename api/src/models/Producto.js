@@ -22,6 +22,12 @@ const Producto = sequelize.define(
             allowNull: true,
         },
 
+        precio_base: { // O simplemente 'precio'
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: true, // Permitir NULL si solo se usa el precio de variante
+            defaultValue: 0.00
+        },
+
         activo: {
             type: DataTypes.BOOLEAN,
             allowNull: false

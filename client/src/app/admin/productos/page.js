@@ -134,12 +134,20 @@ function ProductManagementContent() {
                                 <td>{product.id}</td>
                                 <td>{product.nombre}</td>
                                 <td>
-                                    {/* Asumo que la categoría viene anidada como 'Categoria' o 'Category' */}
                                     {product.categoria ? product.categoria.nombre : 'Sin Categoría'}
                                 </td>
-                                <td>{product.variantes && product.variantes.length > 0
-                                        ? `$${parseFloat(product.variantes[0].precio).toFixed(2)}`
-                                        : '$N/A'}
+                                <td>
+                                    {(() => {
+                                        // 1. Prioridad: Precio de la primera variante
+                                        const priceValue = product?.variantes?.[0]?.precio || product?.precio_base || 0;
+                                        
+                                        const formattedPrice = parseFloat(priceValue);
+                                        
+                                        // 2. Mostrar el resultado o N/A
+                                        return isNaN(formattedPrice) || formattedPrice <= 0 
+                                            ? '$N/A'
+                                            : `$${formattedPrice.toFixed(2)}`;
+                                    })()}
                                 </td>
                                 <td>
                                     <Link href={`/admin/productos/${product.id}/editar`} passHref>

@@ -1,0 +1,91 @@
+/* PolicyModal.module.css */
+
+.modalOverlay {
+    position: fixed; /* Fija la modal sobre todo */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente y oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+}
+
+.modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto; /* Permite desplazamiento si el contenido es largo */
+    width: 600px; /* Ancho máximo en escritorio */
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+    padding: 5px 10px;
+}
+
+.modalBody {
+    line-height: 1.6;
+    color: #444;
+}
+
+/* 1. Estilos específicos para el formulario de contacto */
+.contactForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contactForm input[type="text"],
+.contactForm input[type="email"],
+.contactForm textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.contactForm button {
+    background-color: #0070f3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.contactForm button:disabled {
+    background-color: #a0c3ff;
+    cursor: not-allowed;
+}
+
+/* 2. Ajuste de tamaño para el modal de Contacto si es necesario */
+.smallModal {
+    width: 450px; /* Un poco más pequeño y enfocado para el formulario */
+}

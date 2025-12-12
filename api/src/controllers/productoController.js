@@ -17,6 +17,7 @@ import {
   Categoria,
   VarianteProducto,
   ProductoImagen,
+  sequelize
 } from "../models/index.js";
 
 /* Listar todos los productos con categorías, variantes e imágenes
@@ -188,7 +189,7 @@ export const crearProducto = async (req, res) => {
 export const crearProducto = async (req, res) => {
     // Asegúrate de leer 'variantes' del cuerpo
     const { 
-        nombre, descripcion, precio, activo, categoria_id, 
+        nombre, descripcion, precio_base, activo, categoria_id, 
         variantes // <-- LEER EL CAMPO VARIANTE
     } = req.body;
     const files = req.files; 
@@ -197,7 +198,7 @@ export const crearProducto = async (req, res) => {
     const datosProducto = {
         nombre, 
         descripcion, 
-        precio: parseFloat(precio), 
+        precio_base: precio_base ? parseFloat(precio_base) : 0.00, 
         activo: activo === 'true', // Convertir el string 'true'/'false' de FormData a booleano
         categoria_id: parseInt(categoria_id),
         // CRÍTICO: El array de variantes DEBE estar en el objeto principal
@@ -215,17 +216,20 @@ export const crearProducto = async (req, res) => {
 
         const nuevoProductoId = nuevoProducto.id;
 
-        // 2. Procesar y Asociar Imágenes (Lógica Asíncrona)
+        // 2. Procesar y Asociar Imágenes
         if (files && files.length > 0) {
-            //Procesar los archivos de disco
-            const imagenesParaGuardar = files.map(file => ({
-                // CRÍTICO: '/uploads/' + el nombre de archivo que Multer guardó en disco
+            // El Frontend debe enviar el campo 'isPrincipal' como un array de strings
+            const isPrincipalArray = req.body.isPrincipal 
+                ? (Array.isArray(req.body.isPrincipal) ? req.body.isPrincipal : [req.body.isPrincipal])
+                : [];
+
+            const imagenesParaGuardar = files.map((file, index) => ({
                 url: `/uploads/${file.filename}`, 
-                principal: true, // Asigna tu lógica de principal
+                // APLICAR LÓGICA DE PRINCIPAL
+                principal: isPrincipalArray[index] === 'true', 
                 producto_id: nuevoProductoId,
-            }))
+            }));
             
-            // Guardar en la tabla de imágenes (ESTE paso requiere una conexión/transacción separada o implícita)
             await ProductoImagen.bulkCreate(imagenesParaGuardar);
         }
 
@@ -272,7 +276,7 @@ export const crearProducto = async (req, res) => {
 //  PUT /api/v1/productos/:id
 //  - Actualizar un producto existente.
 
-export const actualizarProducto = async (req, res) => {
+/*export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
     const { 
         nombre, descripcion, precio, categoria_id, activo, 
@@ -357,6 +361,120 @@ export const actualizarProducto = async (req, res) => {
       console.error("Error al actualizar producto:", error);
       res.status(500).json({ error: "Error interno al actualizar el producto." });
         
+    }
+};*/
+
+export const actualizarProducto = async (req, res) => {
+    const { id } = req.params;
+    
+    // ... (Extracciones de req.body y normalización de mainImageKey) ...
+    const { 
+        nombre, descripcion, precio_base, activo, categoria_id, 
+        variantes: variantesJson,
+        existingImageIds: existingImageIdsJson
+    } = req.body;
+    const newFiles = req.files || [];
+    
+    let { mainImageKey } = req.body;
+    if (Array.isArray(mainImageKey)) {
+        mainImageKey = mainImageKey[0];
+    }
+
+    
+    try {
+        // 1. Conversión y Validación de Datos
+        const variantes = variantesJson ? JSON.parse(variantesJson) : [];
+        const existingImageIds = existingImageIdsJson ? JSON.parse(existingImageIdsJson) : [];
+        const isActivo = activo === 'true';
+        const basePrice = precio_base ? parseFloat(precio_base) : 0.00;
+        const catId = categoria_id ? parseInt(categoria_id) : null;
+
+        // 2. Transacción de Sequelize (Asegura atomicidad)
+        const productoFinal = await sequelize.transaction(async (t) => { 
+            
+            // --- A, B, C: Lógica de Actualización de Producto, Variantes y Limpieza de Imágenes ---
+            
+            const producto = await Producto.findByPk(id, { transaction: t });
+            if (!producto) {
+                throw new Error("Producto no encontrado"); 
+            }
+
+            // Actualización de datos principales
+            await producto.update({
+                nombre, descripcion, precio_base: basePrice, activo: isActivo, categoria_id: catId,
+            }, { transaction: t });
+
+            // Gestión de variantes (Destroy y bulkCreate)
+            await VarianteProducto.destroy({ where: { producto_id: id }, transaction: t });
+            if (variantes.length > 0) {
+                 const nuevasVariantes = variantes.map(v => ({ 
+                     sku: v.sku, talla: v.talla, color: v.color, stock: v.stock,
+                     precio: parseFloat(v.precio) || 0, peso: parseFloat(v.peso) || 0,
+                     producto_id: id 
+                 }));
+                 await VarianteProducto.bulkCreate(nuevasVariantes, { transaction: t });
+            }
+
+            // Gestión de imágenes (Destrucción de antiguas y creación de nuevas)
+            await ProductoImagen.destroy({
+                where: { producto_id: id, id: { [Op.notIn]: existingImageIds } },
+                transaction: t
+            });
+            const imagenesParaGuardar = newFiles.map(file => ({
+                url: `/uploads/${file.filename}`, principal: false, producto_id: id,
+            }));
+            const nuevasImagenes = await ProductoImagen.bulkCreate(imagenesParaGuardar, { transaction: t });
+            
+            // 3. Determinar y Asignar la Imagen PRINCIPAL
+            
+            // Limpieza: Aseguramos que todas sean false
+            await ProductoImagen.update({ principal: false }, { where: { producto_id: id }, transaction: t });
+
+            let targetImageId = null;
+            // ... (Tu lógica para determinar targetImageId a partir de mainImageKey) ...
+            console.log("mainImagenKey recicbido: ", mainImageKey);
+
+            if (mainImageKey && typeof mainImageKey === 'string' && mainImageKey.length > 0) {
+                if (mainImageKey.startsWith('existing-')) {
+                    targetImageId = parseInt(mainImageKey.split('-')[1]);
+                } else if (mainImageKey.startsWith('new-')) {
+                    const newIndex = parseInt(mainImageKey.split('-')[1]);
+                    targetImageId = nuevasImagenes[newIndex]?.id; 
+                }
+            }
+            console.log("targetImagenId asignado", targetImageId);
+            
+            // Asignación de principal: true
+            if (targetImageId) {
+                await ProductoImagen.update({ principal: true }, { where: { id: targetImageId }, transaction: t });
+            }
+            
+            // PUNTO CRÍTICO DE DEBUGGING: Verificar el estado de la imagen 26 inmediatamente
+            if (targetImageId) {
+                const debugCheck = await ProductoImagen.findByPk(targetImageId, { transaction: t });
+                console.log(`[DEBUG] Estado de la Imagen ${targetImageId} después del UPDATE:`, debugCheck.get('principal'));
+            }
+            
+            // 4. Recargar el producto CON la transacción (para ver los cambios)
+            const productoRecargado = await Producto.findByPk(id, { 
+                 include: [
+                     { model: ProductoImagen, as: 'imagenesProducto' }, 
+                     { model: VarianteProducto, as: 'variantes' },
+                     { model: Categoria, as: 'categoria' } 
+                 ],
+                 transaction: t 
+            });
+            
+            return productoRecargado; // Devuelve el producto actualizado
+        }); // Fin de la Transacción (COMMIT)
+
+        // 5. Devolver la respuesta final
+        res.status(200).json(productoFinal);
+        
+    } catch (error) {
+        // ... (Tu manejo de errores) ...
+        console.error(`Error al actualizar producto ID ${id}:`, error);
+        res.status(500).json({ error: "Error interno al actualizar el producto.", details: error.message });
     }
 };
 
