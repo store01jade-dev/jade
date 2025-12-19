@@ -27,7 +27,7 @@ const startServer = async () => {
 
     // solo en desarrollo usar sync({ alter: true }) 
     // en producción usar migraciones con Sequelize CLI
-    await sequelize.sync({alter:false});
+    await sequelize.sync({alter:true});
     console.log("Modelos sincronizados con éxito. Columnas añadidas/modificadas.")
 
     app.listen(PORT, () => {
