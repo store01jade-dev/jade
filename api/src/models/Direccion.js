@@ -35,6 +35,19 @@ const Direccion = sequelize.define(
             type: DataTypes.STRING(20),
             allowNull: true 
         },
+
+        documento_identidad: { 
+            type: DataTypes.STRING(20), 
+            allowNull: false 
+        },
+        barrio: { 
+            type: DataTypes.STRING(100), 
+            allowNull: false 
+        },
+        referencias: { 
+            type: DataTypes.TEXT, 
+            allowNull: true 
+        }
     }, 
 
     {

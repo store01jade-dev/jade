@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* 4 columnas para escritorio */
   text-align: center; /* Alineación general para el grid */
-  padding: 0; /* Ajustado el padding para que las secciones internas lo manejen */
+  padding: 1rem 0.5rem; /* Ajustado el padding para que las secciones internas lo manejen */
   width: auto;
   border-radius: 8px;
   font-family: var(--font-text);
@@ -35,7 +35,7 @@
   justify-content: center; /* Contenido arriba */
 }
 
-/* 📌 Centrar contenido de las columnas de enlaces (Política e Información) */
+/* Centrar contenido de las columnas de enlaces (Política e Información) */
 .politicas,
 .informacion {
   align-items: center; /* Centra los elementos flexibles (a y p) horizontalmente */
@@ -161,6 +161,8 @@
   .footer {
     /* 2x2 para tablets */
     grid-template-columns: repeat(2, 1fr);
+    padding: 1.5rem 0.5rem;
+    
   }
 
   /* Reiniciar bordes redondeados para la estructura 2x2 */
@@ -173,16 +175,19 @@
     border-end-end-radius: 0;
   }
   .comments {
-    border-start-end-radius: 0;
+    border-start-end-radius: 8px;
     border-end-end-radius: 8px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .footer {
     /* 📌 1 Columna para móvil */
     grid-template-columns: 1fr;
     text-align: center;
+    padding: 0;
+    width: auto;
+    margin: 0.5rem;
   }
 
   /* 📌 Restablecer la alineación para el modo móvil (centrada) */
@@ -216,14 +221,9 @@
   
   /* 📌 Restablecer todos los bordes redondeados para la única columna */
   .politicas {
-    border-radius: 8px 8px 0 0; /* Arriba redondeado */
+    border-radius: 8px 0 0 0; /* Arriba redondeado */
   }
-  .comments {
-    border-radius: 0 0 8px 8px; /* Abajo redondeado */
-  }
-  .informacion, .redes {
-    border-radius: 0; /* Sin bordes */
-  }
+  
 }
 
 

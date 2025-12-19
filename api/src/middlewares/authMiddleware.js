@@ -28,4 +28,16 @@ export const authMiddleware = (req, res, next) => {
         console.error("error en authMiddleware: ", error);
         return res.status(401).json({ message: "Token invalido o expirado" });
     }
-}
+};
+
+export const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        // roles es un array ['admin'], req.user.rol es el rol del usuario
+        if (!roles.includes(req.user.rol)) {
+            return res.status(403).json({ 
+                message: "No tienes permiso para realizar esta acción" 
+            });
+        }
+        next();
+    };
+};

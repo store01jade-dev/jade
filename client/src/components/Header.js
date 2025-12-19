@@ -15,68 +15,120 @@ import { useRouter } from "next/navigation";
 import { useCart } from "./context/CartContext";
 
 export default function Header() {
-    const [search, setSearch] = useState("");
-    const [open, setOpen] = useState(false);
-    const { isAuthenticated, logout, user } = useAuth();
-    const router = useRouter();
-    const { totalItems } = useCart();
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  // Controla la visibilidad del input de búsqueda en móvil
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { isAuthenticated, logout, user } = useAuth();
+  const router = useRouter();
+  const { totalItems } = useCart();
 
-    const handleLogout = () => {
-        logout();
-        router.push('/login'); // Redirigir al login después del logout
-    };
+  const handleLogout = () => {
+    logout();
+    router.push('/login'); // Redirigir al login después del logout
+  };
 
+  const handleSearch = () => {
+    if (search.trim()) {
+      // Redirige a /catalogo con el parámetro 'search' en la URL
+      router.push(`/catalogo?search=${encodeURIComponent(search.trim())}`);
+    } else {
+      // Opcional: Redirigir al catálogo sin búsqueda o mostrar un mensaje
+      router.push('/catalogo');
+    }
+  };
 
-    
+  // Alternar visibilidad del buscador móvil
+  const handleMobileSearchToggle = () => {
+    setSearchOpen(!searchOpen);
+    // Asegurarse de cerrar el menú de navegación si abrimos el buscador
+    if (open) setOpen(false); 
+  };
+  
+  // FUNCIÓN DE BÚSQUEDA MODIFICADA para móvil
+  const handleSearchAndClose = () => {
+    handleSearch(); // Ejecuta la búsqueda
+    setSearchOpen(false); // Cierra el buscador móvil después de buscar
+  };
+
+  // FUNCIÓN DE KEYDOWN MODIFICADA
+  const handleKeyDownAndClose = (e) => {
+    if (e.key === 'Enter') {
+        handleSearchAndClose(); // Usa la nueva función
+    }
+  };
 
   return (
     <header className={style.header}>
-      {/*Izquierda: navegacion logo y catalogo */}
-      <nav className={style.log}>
+      
+      {/* 1. Botón Hamburguesa (Izquierda) - OCULTO si la búsqueda móvil está activa */}
+      <button 
+        className={`${style.menuButton} ${searchOpen ? style.hiddenMobile : ''} ${style.mobileLeft}`} 
+        onClick={() => setOpen(!open)} 
+        aria-label="Abrir menú" 
+      >
+        <span className={style.bar}></span>
+        <span className={style.bar}></span>
+        <span className={style.bar}></span>
+      </button>
+
+      {/* 2. Logo (Centro) - Ajustamos la clase log para que solo contenga el logo en móvil */}
+      <nav className={`${style.log} ${searchOpen ? style.hiddenMobile : ''}`}> 
         <Link href="/">
-          <Image src={logo} alt="logo-Jade" width={100} height={100} />
+          {/* Usamos una clase separada para aplicar el tamaño estándar al logo en móvil */}
+          <Image src={logo} alt="logo-Jade" width={60} height={60}  className={style.iconMobile}/>
         </Link>
-        <Link href="/catalogo">
+        {/* Ocultamos el título "Catálogo" en móvil, si no se necesita en el centro */}
+        <Link href="/catalogo" className={style.catalogoLink}>
             <h1>Catalogo</h1>
         </Link>
       </nav>
+      
+      {/* 3. Centro: Buscador (Se mantiene su lógica de visibilidad) */}
+      <div className={`${style.search} ${searchOpen ? style.mobileActive : ''}`}> 
+        {/* 📌 1. NUEVO BOTÓN DE CERRAR/CANCELAR BÚSQUEDA */}
+        {searchOpen && (
+            <button
+                className={style.closeSearchBtn}
+                aria-label="Cerrar búsqueda"
+                onClick={handleMobileSearchToggle} // Usa la función de toggle para cerrarlo
+            >
+                <Image src={cerrarSesion} alt="Cerrar" width={20} height={20} />
+            </button>
+        )}
 
-      {/*Centro: Buscador*/}
-      <div className={style.search}>
-        <input
-            type="text"
-            placeholder="Encuentra tu producto"
-            value={search}
-            onChange={(e)=> setSearch(e.target.value)}
-        />
-        <button aria-label="Buscar">
+        <input type="text" placeholder="Encuentra tu producto" value={search} onChange={(e)=> setSearch(e.target.value)} onKeyDown={handleKeyDownAndClose} />
+        <button 
+            aria-label="Buscar"
+            onClick={handleSearchAndClose} 
+        >
             <Image src={buscar} alt="lupa para buscar" width={50} height={50} />
         </button>
       </div>
 
-      {/* Botón lupa móvil */}
-      <button className={style.mobileSearchBtn} aria-label="Buscar">
-        <Image
-            src={buscarLight}
-            alt="Buscar"
-            width={50}
-            height={50}
-            className={style.iconMobile}
-        />
-      </button>
-
-      {/* Botón hamburguesa (solo visible en móvil) */}
-      <button className={style.menuButton} onClick={() => setOpen(!open)} aria-label="Abrir menú" >
-        <span className={style.bar}></span>
-        <span className={style.bar}></span>
-        <span className={style.bar}></span>
-      </button>
-
-      {/*Derecha: Enlaces de accion */}
-      <nav className={style.actions}>
+      {/* 4. Derecha: Acciones (Carrito, Login/Logout, Lupa Móvil) */}
+      <nav className={`${style.actions} ${searchOpen ? style.hiddenMobile : ''}`}>
+        
+        {/* Botón lupa móvil (Lo movemos a .actions para que quede a la derecha) */}
+        <button 
+          className={`${style.mobileSearchBtn} ${searchOpen ? style.hiddenMobile : ''}`} 
+          aria-label="Buscar"
+          onClick={handleMobileSearchToggle}
+        >
+          <Image
+              src={buscarLight}
+              alt="Buscar"
+              width={50}
+              height={50}
+              className={style.iconMobile}
+          />
+        </button>
+        
+        {/* ... (Carrito y Auth se mantienen) ... */}
+        {/* Asegúrate de que todos los íconos de Image tengan la clase .iconMobile si quieres controlar el tamaño desde CSS */}
         <div className={style.cartWrapper}>
           <Link href="/carrito">
-            <Image src={cart} alt="carrito de compras" width={50} height={50} />
+            <Image src={cart} alt="carrito de compras" width={50} height={50}  className={style.iconMobile} />
           </Link>
           {/* Mostrar la burbuja de notificación si hay ítems */}
           {totalItems > 0 && (
@@ -88,23 +140,23 @@ export default function Header() {
           < >
            {/* Enlaces Específicos del Rol */}
            {user?.rol === 'admin' ? (
-              <Link href="/admin/dashboard"><h1>Dashboard Admin</h1></Link>
+              <Link href="/admin/dashboard"><h1>Admin</h1></Link>
                 ) : (
               <Link href="/perfil"><h1>Mi Perfil</h1></Link>
               )}
             <button onClick={handleLogout}>
-              <Image src={cerrarSesion} alt="cerrar sesion" width={50} height={50} />
+              <Image src={cerrarSesion} alt="cerrar sesion"  width={50} height={50}  className={style.iconMobile}/>
             </button>
           </>
           ) : (
           <Link href="/login">
-            <Image src={registro} alt="iniciar sesion" width={50} height={50} />
+            <Image src={registro} alt="iniciar sesion" width={50} height={50}  className={style.iconMobile} />
           </Link>
         )}
 
       </nav>
 
-      {/* Navegación */}
+      {/* 6. Navegación (Menú) - Usar la clase `open` para mostrar/ocultar */}
       <nav className={`${style.nav} ${open ? style.showMenu : ""}`}>
         <ul>
           <li>

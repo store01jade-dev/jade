@@ -15,32 +15,38 @@
     display: flex;
     gap: 15px;
 }
+/* ... (Miniaturas se mantienen igual) ... */
 
-.miniaturas {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.miniaturaItem {
-    width: 80px;
-    height: 80px;
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 4px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-}
-
-.miniaturaItem:hover, .activeMin {
-    border-color: #007bff; /* Color primario */
+/* 📌 CRÍTICO: El carruselContainer NO debe aplicar un overflow extra en desktop */
+.carruselContainer {
+    position: relative; 
+    /*width: auto;  Dejar que flex lo determine, o 100% si es necesario 
+    overflow: visible; /* Elimina el overflow que podría entrar en conflicto 
+    flex-grow: 1; /* Para que tome el mismo espacio que galeriaImagenes antes */
 }
 
 .galeriaImagenes {
-    flex-grow: 1; /* Ocupa el espacio restante */
+    /* Mantenemos el control de ancho y crecimiento */
+    flex-grow: 1; 
     max-width: 500px;
+    
+    /* 🚨 CRÍTICO: Aseguramos que el contenedor de imágenes no se desborde */
+    overflow: hidden; 
+    white-space: nowrap;
+
+    width: 100%;
 }
-/* El <Image> interior ya tiene width: 100% */
+
+.galeriaImagenes img {
+    display: inline-block; 
+    width: 100%; 
+    height: auto;
+}
+
+/* 📌 Botones: Ocultos en desktop */
+.navButton {
+    display: none; 
+}
 
 /* --- Información Principal (infoPrincipal) --- */
 .infoPrincipal h1 {
@@ -166,4 +172,157 @@
     font-size: 0.85rem;
     color: #999;
     margin-top: 20px;
+}
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    /* 📌 1. CAMBIO CRÍTICO: Grid de una sola columna */
+    .productoDetalleGrid {
+        grid-template-columns: 1fr; 
+        gap: 20px; /* Reducimos el espacio entre secciones */
+        padding: 10px 0.5rem; /* Padding lateral consistente con la página */
+        overflow-x: hidden;
+        max-width: none;
+    }
+
+    /* 📌 2. GALERÍA: Cambiar a carrusel deslizable */
+    .galeriaWrapper {
+        /*display: flex;*/
+        flex-direction: column; /* Apilamos Imagen Principal y Miniaturas */
+        gap: 0;
+    }
+
+    /* 📌 3. IMAGEN PRINCIPAL (El carrusel deslizable) */
+    .galeriaImagenes {
+        /* CRÍTICO: Esto permite el scroll horizontal y oculta el exceso */
+        overflow-x: scroll;
+        overflow-y: hidden;
+        white-space: nowrap; /* Mantiene las imágenes en una sola línea */
+        max-width: none;
+        width: 100%;
+        scroll-snap-type: x mandatory;
+        
+        /* Opcional: Ocultar la barra de scroll en Webkit (Chrome/Safari) */
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+
+    /* Ocultar barra de scroll en Webkit */
+    .galeriaImagenes::-webkit-scrollbar {
+        display: none;
+    }
+
+    .carruselContainer {
+        width: 100%;
+    }
+
+    /* Estilo para las imágenes dentro del carrusel */
+    .galeriaImagenes > * {
+        /* 📌 CRÍTICO: Las imágenes deben ocupar el 100% del ancho del viewport */
+        width: 100%; /* Usamos 100vw para que se ajusten al ancho de la pantalla */
+        height: auto;
+        display: inline-block; /* Permite alinearlas horizontalmente */
+        scroll-snap-align: start;
+    }
+    
+    /* Nota: Para un carrusel funcional, necesitarías envolver las imágenes en un contenedor 
+       que use `transform: translateX` basado en el estado, pero la base de CSS está aquí. */
+
+    /* 📌 4. MINIATURAS: Horizontal y Centradas */
+    .miniaturas {
+        display: none; 
+        flex-direction: row; /* Horizontal */
+        justify-content: center; /* Centrar las miniaturas */
+        /* Eliminamos las miniaturas para simplificar la interfaz móvil, 
+           ya que el usuario deslizará la imagen principal. */
+    }
+    
+    /* Si decides mantener las miniaturas, usa: */
+    /*.miniaturas {
+        flex-direction: row;
+        justify-content: center;
+        overflow-x: auto;
+        padding-bottom: 5px; 
+    }*/
+
+    /* 📌 ESTILOS DE BOTÓN DE NAVEGACIÓN */
+    .navButton {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: background 0.2s;
+    }
+
+    .navButton:hover {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .prevButton {
+        left: 10px;
+    }
+
+    .nextButton {
+        right: 10px;
+    }
+
+    /* 📌 5. SELECTORES Y ACCIONES: Mejorar el flujo */
+    .opcionesCompra {
+        flex-direction: column; /* Selectores apilados verticalmente */
+        gap: 15px;
+    }
+
+    .selectGroup select {
+        width: 100%; /* Ocupan todo el ancho */
+        min-width: unset;
+    }
+
+    .productActions {
+        flex-direction: column; /* Botones apilados */
+        gap: 10px;
+        align-items: center; /* Estira los botones al ancho completo */
+        width: auto;
+        overflow-x: hidden;
+    }
+
+    .quantityInput {
+        width: 100%; /* Ocupa todo el ancho */
+        text-align: left;
+    }
+    
+    .addToCartButton {
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 15px;
+    }
+    
+    .voteContainer {
+        justify-content: center;
+        width: 100%;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+
+    .infoPrincipal h1 {
+        font-size: 2rem;
+    }
+    
+    .precio {
+        font-size: 1.8rem;
+    }
 }

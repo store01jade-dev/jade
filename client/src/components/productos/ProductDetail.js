@@ -1,7 +1,7 @@
 // components/productos/ProductDetail.js
 'use client'; 
 import Image from 'next/image';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCart } from '@/components/context/CartContext'; 
 import styles from './ProductoDetail.module.css'; 
 
@@ -28,8 +28,11 @@ export default function ProductDetail({ productoId }) {
     // NUEVO ESTADO CRÍTICO: Precio que realmente se muestra
     const [precioVisible, setPrecioVisible] = useState(0); 
     
-    // Estado para la imagen principal seleccionada
+    // Estado para la imagen principal seleccionada (usado solo para navegación de escritorio)
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    // Referencia al contenedor de imágenes grandes
+    const galeriaRef = useRef(null);
 
     // ------------------------------------------
     // Lógica de Carga de Datos
@@ -60,7 +63,6 @@ export default function ProductDetail({ productoId }) {
                 const principalIndex = data.imagenesProducto?.findIndex(img => img.principal === true);
                 setSelectedImageIndex(principalIndex !== -1 ? principalIndex : 0);
 
-
             } catch (error) {
                 console.error("Error fetching product detail:", error);
                 setProducto(null); 
@@ -74,7 +76,18 @@ export default function ProductDetail({ productoId }) {
             loadProduct();
         }
         
-    }, [productoId]); 
+    }, [productoId]);
+    
+    /* 📌 NUEVO: Efecto para mover el carrusel en desktop cuando cambia la miniatura
+    useEffect(() => {
+        // Verificamos si la referencia existe y si el ancho es de escritorio (> 760px)
+        if (galeriaRef.current && window.innerWidth > 760) {
+            const offset = selectedImageIndex * 100;
+            // Mueve el contenedor horizontalmente usando transform
+            galeriaRef.current.style.transform = `translateX(-${offset}%)`;
+        }
+        // NOTA: No necesitamos limpiar esto porque el carrusel móvil usa scroll.
+    }, [selectedImageIndex]); // Dependencia clave: selectedImageIndex */
 
     // ------------------------------------------
     // LÓGICA MEMORIZADA: Encuentra la variante coincidente
@@ -189,7 +202,7 @@ export default function ProductDetail({ productoId }) {
         const finalSrc = imagenObjeto?.url ? `${API_BASE_URL}${imagenObjeto.url}` : DEFAULT_IMAGE_URL;
 
         // 3. Añadir al carrito
-        addItemToCart(itemToAdd, quantity, finalSrc); 
+        addItemToCart(itemToAdd, producto.nombre, quantity, finalSrc); 
         
         const itemDescription = hasVariantes 
             ? `${itemToAdd.talla}/${itemToAdd.color}` 
@@ -235,21 +248,41 @@ export default function ProductDetail({ productoId }) {
         return `${API_BASE_URL}${img.url}?v=${imageUpdateTimestamp}`; 
     }) || [DEFAULT_IMAGE_URL];
 
-    const currentImageUrl = allImageUrls[selectedImageIndex] || DEFAULT_IMAGE_URL;
+    // Esta variable solo se usa ahora para el modo escritorio/miniatura
+    const currentImageUrl = allImageUrls[selectedImageIndex] || DEFAULT_IMAGE_URL; 
 
     const basePriceValid = parseFloat(producto?.precio_base) > 0;
 
     const isPurchaseValid = hasVariantes 
         ? (varianteSeleccionada !== null)
         : basePriceValid;
+    
+    // Lógica de navegación de botones
+    const totalImages = allImageUrls.length;
+    
+    // Manejador para desplazamiento (útil para botones y scroll snap)
+    const handleScroll = (direction) => {
+        if (!galeriaRef.current) return;
+
+        const scrollWidth = galeriaRef.current.clientWidth; // Ancho de una imagen
+        
+        // Calcula el nuevo índice basado en la dirección
+        let newIndex = selectedImageIndex + direction;
+        
+        // Limita el índice
+        newIndex = Math.max(0, Math.min(totalImages - 1, newIndex));
+        setSelectedImageIndex(newIndex); // Actualiza el estado para saber dónde estamos
+
+        // 🚨 SCROLL JAVASCRIPT: Mueve el scroll del contenedor
+        galeriaRef.current.scrollLeft = newIndex * scrollWidth;
+    };
 
     return (
         <div className={styles.productoDetalleGrid}>
             
-            {/* 1. Carrusel/Galería de Imágenes */}
             <div className={styles.galeriaWrapper}> 
-                
-                {/* Miniaturas de Navegación */}
+            
+                {/* 1. Miniaturas de Navegación (Se mantiene igual) */}
                 <div className={styles.miniaturas}>
                     {allImageUrls.map((url, index) => (
                         <div 
@@ -268,15 +301,56 @@ export default function ProductDetail({ productoId }) {
                     ))}
                 </div>
 
-                {/* Imagen Principal */}
-                <div className={styles.galeriaImagenes}>
-                    <Image 
-                        src={currentImageUrl} 
-                        alt={`Imagen de ${producto.nombre}`} 
-                        width={600} 
-                        height={600} 
-                        style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
-                    />
+                {/* 📌 SOLUCIÓN: Usamos UN SOLO contenedor para carrusel y botones */}
+                <div className={styles.carruselContainer}> 
+                    
+                    {/* 2. Botones de Navegación (para Móvil) */}
+                    {/* Botón Atrás (Visible si no estamos en la primera imagen) */}
+                    {selectedImageIndex > 0 && (
+                        <button 
+                            className={`${styles.navButton} ${styles.prevButton}`} 
+                            onClick={() => handleScroll(-1)}
+                        >
+                            {'<'}
+                        </button>
+                    )}
+
+                    {/* 3. IMÁGENES PRINCIPALES (Carrusel/Galería) */}
+                    {/* 🚨 CRÍTICO: Aquí colocamos la referencia para el transform/scroll */}
+                    <div className={styles.galeriaImagenes} ref={galeriaRef}>
+                        {/* 🚨 SOLUCIÓN para DESKTOP: Renderizar solo la imagen de índice seleccionado */}
+                        {window.innerWidth > 760 ? (
+                            <Image 
+                                src={currentImageUrl} 
+                                alt={`Imagen de ${producto.nombre} - Vista ${selectedImageIndex + 1}`} 
+                                width={600} 
+                                height={600} 
+                                style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
+                            />
+                        ) : (
+                            // 🚨 SOLUCIÓN para MOBILE: Volver a mapear todas las imágenes para el carrusel de scroll
+                            allImageUrls.map((url, index) => (
+                                <Image 
+                                    key={index}
+                                    src={url} 
+                                    alt={`Vista ${index + 1} de ${producto.nombre}`} 
+                                    width={600} 
+                                    height={600} 
+                                    style={{ objectFit: 'contain' }}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Botón Adelante (Visible si no estamos en la última imagen) */}
+                    {selectedImageIndex < totalImages - 1 && (
+                        <button 
+                            className={`${styles.navButton} ${styles.nextButton}`} 
+                            onClick={() => handleScroll(1)}
+                        >
+                            {'>'}
+                        </button>
+                    )}
                 </div>
             </div>
 

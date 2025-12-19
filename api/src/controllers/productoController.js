@@ -76,9 +76,19 @@ export const listarProductos = async (req, res) => {
     // 4. Filtro por Precio (Asumiendo que el campo 'precio' es el precio base en la tabla Producto)
     // NOTA: Si solo quieres filtrar por precios de variantes, esta lógica debe ser más compleja.
     if (precioMin || precioMax) {
-        whereProducto.precio = {};
-        if (precioMin) whereProducto.precio[Op.gte] = parseFloat(precioMin); // Mayor o igual
-        if (precioMax) whereProducto.precio[Op.lte] = parseFloat(precioMax); // Menor o igual
+        // Usar precio_base en lugar de precio
+        whereProducto.precio_base = {}; 
+        
+        // Aseguramos que se envíe el filtro solo si el valor existe
+        if (precioMin) {
+            // Mayor o igual ( >= )
+            whereProducto.precio_base[Op.gte] = parseFloat(precioMin); 
+        }
+        
+        if (precioMax) {
+            // Menor o igual ( <= )
+            whereProducto.precio_base[Op.lte] = parseFloat(precioMax); 
+        }
     }
 
     try {

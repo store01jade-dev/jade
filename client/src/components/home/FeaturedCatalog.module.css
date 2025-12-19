@@ -4,9 +4,10 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding: 1rem; /* Padding interno */
+    padding: 1.5rem; /* Padding interno */
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 .sectionTitle {
@@ -23,7 +24,8 @@
     overflow-y: auto; 
     
     /*CRÍTICO: El Catálogo ocupa span 5, por lo que podemos usar 5 columnas */
-    grid-template-columns: repeat(5, 1fr); 
+    /* 📌 DESKTOP: Usamos auto-fit para mayor flexibilidad, asegurando que quepan 5 o más */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px; 
     
     /* Asegurar que es un grid */
@@ -35,4 +37,30 @@
     text-align: center;
     font-size: 1.1rem;
     padding: 30px 0;
+}
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    .catalogSection {
+        padding: 0.5rem 0.5rem; /* Menos padding horizontal en móvil */
+    }
+    
+    .sectionTitle {
+        font-size: 1.7rem; /* Títulos más pequeños */
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+    }
+
+    .productsGrid {
+        /* 📌 SOLUCIÓN CRÍTICA: Forzar un diseño de 2 columnas */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; /* Reducimos el gap para que quepan mejor */
+        
+        /* Aseguramos que el contenido vertical haga scroll */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 }

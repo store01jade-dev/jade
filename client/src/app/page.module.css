@@ -47,3 +47,42 @@
   background: var(--background-option);
   border-radius: 10px;
 }
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+  .page {
+    /* 📌 1. CAMBIO CRÍTICO: Una sola columna */
+    grid-template-columns: 1fr; 
+    /* Las filas se ajustan automáticamente */
+    grid-template-rows: auto; 
+    gap: 16px; /* Aumentamos el espacio entre secciones para mejor lectura en móvil */
+    padding: 1rem 0; /* Más padding vertical */
+    margin: 0 0.5rem;
+    /* 📌 AÑADIDO: Forzar box-sizing para que padding no aumente el ancho */
+    box-sizing: border-box; 
+    
+    /* 📌 AÑADIDO: Prevenir que el contenido se desborde fuera del contenedor */
+    overflow-x: hidden;
+  }
+
+  /* 📌 2. RESETEAR LAS ASIGNACIONES DE COLUMNA Y FILA */
+  /* Forzar a cada sección a ocupar el 100% del ancho (1 columna) */
+  .banner,
+  .new,
+  .catalogo,
+  .tendencia,
+  .coments {
+    /* Ocupar la única columna disponible (100% del ancho) */
+    grid-column: 1 / 1; 
+    /* Dejar que el flujo normal apile los elementos */
+    grid-row: auto; 
+    grid-column-start: auto;
+    grid-row-start: auto;
+    
+    /* Opcional: Altura mínima para que no se colapsen si el contenido es muy pequeño */
+    min-height: 250px; 
+  }
+}

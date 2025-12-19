@@ -96,3 +96,29 @@
     font-size: 0.9rem;
     color: #555;
 }
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    .cardSimple {
+        padding: 5px; /* Reducimos el padding interno de la tarjeta */
+    }
+    
+    .nombreProducto {
+        /* Reducimos el tamaño de la fuente para que el nombre quepa mejor */
+        font-size: 0.9rem; 
+        padding: 0.1rem 0.25rem; /* Menos padding alrededor del texto */
+    }
+    
+    .imagenWrapper {
+        /* Mantenemos la proporción 1:1, pero aseguramos que la imagen use todo el espacio */
+        width: 100%;
+    }
+    
+    /* Si decides añadir el voto/corazón en el futuro, ajústalos aquí */
+    .heartIcon {
+        font-size: 1.2rem;
+    }
+}

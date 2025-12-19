@@ -42,3 +42,127 @@
 .precioRangeWrapper > div {
     flex: 1 1 0%; 
 }
+
+/* 📌 OCULTAR FLECHAS (SPINNERS) EN INPUT TYPE="NUMBER" */
+
+/* Para Chrome, Safari, Edge, Opera */
+.inputField[type="number"]::-webkit-outer-spin-button,
+.inputField[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Para Firefox */
+.inputField[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* CONTENEDOR DE BOTONES DE ACCIÓN */
+.actionButtons {
+    flex: 1 1 100%; /* Ocupa todo el ancho si hay espacio */
+    display: flex;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+    gap: 1rem;
+    padding-top: 0.5rem;
+}
+
+/* Estilos base para todos los botones de acción */
+.aplicarBtn,
+.limpiarBtn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* BOTÓN APLICAR FILTROS (Primario) */
+.aplicarBtn {
+    background-color: #3b82f6; /* Azul fuerte (ej. Tailwind blue-500) */
+    color: white;
+}
+
+.aplicarBtn:hover {
+    background-color: #2563eb; /* Azul más oscuro al hacer hover */
+    transform: translateY(-1px);
+}
+
+/* BOTÓN LIMPIAR (Secundario/Invertido) */
+.limpiarBtn {
+    background-color: #ffffff; /* Blanco */
+    color: #6b7280; /* Texto gris */
+    border: 1px solid #d1d5db;
+}
+
+.limpiarBtn:hover {
+    background-color: #f3f4f6; /* Gris muy claro al hacer hover */
+    transform: translateY(-1px);
+}
+
+/* Filtros.module.css */
+
+/* ... (Tus estilos existentes) ... */
+
+
+/* CONTENEDOR DE BOTONES DE ACCIÓN */
+.actionButtons {
+    /* Alinea el grupo de botones bajo los filtros */
+    flex: 1 1 100%; 
+    display: flex;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+    gap: 1rem;
+    margin-top: 1rem; /* Separación de los inputs */
+    /* Asegura que los botones se alineen en la parte inferior del contenedor principal */
+    align-self: flex-end;
+}
+
+/* Estilos base para todos los botones de acción
+.aplicarBtn,
+.limpiarBtn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}*/
+
+/* BOTÓN APLICAR FILTROS (Primario) */
+.aplicarBtn {
+    background-color: #38bdf8; /* Color de acento (ej. el que usaste en el hover del footer) */
+    color: white;
+    border: 1px solid #38bdf8;
+}
+
+.aplicarBtn:hover {
+    background-color: #0ea5e9; /* Un tono más oscuro */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* BOTÓN LIMPIAR (Secundario) */
+.limpiarBtn {
+    background-color: transparent; /* Fondo transparente */
+    color: #4b5563; /* Texto gris oscuro */
+    border: 1px solid #d1d5db; /* Borde sutil */
+}
+
+.limpiarBtn:hover {
+    background-color: #f3f4f6; /* Fondo gris claro al hacer hover */
+    color: #1f2937;
+}
+
+/* RESPONSIVE: Apilar botones en móvil */
+@media (max-width: 640px) {
+    .actionButtons {
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .aplicarBtn,
+    .limpiarBtn {
+        width: 100%; /* Ocupan todo el ancho en móvil */
+    }
+}

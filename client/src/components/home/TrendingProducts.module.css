@@ -2,12 +2,13 @@
 
 .trendingSection {
     width: 100%;
-    /* Aseguramos que la sección ocupe toda la altura de la celda de grid */
     height: 100%; 
     box-sizing: border-box;
-    padding: 1rem; /* Padding interno para que el contenido no pegue a los bordes */
+    padding: 1rem; 
     display: flex;
-    flex-direction: column; /* Apila título y productos verticalmente */
+    flex-direction: column;
+    /* 📌 Añadido: Prevenir desbordamiento horizontal */
+    overflow-x: hidden; 
 }
 
 .sectionTitle {
@@ -16,29 +17,48 @@
     margin-bottom: 20px; 
     border-bottom: 2px solid #ccc;
     padding-bottom: 10px;
-    /* Los productos en tendencia suelen estar en un contenedor de color diferente (opcional) */
     color: var(--background-option);
 }
 
 .productsGrid {
-    /* Permite que el grid de productos ocupe el espacio restante */
     flex-grow: 1; 
-    /* Permite el scroll interno si hay muchos productos */
     overflow-y: auto; 
     
-    /* 📌 CRÍTICO: El contenedor usa SPAN 3, así que 3 columnas es el máximo ideal */
+    /* 📌 DESKTOP/GENERAL: Usamos una opción flexible que se ajuste al span 3 */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
     display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    
-    /* Si las tarjetas son muy grandes, puedes reducirlas a 2 columnas */
-    /* grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); */
     gap: 15px; 
     color: var(--background-option);
 }
 
-.loadingMessage {
+.loadingMessage, .noDataMessage {
     text-align: center;
     font-size: 1.1rem;
     padding: 30px 0;
+}
+
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    .trendingSection {
+        padding: 0.5rem 0.5rem; /* Menos padding horizontal en móvil */
+    }
+    
+    .sectionTitle {
+        font-size: 1.5rem; /* Títulos más pequeños */
+        margin-bottom: 10px;
+    }
+
+    .productsGrid {
+        /* 📌 SOLUCIÓN CRÍTICA: Forzar un diseño de 1 columna */
+        grid-template-columns: 1fr; 
+        gap: 12px; /* Espacio vertical */
+        
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 }
 

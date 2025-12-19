@@ -7,11 +7,13 @@ import styles from './CheckoutForm.module.css';
 
 const initialFormData = {
     nombreCompleto: '',
+    documentoIdentidad:'',
     telefono: '',
     direccion: '',
+    barrio:'',
     ciudad: '',
-    codigoPostal: '',
     notas: '', // Notas de entrega opcionales
+    metodoPago: 'contra_entrega', // Valor por defecto
 };
 
 export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
@@ -43,7 +45,7 @@ export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
         e.preventDefault();
         
         // Aquí puedes añadir validaciones básicas antes de enviar
-        if (!formData.nombreCompleto || !formData.direccion || !formData.ciudad) {
+        if (!formData.nombreCompleto || !formData.documentoIdentidad || !formData.direccion || !formData.ciudad) {
             alert('Por favor, completa los campos obligatorios (*).');
             return;
         }
@@ -51,6 +53,8 @@ export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
         // Llamar a la función onSubmit pasada desde CheckoutPage
         onSubmit(formData);
     };
+
+    
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -70,6 +74,11 @@ export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
                         className={styles.input}
                         disabled={isProcessing}
                     />
+                </div>
+
+                <div className={styles.formGroup}>
+                    <label htmlFor="documentoIdentidad">Cédula o NIT *</label>
+                    <input type="text" id="documentoIdentidad" name="documentoIdentidad" value={formData.documentoIdentidad} onChange={handleChange} required className={styles.input} disabled={isProcessing} placeholder="Para la guía de envío" />
                 </div>
 
                 {/* 2. Teléfono */}
@@ -123,16 +132,8 @@ export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label htmlFor="codigoPostal">Código Postal</label>
-                        <input
-                            type="text"
-                            id="codigoPostal"
-                            name="codigoPostal"
-                            value={formData.codigoPostal}
-                            onChange={handleChange}
-                            className={styles.input}
-                            disabled={isProcessing}
-                        />
+                        <label htmlFor="barrio">Barrio *</label>
+                        <input type="text" id="barrio" name="barrio" value={formData.barrio} onChange={handleChange} required className={styles.input} disabled={isProcessing} />
                     </div>
                 </div>
             </div>
@@ -150,6 +151,33 @@ export default function CheckoutForm({ onSubmit, isProcessing, userData }) {
                         disabled={isProcessing}
                         placeholder="Ej: Entregar al portero, llamar 10 minutos antes."
                     />
+                </div>
+            </div>
+
+            <div className={styles.section}>
+                <h3>Método de Pago</h3>
+                <div className={styles.paymentOptions}>
+                    <label className={styles.radioLabel}>
+                        <input
+                            type="radio"
+                            name="metodoPago"
+                            value="contra_entrega"
+                            checked={formData.metodoPago === 'contra_entrega'}
+                            onChange={handleChange}
+                        />
+                        Pago contra entrega (Efectivo)
+                    </label>
+
+                    <label className={styles.radioLabel}>
+                        <input
+                            type="radio"
+                            name="metodoPago"
+                            value="online"
+                            checked={formData.metodoPago === 'online'}
+                            onChange={handleChange}
+                        />
+                        Pago en línea (Tarjeta/PSE)
+                    </label>
                 </div>
             </div>
 

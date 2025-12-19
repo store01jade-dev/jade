@@ -1,47 +1,56 @@
 /* components/home/NewProducts.module.css */
 
 .new {
-    /* Ocupa todo el espacio de la celda del grid */
     width: 100%; 
-    /*height: 100%;*/ 
-    
-    /* ELIMINAR O AJUSTAR: El max-width y el padding grande causaban desbordamiento */
-    /* max-width: 1200px; <--- ELIMINADO (la celda del grid ya define el ancho) */
-    /* padding: 60px 20px; <--- REDUCIDO A UN VALOR PEQUEÑO O ELIMINADO */
-    
     box-sizing: border-box;
-    overflow: hidden; /* Corta si algo interno es demasiado grande */
+    /* 📌 CRÍTICO: Usamos 'hidden' en el eje X para atrapar cualquier desbordamiento interno */
+    overflow-x: hidden; 
     
-    /* Añade padding interno para que el contenido no pegue al borde de la celda */
     padding: 1rem; 
-    
-    /* Puedes usar flex-direction: column para apilar el título y el grid de productos */
     display: flex;
     flex-direction: column;
 }
 
-.new h2{
+.sectionTitle {
     color: var(--background-light);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
 }
 
 .productsGrid {
-    /* 📌 Asegura que el contenedor use GRID */
     display: grid; 
     flex-grow: 1;
-    overflow-y: auto;
-    /* CRÍTICO: Define las columnas para que las tarjetas se muestren horizontalmente */
-    /* Muestra 4 columnas fijas (si la celda de grid lo permite) */
-    grid-template-columns: repeat(3, 1fr); 
-    
-    /* O mejor, una opción adaptable: */
-    /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
-    
-    gap: 12px; /* Espacio entre las tarjetas */
+    gap: 12px; 
     margin-top: 10px;
-    
-    /*Si estás usando el CSS Grid de page.js */
-    flex-grow: 1; 
-    overflow-y: auto;
     color: var(--background-light);
     
+    /* 📌 DESKTOP/GENERAL: Usamos auto-fit para que se ajusten al ancho de la celda de grid */
+    /* Muestra tantas columnas como quepan (mínimo 200px por tarjeta) */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    
+    /* Nota: Si quieres scroll horizontal en desktop, necesitarías flex o una configuración grid más específica */
+}
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    .new {
+        padding: 0.5rem; /* Reducimos el padding en móvil */
+    }
+    
+    .sectionTitle {
+        font-size: 1.25rem;
+    }
+    
+    .productsGrid {
+        /* 📌 SOLUCIÓN CRÍTICA: Forzar una sola columna */
+        grid-template-columns: 1fr; 
+        gap: 16px; /* Aumentamos el espacio vertical entre tarjetas */
+        
+        /* Aseguramos que el contenido vertical haga scroll, no horizontal */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 }

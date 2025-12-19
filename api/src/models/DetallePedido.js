@@ -2,7 +2,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 //import Pedido from "./Pedido.js";
-//import VarianteProducto from "./VarianteProducto.js";
+import VarianteProducto from "./VarianteProducto.js";
 
 const DetallePedido = sequelize.define(
     "DetallePedido", 
@@ -20,7 +20,11 @@ const DetallePedido = sequelize.define(
 
         variantes_producto_id: { 
             type: DataTypes.INTEGER, 
-            allowNull: false 
+            allowNull: false,
+            references: {
+                model: 'variantes_productos',
+                key: 'id'
+            } 
         },
 
         cantidad: { 

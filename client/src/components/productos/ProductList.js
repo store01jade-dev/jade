@@ -1,51 +1,75 @@
 // src/components/productos/ProductList.js
 
-'use client'; // 📌 1. Convertir a Componente Cliente
+'use client'; 
 
 import React, { useState, useEffect, useCallback } from 'react';
-import CardSimple from './CardSimple'; // Usamos CardSimple para la visualización
+import CardSimple from './CardSimple';
 import Filtros from './Filtros';
-// import CarouselCard from './CarouselCard'; // Usa este si quieres el carrusel
-import style from './ProductList.module.css'; // Si usas módulos CSS
+import style from './ProductList.module.css';
 
-// La URL base de tu API
 const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+
+// 📌 NOTA: Asegúrate de que los valores iniciales coincidan con los límites del input en Filtros.js
+const DEFAULT_PRECIO_MIN = 10000;
+const DEFAULT_PRECIO_MAX = 500000; 
 
 export default function ProductList() {
   const [productos, setProductos] = useState([]);
   const [filtros, setFiltros] = useState({
     nombre: '',
-    categoria: '', // Asumimos que es el ID de la categoría
-    precioMin: 0,
-    precioMax: 1000,
+    categoria: '', 
+    precioMin: DEFAULT_PRECIO_MIN, // 📌 Ajustado a 10000
+    precioMax: DEFAULT_PRECIO_MAX, // 📌 Ajustado a 500000
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [categorias, setCategorias] = useState([]); // 📌 Estado para las categorías del filtro
+  const [categorias, setCategorias] = useState([]); 
 
-  //Función para obtener la lista de productos basada en los filtros
+  // Función para obtener la lista de productos basada en los filtros
   const fetchProductos = useCallback(async () => {
     setIsLoading(true);
     
     // 1. Construir la Query String (URLSearchParams)
     const params = new URLSearchParams();
-    if (filtros.nombre) params.append('nombre', filtros.nombre);
-    if (filtros.categoria) params.append('categoria_id', filtros.categoria);
-    if (filtros.precioMin > 0) params.append('precioMin', filtros.precioMin);
-    if (filtros.precioMax < 1000) params.append('precioMax', filtros.precioMax);
     
-    const queryString = params.toString();
+    // 2. FILTRO NOMBRE: Solo enviar si hay un valor que no sean espacios vacíos
+    if (filtros.nombre.trim()) { 
+        params.append('nombre', filtros.nombre.trim());
+    }
+    
+    // 3. FILTRO CATEGORÍA
+    if (filtros.categoria) {
+        params.append('categoria_id', filtros.categoria);
+    }
+    
+    // 4. FILTRO PRECIO MIN: Solo enviar si el valor es diferente al valor inicial (10000)
+    // Usamos parseFloat para manejar el caso de que el valor sea string
+    if (parseFloat(filtros.precioMin) !== DEFAULT_PRECIO_MIN) {
+        params.append('precioMin', filtros.precioMin);
+    }
+    
+    // 5. FILTRO PRECIO MAX: Solo enviar si el valor es diferente al valor inicial (500000)
+    // 📌 CORRECCIÓN: Esta condición estaba mal y causaba el Error 500 al enviar datos inesperados
+    if (parseFloat(filtros.precioMax) !== DEFAULT_PRECIO_MAX) {
+        params.append('precioMax', filtros.precioMax);
+    }
+    
+    const queryString = params.toString(); // Línea 36: Ahora construida con datos validados
     const url = `${API_BASE_URL}/productos?${queryString}`;
 
     try {
       const response = await fetch(url);
+      
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: Fallo al obtener productos`);
+        // Mejorar el mensaje de error para debug del Backend
+        const errorDetail = await response.json().catch(() => ({ message: 'Respuesta sin JSON.' }));
+        throw new Error(`Error ${response.status}: Fallo al obtener productos. Detalle: ${errorDetail.message}`);
       }
+      
       const data = await response.json();
       setProductos(data);
     } catch (error) {
       console.error("Error fetching productos:", error);
-      setProductos([]); // Limpiar la lista en caso de error
+      setProductos([]); 
     } finally {
       setIsLoading(false);
     }
@@ -68,11 +92,11 @@ export default function ProductList() {
   // 2. Ejecutar fetchProductos cuando cambian los filtros
   useEffect(() => {
     fetchProductos();
-  }, [fetchProductos]); // Dependencia del useCallback
+  }, [fetchProductos]); 
 
   if (isLoading) return <div className="text-center py-10">Cargando productos...</div>;
 
-
+  // ... (Resto del return) ...
   return (
     <div className={style.catalogoWrapper}>
       <Filtros
@@ -80,7 +104,6 @@ export default function ProductList() {
         setFiltros={setFiltros}
         categorias={categorias}
       />
-
       <div className={style.productosGrid}>
         {productos.length > 0 ? (
           <>

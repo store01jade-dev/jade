@@ -1,0 +1,95 @@
+/* src/components/checkout/SuccessModal.module.css */
+
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.modal {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.icon {
+    width: 60px; height: 60px;
+    background: #28a745;
+    color: white;
+    font-size: 35px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.orderInfo {
+    margin: 20px 0;
+    padding: 15px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+/* Aquí separamos visualmente Barrio y Notas */
+.details p {
+    margin: 8px 0;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #444;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 4px;
+}
+
+.notesArea {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff9c4; /* Un color sutil para las notas */
+    text-align: left;
+    border-radius: 5px;
+    font-style: italic;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btnPrint {
+    background: #333;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btnHome {
+    background: #28a745;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* REGLAS DE IMPRESIÓN */
+@media print {
+    .noPrint { display: none !important; }
+    .overlay { background: white; position: absolute; }
+    .modal { box-shadow: none; border: 1px solid #ccc; width: 100%; max-width: 100%; }
+}

@@ -101,6 +101,33 @@ export const listUsers = async (req, res) =>{
     }
 };
 
+export const updateUserRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rol } = req.body; // El nuevo rol que viene del frontend
+
+        // 1. Validar que el rol sea uno de los permitidos
+        const rolesPermitidos = ['user', 'admin', 'dev'];
+        if (!rolesPermitidos.includes(rol)) {
+            return res.status(400).json({ error: "Rol no válido" });
+        }
+
+        // 2. Buscar y actualizar
+        const usuario = await Usuario.findByPk(id);
+        if (!usuario) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        usuario.rol = rol;
+        await usuario.save();
+
+        res.json({ message: "Rol actualizado correctamente", usuario });
+    } catch (error) {
+        console.error("Error en updateUserRole: ", error);
+        res.status(500).json({ error: "Error en el servidor" });
+    }
+};
+
 // Controlador para solicitar el enlace de restablecimiento (Parte A)
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;

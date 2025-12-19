@@ -20,12 +20,18 @@ export function CartProvider({ children }) {
     // --- Lógica CRUD del Carrito ---
 
     // 📌 Ahora 'product' es en realidad el objeto VarianteProducto
-    const addItemToCart = (productVariant, quantity = 1, imageUrl) => {
+    const addItemToCart = (productVariant, parentName, quantity = 1, imageUrl) => {
         // Usamos productVariant.id, que es el ID de la variante
         const existingItem = cartItems.find(item => item.id === productVariant.id); 
 
         if (existingItem) {
-            // ... (lógica de aumento de cantidad) ...
+            setCartItems(
+                cartItems.map((item) =>
+                    item.id === productVariant.id
+                        ? { ...item, quantity: item.quantity + quantity }
+                        : item
+                )
+            );
         } else {
             // Si es nuevo, añadirlo al carrito
             setCartItems([
@@ -33,7 +39,7 @@ export function CartProvider({ children }) {
                 {
                     id: productVariant.id,
                     // Usamos una combinación de nombre, talla y color para el display
-                    name: `${productVariant.nombre} (${productVariant.talla}, ${productVariant.color})`, 
+                    name: `${parentName} (${productVariant.talla}, ${productVariant.color})`, 
                     price: parseFloat(productVariant.precio), // 👈 USAMOS LA PROPIEDAD 'precio' de la variante
                     image: imageUrl || '/assests/placeholder.jpg',
                     quantity: quantity,

@@ -162,3 +162,74 @@
     border-radius: 4px;
     transition: background-color 0.2s;
 }
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    /* 1. El contenedor pasa de 2 columnas a 1 sola columna */
+    .cartContainer {
+        grid-template-columns: 1fr;
+        padding: 15px;
+        gap: 20px;
+    }
+
+    /* 2. Quitamos el borde derecho y el padding que separaba la lista del resumen */
+    .itemList {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    /* 3. Reorganizamos cada ítem del carrito */
+    .cartItem {
+        display: grid;
+        /* Definimos una rejilla de 2 columnas: imagen a la izquierda, info a la derecha */
+        grid-template-columns: 80px 1fr;
+        grid-template-areas: 
+            "image details"
+            "image quantity"
+            "subtotal subtotal";
+        gap: 10px;
+        align-items: start;
+        padding: 20px 0;
+    }
+
+    .itemImage {
+        grid-area: image;
+    }
+
+    .itemDetails {
+        grid-area: details;
+    }
+
+    .itemQuantity {
+        grid-area: quantity;
+        justify-self: start; /* Alinea el input a la izquierda */
+    }
+
+    .itemSubtotal {
+        grid-area: subtotal;
+        width: 100%;
+        text-align: right; /* El subtotal queda abajo a la derecha del ítem */
+        padding-top: 5px;
+        font-size: 1rem;
+        border-top: 1px dashed #eee;
+    }
+
+    /* 4. Ajustes en el resumen (Summary) */
+    .cartSummary {
+        margin-top: 20px;
+        position: static; /* Asegura que fluya después de la lista */
+    }
+
+    .checkoutButton {
+        padding: 15px; /* Botón más grande para facilitar el toque táctil */
+    }
+
+    /* 5. Ajustes para el carrito vacío */
+    .emptyCart {
+        padding: 60px 20px;
+        margin: 20px;
+    }
+}

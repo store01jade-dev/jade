@@ -7,6 +7,8 @@
     padding: 1rem; 
     display: flex;
     flex-direction: column;
+    /* 📌 Añadido: Prevenir desbordamiento horizontal */
+    overflow-x: hidden; 
 }
 
 .sectionTitle {
@@ -19,14 +21,14 @@
     flex-grow: 1; 
     overflow-y: auto; 
     
-    /* 📌 CRÍTICO: Ajustar para span 2. Si son 3 comentarios, usar 3 columnas */
+    /* 📌 DESKTOP/GENERAL: Usamos repeat(auto-fit) para que el número de columnas se ajuste al espacio */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
     display: grid;
-    grid-template-columns: repeat(3, 1fr); 
     gap: 15px; 
 }
 
 .commentCard {
-    background-color: var(--background-option); /* Usa el color de fondo definido en page.js */
+    background-color: var(--background-option); 
     border-radius: 8px;
     padding: 15px;
     display: flex;
@@ -40,6 +42,9 @@
     font-size: 0.95rem;
     margin-bottom: 10px;
     line-height: 1.4;
+    /* 📌 CRÍTICO: Aseguramos que el texto muy largo no desborde la tarjeta */
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
 }
 
 .commentAuthor {
@@ -47,4 +52,28 @@
     font-size: 1rem;
     color: var(--color-primary); 
     text-align: right;
+}
+
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+    .commentsSection {
+        padding: 0.5rem 0.5rem; /* Menos padding horizontal en móvil */
+    }
+    
+    .sectionTitle {
+        font-size: 1.5rem; /* Títulos más pequeños */
+        margin-bottom: 10px;
+    }
+
+    .commentsGrid {
+        /* 📌 SOLUCIÓN CRÍTICA: Forzar un diseño de 1 columna */
+        grid-template-columns: 1fr; 
+        gap: 12px;
+        
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 }

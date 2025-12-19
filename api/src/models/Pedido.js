@@ -28,6 +28,12 @@ const Pedido = sequelize.define(
             allowNull: true 
         },
 
+        metodo_pago: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'Contra entrega' // O el valor que envíes desde el checkout
+        },
+
         status: {
             type: DataTypes.ENUM("pendiente", "enviado", "entregado", "cancelado", "pagado"),
             defaultValue: "pendiente",

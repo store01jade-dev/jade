@@ -11,8 +11,9 @@ import productoRoutes from "../src/routes/productoRoutes.js";
 import varianteImagenRoutes from "../src/routes/productoImagenRoutes.js";
 import varianteProductoRoutes from "../src/routes/varianteProductoRoutes.js";
 import commetRoutes from "../src/routes/commentsRoutes.js";
-import pedidoRoutes from "../src/routes/pedidoRoutes.js"
-import contactRoutes from "../src/routes/contactRoutes.js"
+import pedidoRoutes from "../src/routes/pedidoRoutes.js";
+import contactRoutes from "../src/routes/contactRoutes.js";
+import orderRoutes from "../src/routes/pedidoRoutes.js";
 
 
 // Creamos la instancia principal de la aplicacion Express
@@ -60,6 +61,9 @@ app.use('/api/v1/contact', contactRoutes);
 
 // Montar Rutas de comentarios
 app.use('/api/v1/comments', commetRoutes);
+
+//Rutas para los pedidos
+app.use('/api/v1/orders', orderRoutes);
 
 // Exportamos app para que pueda ser utilizado por server.js
 export default app;

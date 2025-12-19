@@ -1,3 +1,7 @@
+/* ========================================= */
+/* === Header.module.css: ESTILOS GENERALES === */
+/* ========================================= */
+
 .header {
   background: var(--background-dark);
   color: white;
@@ -11,16 +15,41 @@
   margin: 0.5rem;
 }
 
-
-.log{
+/* Logo y Link de Catálogo */
+.log {
   display: flex;
+  align-items: center;
 }
 
 .log h1 {
   color: var(--background-light);
 }
 
-/* --- Buscador (desktop) --- */
+.catalogoLink h1 {
+  font-family: var(--font-title);
+}
+
+/* Acciones (Carrito, Login/Logout, Perfil) */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-title);
+}
+
+.actions h1 {
+  color: var(--background-light);
+}
+
+.iconMobile {
+  background-color: var(--background-dark);
+}
+
+/* ========================================= */
+/* === COMPONENTES DE ESCRITORIO/BASE === */
+/* ========================================= */
+
+/* --- Buscador (Desktop) --- */
 .search {
   flex: 1;
   max-width: 400px;
@@ -29,6 +58,7 @@
   background: white;
   border-radius: 10px;
   margin: 1rem 0.5rem;
+  transition: all 0.3s ease; /* Transición base para escritorio y móvil */
 }
 
 .search input {
@@ -46,62 +76,54 @@
   padding: 0 0.75rem;
 }
 
-/* --- Acciones --- */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-family: var(--font-title);
+/* --- Botón de Cerrar Búsqueda (Oculto por defecto) --- */
+.closeSearchBtn {
+    display: none; /* Solo visible en el modo de búsqueda móvil */
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    padding: 0 0.5rem;
 }
 
-.actions h1 {
-  color: var(--background-light);
-}
 
-/* components/layout/Header.module.css */
-
+/* --- Carrito Badge --- */
 .cartWrapper {
-    /* Esencial para posicionar el badge relativo al wrapper */
     position: relative; 
     display: inline-block;
 }
 
 .cartBadge {
     position: absolute;
-    top: -5px;         /* Ajusta la posición vertical */
-    right: -10px;      /* Ajusta la posición horizontal */
-    
-    /* Estilos visuales */
+    top: -5px;
+    right: -10px;
     background-color: red;
     color: white;
-    border-radius: 50%; /* Forma de círculo */
+    border-radius: 50%;
     padding: 2px 6px;
     font-size: 0.8rem;
     font-weight: bold;
     min-width: 20px;
     text-align: center;
     line-height: 1.2;
-    pointer-events: none; /* Asegura que no interfiera con el clic en el Link */
+    pointer-events: none;
 }
 
-/* Lupa extra (solo móvil) */
-.mobileSearchBtn {
+/* --- Hamburguesa y Lupa Móvil (Ocultas en Desktop) --- */
+.mobileSearchBtn,
+.menuButton {
   display: none;
   background: none;
   border: none;
   cursor: pointer;
 }
 
-/* Hamburguesa */
 .menuButton {
-  display: none;
   flex-direction: column;
   justify-content: space-between;
   width: 22px;
   height: 18px;
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
 .bar {
@@ -111,15 +133,16 @@
   border-radius: 2px;
 }
 
-/* Menú desplegable */
+/* --- Menú Desplegable (Oculto en Desktop) --- */
 .nav {
-  display: none;
+  display: none; /* Oculto por defecto */
   position: absolute;
   top: 60px;
   right: 1rem;
   background: var(--background-dark);
   border-radius: 8px;
   padding: 1rem;
+  z-index: 50; /* Alto para que esté encima de todo */
 }
 
 .nav ul {
@@ -141,60 +164,170 @@
   color: #38bdf8;
 }
 
-.nav.active {
-  display: block;
+/* 📌 SOLUCIÓN MENÚ: Clase para mostrar el menú, con alta especificidad */
+.nav.showMenu {
+  display: flex !important; 
+  flex-direction: column;
 }
 
-/* --- Responsivo --- */
-@media (max-width: 768px) {
-  /* le cambiamos el tamno al logo para que quede del mismo que los otros icons*/
-  .logo Image{
-    width: 45px;
-    width: 45px;
+/* ================================================== */
+/* === RESPONSIVE: max-width: 760px (Mobile Layout) === */
+/* ================================================== */
+
+@media (max-width: 760px) {
+  
+  /* --- LAYOUT GRID DE 3 COLUMNAS --- */
+  .header {
+    display: grid;
+    /* [Hamburguesa] [Logo] [Acciones] */
+    grid-template-columns: 1fr auto 1fr; 
+    grid-template-areas: "menu logo actions";
+    margin: 0.5rem;
+    /*padding: 0.5rem 0.5rem;*/
+    grid-template-columns: 1fr auto 1fr;
   }
-
-
-  /* Ocultamos la barra completa de búsqueda, pero dejamos la lupa */
-  .search {
-    display: none;
-  }
-
-   /* mostrar el botón móvil con el svg claro */
-  .mobileSearchBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .iconMobile {
-    width: 45px;
-    height: 45px;
-  }
-
-  /* Reducir también los otros íconos (login, carrito, etc.) en móvil */
-  .actions img {
-    width: 45px;
-    height: 45px;
-  }
-
-  .nav {
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background: var(--background-dark);
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    width: auto;
-    display: none;
-  }
-
-  .nav.active {
-    display: flex;
-  }
-
+  
+  /* --- POSICIONAMIENTO EN EL GRID --- */
   .menuButton {
-    display: flex; /* se muestra en móvil */
+    grid-area: menu;
+    justify-self: start; 
+  }
+  
+  .log {
+    grid-area: logo;
+    justify-self: center; /* Logo centrado */
+    display: flex; 
+    align-items: center;
+  }
+
+  .actions {
+    grid-area: actions;
+    justify-self: end; /* Acciones a la derecha */
+    gap: 0.5rem; 
+  }
+  
+  /* --- ESTANDARIZACIÓN DE ÍCONOS (35px) --- */
+  
+  /* Aseguramos que todos los íconos (incluido el logo) tengan el mismo tamaño */
+  /* El logo (imagen dentro de .log) */
+  .log img, 
+  .logoImg /* Clase que apunta al logo */
+  {
+    /* 📌 Aumentamos el tamaño del logo a 45px */
+    width: 55px !important;
+    height: 55px !important;
+    min-width: 55px; 
+  }
+
+  .log {
+    grid-area: logo;
+    /* Mantenemos justify-self: center; para que el logo esté centrado en el espacio disponible, */
+    /* y el gap de 1rem lo separará de los íconos adyacentes. */
+    justify-self: center; 
+  }
+  
+  /* Los íconos de acción/hamburguesa se mantienen en 35px para que el logo destaque */
+  .actions img, 
+  .iconMobile,
+  .menuButton {
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px;
+  }
+  
+  /* Ocultamos el título "Catálogo" y textos de acción para ahorrar espacio */
+  .catalogoLink,
+  .actions h1 {
+    display: none; 
+  }
+  
+  /* Mostramos la hamburguesa y la lupa móvil */
+  .menuButton,
+  .mobileSearchBtn {
+    display: flex;
+    z-index: 20; 
+  }
+  
+  /* --- CONTROL DE VISIBILIDAD DE BÚSQUEDA --- */
+  
+  /* 📌 La barra de búsqueda DESKTOP debe desaparecer en móvil por defecto */
+  .search {
+    display: none; 
+    margin: 0;
+    
+    /* Configuración para centrar */
+    position: absolute; 
+    /*top: 0.5rem;
+    left: 0.5rem;
+    transform: translate(-25%, -25%);*/
+    
+    /* Calculamos el ancho para cubrir el header sin desbordar */
+    /* Ancho total del header - (padding lateral * 2) */
+    width: calc(100% - 1rem); /* 0.8rem de padding en cada lado */
+    max-width: none; /* Ignoramos el max-width de desktop */
+
+    padding: 0.25rem 0.5rem; /* Menos padding vertical que antes */
+    z-index: 40;
+    
+    /* Aseguramos que el contenedor tenga fondo blanco */
+    background: white; 
+    border: none; /* Eliminamos el borde que puede contribuir al desbordamiento */
+  }
+  
+  /* Clase para OCULTAR elementos cuando la búsqueda está activa */
+  .hiddenMobile {
+    display: none !important;
+  }
+
+  /* 📌 ACTIVACIÓN DE LA BÚSQUEDA MÓVIL (El "rectángulo azul") */
+  .search.mobileActive {
+    display: flex; 
+    /* Alineación de los items internos (X | Input | Lupa) */
+    justify-content: space-between; 
+    align-items: center;
+    padding-right: 0.5rem; /* Ajuste para que la lupa quede mejor dentro */
+
+    /* Ajustamos el borde del header para que el buscador parezca parte de él */
+    border-radius: 8px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra para destacarse */
+    
+    /* Aseguramos que el padding/margin interno no cause el desbordamiento visual */
+  }
+
+  /* Ajuste para que el input ocupe el espacio restante */
+  .search.mobileActive input {
+    flex: 1; 
+    /* Quitamos el padding lateral para evitar que empuje al botón de buscar */
+    padding: 0.25rem 0.5rem; 
+  }
+  
+  /* Ajuste específico para la lupa dentro del buscador */
+  .search.mobileActive .search button {
+      padding: 0; /* Eliminamos padding extra si es necesario */
+  }
+  
+  /* Mostrar el botón de cerrar DENTRO de la barra de búsqueda activa */
+  .search.mobileActive .closeSearchBtn {
+      display: flex; /* Muestra el botón de cerrar */
+  }
+
+  /* Asegurar que el botón de la lupa quede bien */
+  .search button {
+      padding: 0 0.5rem 0 0.25rem; 
+  }
+
+  /* Asegurar que el botón de cerrar quede bien */
+  .closeSearchBtn img {
+      width: 20px;
+      height: 20px;
+  }
+
+  /* --- AJUSTE DEL MENÚ DESPLEGABLE --- */
+  .nav {
+    top: 55px; /* Posicionado bajo el header */
+    right: 0.5rem;
+    width: 80%;
+    /* No se necesita display: none aquí, ya lo controla la regla .nav global */
   }
 }
 
