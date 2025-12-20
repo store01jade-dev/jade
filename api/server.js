@@ -38,25 +38,45 @@ testConnection().then(() => {
   }
 };*/
 
+async function repairDatabase() {
+  try {
+    console.log("Iniciando reparación manual de tablas...");
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
+    
+    // Borramos las tablas que están bloqueadas
+    await sequelize.query('DROP TABLE IF EXISTS detalle_pedido;');
+    await sequelize.query('DROP TABLE IF EXISTS variantes_productos;');
+    
+    // Creamos la tabla que MySQL dice que no encuentra
+    await sequelize.query(`
+      CREATE TABLE variantes_productos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      ) ENGINE=InnoDB;
+    `);
+    
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
+    console.log("Reparación completada. Ahora Sequelize puede continuar.");
+  } catch (error) {
+    console.error("Error en la reparación:", error);
+  }
+}
+
 async function startServer() {
   try {
-    // 1. Desactivamos la revisión de llaves foráneas para evitar el error ER_FK_CANNOT_OPEN_PARENT
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-    console.log('Revisión de FK desactivada temporalmente...');
+    // LLAMAMOS A LA REPARACIÓN PRIMERO
+    await repairDatabase();
 
-    // 2. Sincronizamos (alter: true es más seguro para no borrar datos si luego agregas algo)
+    // Luego el sync normal
     await sequelize.sync({ alter: true });
+    
     console.log('Tablas sincronizadas correctamente.');
-
-    // 3. Volvemos a activar la revisión
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
-    console.log('Revisión de FK reactivada.');
-
     app.listen(process.env.PORT || 3000, () => {
       console.log('Servidor corriendo en Railway');
     });
   } catch (error) {
-    console.error('Error al conectar a la base de datos:', error);
+    console.error('Error al conectar:', error);
   }
 }
 
