@@ -23,8 +23,8 @@ async function connectDB() {
         console.log("✅ Conexión establecida correctamente con MySQL");
         
         // Sincronizar tablas
-        await sequelize.sync({ alter: true });
-        console.log("✅ Tablas sincronizadas");
+        await sequelize.sync({ force:true });
+        console.log("✅ Tablas recreadas desde cero");
     } catch (error) {
         console.error("❌ Error de conexión a la BD: ", error.message);
         // No matamos el proceso (process.exit) para que Railway no lo marque como fallo
