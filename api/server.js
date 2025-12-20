@@ -21,10 +21,7 @@ async function connectDB() {
         console.log("Intentando conectar a la DB...");
         await sequelize.authenticate();
         console.log("✅ Conexión establecida correctamente con MySQL");
-        
-        await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-        await sequelize.sync({ force: true }); 
-        await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+        await sequelize.sync(); 
         console.log("✅ Tablas recreadas con éxito");
     } catch (error) {
         console.error("❌ Error de conexión a la BD: ", error.message);
