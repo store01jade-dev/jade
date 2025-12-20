@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCart } from '@/components/context/CartContext'; 
 import styles from './ProductoDetail.module.css'; 
 
-const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL; 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_IMAGE_URL = '/assests/Placeholder.svg';
 

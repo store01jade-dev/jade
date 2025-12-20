@@ -7,7 +7,7 @@ import CardSimple from './CardSimple';
 import Filtros from './Filtros';
 import style from './ProductList.module.css';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
 
 // 📌 NOTA: Asegúrate de que los valores iniciales coincidan con los límites del input en Filtros.js
 const DEFAULT_PRECIO_MIN = 10000;
