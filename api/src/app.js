@@ -19,12 +19,30 @@ import orderRoutes from "../src/routes/pedidoRoutes.js";
 // Creamos la instancia principal de la aplicacion Express
 const app = express();
 
+// En tu Backend (archivo de configuración de CORS)
+const allowedOrigins = [
+  'https://jade-wheat.vercel.app',    // La nueva URL que te dio Vercel
+  'https://jade-rouge.vercel.app',    // Tu URL anterior
+  'http://localhost:5173'             // Para tus pruebas locales
+];
+
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: "https://jade-wheat.vercel.app",
-    credentials: true
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origen (como Postman o Insomnia)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Error de CORS: Este origen no está permitido por la política de seguridad.'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 /*CRÍTICO: Servir el directorio 'uploads'
 // Asegúrate de que esta ruta apunte a la carpeta 'uploads' donde guardas las imágenes.
