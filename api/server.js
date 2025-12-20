@@ -10,6 +10,8 @@ dotenv.config();
 
 const PORT = process.env.PORT || 8080;
 
+app.get('/', (req, res) => res.status(200).send('Servidor Vivo'));
+
 // 2. Función Principal de Arranque
 const startServer = async () => {
     try {
