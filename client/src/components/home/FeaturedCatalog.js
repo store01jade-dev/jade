@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import CardSimple from '../productos/CardSimple.js'; 
 import style from './FeaturedCatalog.module.css'; // Su propio CSS Module
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
 
 export default function FeaturedCatalog() {
     const [products, setProducts] = useState([]);

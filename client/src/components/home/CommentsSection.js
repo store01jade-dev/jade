@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './CommentsSection.module.css';
 import { useCommentRefresh } from '../context/CommentRefreshContext';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
 
 // Componente para renderizar un solo comentario
 const CommentCard = ({ comment }) => (
