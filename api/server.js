@@ -46,4 +46,15 @@ async function startServer() {
   }
 }
 
+// Captura errores de promesas (como Sequelize fallando)
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ ERROR DE PROMESA NO CAPTURADO:', reason);
+});
+
+// Captura errores de código (variables inexistentes, etc)
+process.on('uncaughtException', (err) => {
+    console.error('❌ EXCEPCIÓN NO CAPTURADA:', err.message);
+    console.error(err.stack);
+});
+
 startServer();

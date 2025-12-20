@@ -23,6 +23,10 @@ const app = express();
 app.get('/', (req, res) => res.send('Backend Jade Online'));
 app.get('/health', (req, res) => res.send('OK'));
 
+//Midleware para que Express pueda interpretar JSON en el body de las requests
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // En tu Backend (archivo de configuración de CORS)
 const allowedOrigins = [
   'https://jade-wheat.vercel.app',    // La nueva URL que te dio Vercel
@@ -45,11 +49,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-//Midleware para que Express pueda interpretar JSON en el body de las requests
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 
 const UPLOADS_PATH = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(UPLOADS_PATH)); 
