@@ -13,17 +13,14 @@ app.get('/', (req, res) => {
 
 async function startServer() {
   try {
-    // LLAMAMOS A LA REPARACIÓN PRIMERO
-    //await repairDatabase();
-
-    await sequelize.authenticate();
+    /*await sequelize.authenticate();
     console.log('✅ Conexión a la DB establecida.');
 
     // Luego el sync normal
     await sequelize.sync();
     console.log('✅ Tablas sincronizadas.');
+    console.log('Tablas sincronizadas correctamente.');*/
     
-    console.log('Tablas sincronizadas correctamente.');
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Servidor activo en puerto: ${PORT}`);
     });
