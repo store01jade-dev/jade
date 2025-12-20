@@ -1,5 +1,4 @@
-app.get('/', (req, res) => res.send('Backend Jade Online'));
-app.get('/health', (req, res) => res.send('OK'));
+
 
 
 // Importamos express(Framework para levantar servidot HTTP con middlewares y rutas)
@@ -22,6 +21,9 @@ import orderRoutes from "../src/routes/pedidoRoutes.js";
 
 // Creamos la instancia principal de la aplicacion Express
 const app = express();
+
+app.get('/', (req, res) => res.send('Backend Jade Online'));
+app.get('/health', (req, res) => res.send('OK'));
 
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
