@@ -2,7 +2,7 @@
 import app from "./src/app.js";
 //import { testConnection } from "./src/config/db.js";
 import {sequelize} from "./src/models/index.js";
-import dotenv, { config } from "dotenv";
+import dotenv from "dotenv";
 
 // Definimos el puerto en el que se ejecutara la API
 // Si no existe en el .env, usamos 3000 por defecto
