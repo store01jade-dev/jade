@@ -9,7 +9,7 @@ dotenv.config();
 
 // Creamos la instancia de Sequlize para conectar a MySQL
 // Seuqelize maneja el pool de conexiones automaticamente
-const sequelize = new Sequelize(
+/*const sequelize = new Sequelize(
 
     process.env.NAMEDB,           // Nombre de la base de datos           
     process.env.USERDB,           // Usuario de la BD
@@ -36,5 +36,30 @@ export const testConnection = async () => {
 };
 
 // Exportamos el pool para poder usarlo en cualquier parte del proyecto*/
+
+// Usamos la URL completa. Si no existe, Sequelize intentará usar los campos individuales.
+const sequelize = process.env.MYSQL_URL 
+    ? new Sequelize(process.env.MYSQL_URL, {
+        dialect: "mysql",
+        logging: false,
+        dialectOptions: {
+            ssl: {
+                rejectUnauthorized: false // Esto permite la conexión segura con Railway
+            }
+        }
+    })
+    : new Sequelize(
+        process.env.NAMEDB,
+        process.env.USERDB,
+        process.env.PASSWORDDB,
+        {
+            host: process.env.HOSTDB,
+            port: process.env.PORTDB,
+            dialect: "mysql",
+            logging: false
+        }
+    );
+
+
 
 export default sequelize;
