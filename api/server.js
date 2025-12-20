@@ -6,13 +6,11 @@ import {sequelize} from "./src/models/index.js";
 // Definimos el puerto en el que se ejecutara la API
 // Si no existe en el .env, usamos 3000 por defecto
 
-app.get('/', (req, res) => {
-  res.status(200).send('Servidor Operativo');
-});
+const PorToUse = process.env.PORT;
 
-/*async function startServer() {
+async function startServer() {
   try {
-    /*await sequelize.authenticate();
+    await sequelize.authenticate();
     console.log('✅ Conexión a la DB establecida.');
 
     // Luego el sync normal
@@ -27,21 +25,7 @@ app.get('/', (req, res) => {
     console.error('Error al conectar:', error);
     process.exit(1);
   }
-}*/
+}
 
-const startServer = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Conexión a DB Exitosa');
-    await sequelize.sync();
-    
-    app.listen(process.env.PORT || 10000, '0.0.0.0', () => {
-      console.log('🚀 Servidor corriendo perfectamente');
-    });
-  } catch (error) {
-    console.error('❌ Error fatal:', error);
-    process.exit(1); 
-  }
-};
 
 startServer();
