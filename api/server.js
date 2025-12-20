@@ -29,32 +29,19 @@ app.get('/', (req, res) => {
   }
 }*/
 
-async function startServer() {
-  // 1. Iniciamos el servidor PRIMERO que la base de datos
-  const server = app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
-    console.log(`🚀 Servidor de EMERGENCIA activo en puerto: ${process.env.PORT || 8080}`);
-  });
-
+const startServer = async () => {
   try {
-    console.log('Intentando conectar a DB...');
     await sequelize.authenticate();
-    console.log('✅ DB Conectada');
+    console.log('✅ Conexión a DB Exitosa');
     await sequelize.sync();
-    console.log('✅ Tablas listas');
+    
+    app.listen(process.env.PORT || 10000, '0.0.0.0', () => {
+      console.log('🚀 Servidor corriendo perfectamente');
+    });
   } catch (error) {
-    console.error('❌ La DB falló, pero el servidor seguirá prendido:', error.message);
+    console.error('❌ Error fatal:', error);
+    process.exit(1); 
   }
-}
-
-// Captura errores de promesas (como Sequelize fallando)
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ ERROR DE PROMESA NO CAPTURADO:', reason);
-});
-
-// Captura errores de código (variables inexistentes, etc)
-process.on('uncaughtException', (err) => {
-    console.error('❌ EXCEPCIÓN NO CAPTURADA:', err.message);
-    console.error(err.stack);
-});
+};
 
 startServer();
