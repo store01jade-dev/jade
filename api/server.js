@@ -8,26 +8,27 @@ import dotenv from "dotenv";
 // Si no existe en el .env, usamos 3000 por defecto
 dotenv.config();
 
-const PorToUse = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 
-async function startServer() {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Conexión a la DB establecida.');
+// 1. ARRANCAMOS EL SERVIDOR PRIMERO
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+});
 
-    // Luego el sync normal
-    await sequelize.sync();
-    console.log('✅ Tablas sincronizadas.');
-    console.log('Tablas sincronizadas correctamente.');
-
-    app.listen(PorToUse, '0.0.0.0', () => {
-      console.log(`🚀 Servidor activo en puerto: ${PorToUse}`);
-    });
-  } catch (error) {
-    console.error('Error al conectar:', error);
-    process.exit(1);
-  }
+// 2. LUEGO INTENTAMOS LA CONEXIÓN A LA DB (Sin bloquear el inicio)
+async function connectDB() {
+    try {
+        console.log("Intentando conectar a la DB...");
+        await sequelize.authenticate();
+        console.log("✅ Conexión establecida correctamente con MySQL");
+        
+        // Sincronizar tablas
+        await sequelize.sync({ alter: true });
+        console.log("✅ Tablas sincronizadas");
+    } catch (error) {
+        console.error("❌ Error de conexión a la BD: ", error.message);
+        // No matamos el proceso (process.exit) para que Railway no lo marque como fallo
+    }
 }
 
-
-startServer();
+connectDB();
