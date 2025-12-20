@@ -5,7 +5,7 @@ import {sequelize} from "./src/models/index.js";
 
 // Definimos el puerto en el que se ejecutara la API
 // Si no existe en el .env, usamos 3000 por defecto
-const PORT = process.env.PORT;
+const PorToUse = process.env.PORT;
 
 app.get('/', (req, res) => {
   res.status(200).send('Servidor Operativo');
@@ -20,8 +20,8 @@ async function startServer() {
     await sequelize.sync();
     console.log('✅ Tablas sincronizadas.');
     console.log('Tablas sincronizadas correctamente.');*/
-    
-    app.listen(PORT, '0.0.0.0', () => {
+
+    app.listen(PorToUse, '0.0.0.0', () => {
       console.log(`🚀 Servidor activo en puerto: ${PORT}`);
     });
   } catch (error) {
