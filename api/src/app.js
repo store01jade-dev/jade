@@ -19,6 +19,10 @@ import orderRoutes from "../src/routes/pedidoRoutes.js";
 // Creamos la instancia principal de la aplicacion Express
 const app = express();
 
+// 3. Rutas de prueba/Healthcheck (Para que Railway vea que estás vivo)
+app.get('/', (req, res) => res.send('Backend Jade Online'));
+app.get('/health', (req, res) => res.send('OK'));
+
 // En tu Backend (archivo de configuración de CORS)
 const allowedOrigins = [
   'https://jade-wheat.vercel.app',    // La nueva URL que te dio Vercel
@@ -26,9 +30,6 @@ const allowedOrigins = [
   'http://localhost:5173'             // Para tus pruebas locales
 ];
 
-//Midleware para que Express pueda interpretar JSON en el body de las requests
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir peticiones sin origen (como Postman o Insomnia)
@@ -44,31 +45,13 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-/*CRÍTICO: Servir el directorio 'uploads'
-// Asegúrate de que esta ruta apunte a la carpeta 'uploads' donde guardas las imágenes.
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));*/
 
-// --- CONFIGURACIÓN DE RUTA ABSOLUTA (CRÍTICO) ---
-
-// Si usas ES Modules (import/export), necesitas definir __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// 1. Definir la ruta exacta a 'uploads'
-// Si tu carpeta 'uploads' está en el mismo nivel que server.js:
-const UPLOADS_PATH = path.join(__dirname, 'uploads'); 
-
-// Si tu carpeta 'uploads' está en el directorio raíz del proyecto (un nivel arriba de server.js):
-// const UPLOADS_PATH = path.join(__dirname, '..', 'uploads'); 
-
-// LOG: Muestra la ruta en la consola para VERIFICAR si es correcta
-console.log(`Sirviendo archivos estáticos desde la ruta: ${UPLOADS_PATH}`); 
-
+//Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 2. CRÍTICO: Configurar el middleware estático
-// Primer argumento: el prefijo URL que el navegador usará (/uploads)
-// Segundo argumento: la ruta absoluta del sistema de archivos (UPLOADS_PATH)
+
+const UPLOADS_PATH = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(UPLOADS_PATH)); 
 
 // Usar rutas de usuarios bajo el perfijo /api/users
@@ -85,16 +68,6 @@ app.use('/api/v1/comments', commetRoutes);
 
 //Rutas para los pedidos
 app.use('/api/v1/orders', orderRoutes);
-
-
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-// Y asegúrate de tener una para la raíz
-app.get('/', (req, res) => {
-  res.status(200).send('Backend Jade E-commerce Online');
-});
 
 // Exportamos app para que pueda ser utilizado por server.js
 export default app;
