@@ -45,6 +45,8 @@ import { useAuth } from '@/context/AuthContext';
 import styles from './MisPedidos.module.css';
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function MisPedidosPage() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export default function MisPedidosPage() {
     useEffect(() => {
         const fetchPedidos = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/orders/mis-pedidos', {
+                const response = await fetch(`${API_URL}/api/v1/orders/mis-pedidos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

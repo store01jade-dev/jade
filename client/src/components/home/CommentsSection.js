@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './CommentsSection.module.css';
 import { useCommentRefresh } from '../context/CommentRefreshContext';
 
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
 
 // Componente para renderizar un solo comentario
 const CommentCard = ({ comment }) => (
@@ -26,7 +26,7 @@ export default function CommentsSection() {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/comments`); 
+                const response = await fetch(`${API_BASE_URL}/api/v1/comments`); 
                 if (!response.ok) {
                     throw new Error('No se pudieron cargar los comentarios');
                 }

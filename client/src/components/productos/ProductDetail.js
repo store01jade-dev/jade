@@ -5,8 +5,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCart } from '@/components/context/CartContext'; 
 import styles from './ProductoDetail.module.css'; 
 
-const BASE_URL_API = 'http://localhost:4000/api/v1'; 
-const API_BASE_URL = 'http://localhost:4000'
+const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_IMAGE_URL = '/assests/Placeholder.svg';
 
 export default function ProductDetail({ productoId }) {
@@ -42,7 +42,7 @@ export default function ProductDetail({ productoId }) {
             setIsLoading(true);
             setError(null);
             
-            const url = `${BASE_URL_API}/productos/${productoId}`; 
+            const url = `${BASE_URL_API}/api/v1/productos/${productoId}`; 
 
             try {
                 const response = await fetch(url);
@@ -55,11 +55,11 @@ export default function ProductDetail({ productoId }) {
                 setProducto(data);
                 setCurrentRating(data.rating || 0);
 
-                // 📌 INICIALIZACIÓN DEL PRECIO: Usar precio_base por defecto
+                // INICIALIZACIÓN DEL PRECIO: Usar precio_base por defecto
                 const basePrice = parseFloat(data.precio_base) || 0;
                 setPrecioVisible(basePrice);
                 
-                // 📌 INICIALIZACIÓN DE IMAGEN: Seleccionar la imagen principal
+                // INICIALIZACIÓN DE IMAGEN: Seleccionar la imagen principal
                 const principalIndex = data.imagenesProducto?.findIndex(img => img.principal === true);
                 setSelectedImageIndex(principalIndex !== -1 ? principalIndex : 0);
 
@@ -77,17 +77,6 @@ export default function ProductDetail({ productoId }) {
         }
         
     }, [productoId]);
-    
-    /* 📌 NUEVO: Efecto para mover el carrusel en desktop cuando cambia la miniatura
-    useEffect(() => {
-        // Verificamos si la referencia existe y si el ancho es de escritorio (> 760px)
-        if (galeriaRef.current && window.innerWidth > 760) {
-            const offset = selectedImageIndex * 100;
-            // Mueve el contenedor horizontalmente usando transform
-            galeriaRef.current.style.transform = `translateX(-${offset}%)`;
-        }
-        // NOTA: No necesitamos limpiar esto porque el carrusel móvil usa scroll.
-    }, [selectedImageIndex]); // Dependencia clave: selectedImageIndex */
 
     // ------------------------------------------
     // LÓGICA MEMORIZADA: Encuentra la variante coincidente
@@ -132,7 +121,7 @@ export default function ProductDetail({ productoId }) {
         if (hasVoted) return;
 
         try {
-          const response = await fetch(`${BASE_URL_API}/productos/vote/${producto.id}`, { 
+          const response = await fetch(`${BASE_URL_API}/api/v1/productos/vote/${producto.id}`, { 
             method: 'PATCH',
             headers: { 
               'Content-Type': 'application/json',
@@ -241,7 +230,7 @@ export default function ProductDetail({ productoId }) {
         ? 'N/A' 
         : `$${formattedPrice.toFixed(2)}`;
 
-    // 📌 Lógica para obtener todas las URLs de imágenes (con Cache-Busting)
+    // Lógica para obtener todas las URLs de imágenes (con Cache-Busting)
     const allImageUrls = producto?.imagenesProducto?.map(img => {
         const imageUpdateTimestamp = new Date(img.updatedAt).getTime();
         // Aplicamos Cache-Busting: el timestamp cambia si la imagen es actualizada.
@@ -273,7 +262,7 @@ export default function ProductDetail({ productoId }) {
         newIndex = Math.max(0, Math.min(totalImages - 1, newIndex));
         setSelectedImageIndex(newIndex); // Actualiza el estado para saber dónde estamos
 
-        // 🚨 SCROLL JAVASCRIPT: Mueve el scroll del contenedor
+        // SCROLL JAVASCRIPT: Mueve el scroll del contenedor
         galeriaRef.current.scrollLeft = newIndex * scrollWidth;
     };
 
@@ -301,7 +290,7 @@ export default function ProductDetail({ productoId }) {
                     ))}
                 </div>
 
-                {/* 📌 SOLUCIÓN: Usamos UN SOLO contenedor para carrusel y botones */}
+                {/* SOLUCIÓN: Usamos UN SOLO contenedor para carrusel y botones */}
                 <div className={styles.carruselContainer}> 
                     
                     {/* 2. Botones de Navegación (para Móvil) */}
@@ -316,9 +305,9 @@ export default function ProductDetail({ productoId }) {
                     )}
 
                     {/* 3. IMÁGENES PRINCIPALES (Carrusel/Galería) */}
-                    {/* 🚨 CRÍTICO: Aquí colocamos la referencia para el transform/scroll */}
+                    {/* Aquí colocamos la referencia para el transform/scroll */}
                     <div className={styles.galeriaImagenes} ref={galeriaRef}>
-                        {/* 🚨 SOLUCIÓN para DESKTOP: Renderizar solo la imagen de índice seleccionado */}
+                        {/* SOLUCIÓN para DESKTOP: Renderizar solo la imagen de índice seleccionado */}
                         {window.innerWidth > 760 ? (
                             <Image 
                                 src={currentImageUrl} 
@@ -328,7 +317,7 @@ export default function ProductDetail({ productoId }) {
                                 style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
                             />
                         ) : (
-                            // 🚨 SOLUCIÓN para MOBILE: Volver a mapear todas las imágenes para el carrusel de scroll
+                            // SOLUCIÓN para MOBILE: Volver a mapear todas las imágenes para el carrusel de scroll
                             allImageUrls.map((url, index) => (
                                 <Image 
                                     key={index}
@@ -375,7 +364,7 @@ export default function ProductDetail({ productoId }) {
                         <select 
                             onChange={(e) => {
                                 setSelectedTalla(e.target.value);
-                                // 📌 MEJORA UX: Resetear color al cambiar talla
+                                // Resetear color al cambiar talla
                                 setSelectedColor(null); 
                             }} 
                             value={selectedTalla || ''}

@@ -7,7 +7,7 @@ import CardSimple from './CardSimple';
 import Filtros from './Filtros';
 import style from './ProductList.module.css';
 
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
 
 // 📌 NOTA: Asegúrate de que los valores iniciales coincidan con los límites del input en Filtros.js
 const DEFAULT_PRECIO_MIN = 10000;
@@ -54,7 +54,7 @@ export default function ProductList() {
     }
     
     const queryString = params.toString(); // Línea 36: Ahora construida con datos validados
-    const url = `${API_BASE_URL}/productos?${queryString}`;
+    const url = `${API_BASE_URL}/api/v1/productos?${queryString}`;
 
     try {
       const response = await fetch(url);
@@ -79,7 +79,7 @@ export default function ProductList() {
   useEffect(() => {
     const fetchCategorias = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/categorias`);
+            const response = await fetch(`${API_BASE_URL}/api/v1/categorias`);
             const data = await response.json();
             setCategorias(data);
         } catch (error) {

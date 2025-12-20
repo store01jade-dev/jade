@@ -8,8 +8,8 @@ import ProtectedRoute from '../../../../../components/auth/ProtectedRoute';
 import VariantesInput from '../../../../../app/admin/variantes/VariantesInput'; 
 import style from '../../nuevo/NuevoProducto.module.css'; // Reutilizamos los estilos
 
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
-const BASE_URL_API = 'http://localhost:4000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
+const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 function EditProductContent() {
     const router = useRouter();
@@ -36,8 +36,8 @@ function EditProductContent() {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const API_URL_PRODUCTO = `${API_BASE_URL}/productos/${productId}`;
-    const API_URL_CATEGORIAS = `${API_BASE_URL}/categorias`;
+    const API_URL_PRODUCTO = `${API_BASE_URL}/api/v1/productos/${productId}`;
+    const API_URL_CATEGORIAS = `${API_BASE_URL}/api/v1/categorias`;
 
     // ------------------------------------------------------------------
     // 1. CARGA INICIAL: Producto y Categorías
@@ -122,7 +122,7 @@ function EditProductContent() {
         let newValue;
         if (type === 'checkbox') {
             newValue = checked; 
-        // 📌 CORRECCIÓN: Usar precio_base y manejar el string vacío
+        // Usar precio_base y manejar el string vacío
         } else if (name === 'precio_base') { 
             newValue = value === '' ? '' : parseFloat(value);
         } else if (name === 'categoria_id') {
@@ -322,7 +322,6 @@ function EditProductContent() {
                 <div style={{marginBottom: '20px', borderTop: '1px solid #eee', paddingTop: '15px'}}>
                     <h3 style={{marginBottom: '10px'}}>Imágenes Actuales ({originalImages.length})</h3>
                     
-                    {/* 📌 ELIMINA EL PRIMER BLOQUE DUPLICADO Y SOLO USA ESTE: */}
                     {originalImages.map(img => {
                         const key = `existing-${img.id}`;
                         const isMain = mainImageKey === key;

@@ -11,7 +11,7 @@ import email from "../../public/icons/EmailLight.svg";
 import { useCommentRefresh } from './context/CommentRefreshContext';
 import PolicyModal from './PolicyModal';
 
-const API_BASE_URL = 'http://localhost:4000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 //configuración para la columna de politicas
 const policies = [
@@ -61,7 +61,7 @@ export default function Footer() {
         setMessage('');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/comments`, {
+            const response = await fetch(`${API_BASE_URL}api/v1/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

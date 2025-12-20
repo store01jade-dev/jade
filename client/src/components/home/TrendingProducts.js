@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import CardSimple from '../productos/CardSimple.js'; 
 import style from './TrendingProducts.module.css'; // Su propio CSS Module
 
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
 
 export default function TrendingProducts() {
     const [products, setProducts] = useState([]);
@@ -16,7 +16,7 @@ export default function TrendingProducts() {
         const fetchCatalogProducts = async () => {
             try {
                 // Usamos el nuevo endpoint
-                const response = await fetch(`${API_BASE_URL}/productos/trending`); 
+                const response = await fetch(`${API_BASE_URL}/api/v1/productos/trending`); 
                 if (!response.ok) {
                     throw new Error('No se pudieron cargar los productos del catálogo');
                 }

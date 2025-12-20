@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'; // Hook de Next.js para redirecció
 const AuthContext = createContext();
 
 // URL base de tu backend de Express
-const API_URL = 'http://localhost:4000/api/users'; 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/users'; 
 
 // 2. Crear el Provider
 export const AuthProvider = ({ children }) => {
@@ -76,7 +76,7 @@ useEffect(() => {
 // 4. Función de LOGIN (Llama a tu API de Express)
 const login = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch(`${API_URL}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -132,7 +132,7 @@ const login = async (email, password) => {
   // Función de REGISTRO
 const register = async (nombre, email, password) => {
     try {
-        const response = await fetch(`${API_URL}/register`, { // Asumo esta ruta en tu backend
+        const response = await fetch(`${API_URL}api/users/register`, { // Asumo esta ruta en tu backend
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, email, password }),

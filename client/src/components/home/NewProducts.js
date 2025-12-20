@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import CardSimple from '../productos/CardSimple'; // Tu componente de tarjeta
 import style from './NewProducts.module.css'; 
 
-const API_BASE_URL = 'http://localhost:4000/api/v1'; 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
 
 export default function NewProducts() {
     const [products, setProducts] = useState([]);
@@ -14,7 +14,7 @@ export default function NewProducts() {
         const fetchNewProducts = async () => {
             try {
                 // Usamos el endpoint que creamos en el backend
-                const response = await fetch(`${API_BASE_URL}/productos/new`); 
+                const response = await fetch(`${API_BASE_URL}/api/v1/productos/new`); 
                 if (!response.ok) {
                     throw new Error('No se pudieron cargar las novedades');
                 }

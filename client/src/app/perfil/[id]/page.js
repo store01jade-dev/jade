@@ -5,6 +5,8 @@ import { useAuth } from '@/context/AuthContext';
 import styles from './DetallePedido.module.css';
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export default function DetallePedidoPage() {
     const { id } = useParams();
     const { token } = useAuth();
@@ -15,7 +17,7 @@ export default function DetallePedidoPage() {
     useEffect(() => {
         const fetchDetalle = async () => {
             try {
-                const response = await fetch(`http://localhost:4000/api/v1/orders/mis-pedidos/${id}`, {
+                const response = await fetch(`${API_URL}/api/v1/orders/mis-pedidos/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();

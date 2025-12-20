@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'; // Hook para obtener los parámetro
 import styles from '../ResetPassword.module.css'; // Usaremos el módulo de estilos
 
 // URL del backend (Ajusta si es necesario)
-const API_BASE_URL = 'http://localhost:4000/api/users';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/users';
 
 export default function ResetPasswordPage() {
     const params = useParams(); // Obtenemos el objeto de parámetros de la URL
@@ -47,7 +47,7 @@ export default function ResetPasswordPage() {
         
         try {
             // Llamamos al endpoint de backend que recibe el token y aplica el hash
-            const response = await fetch(`${API_BASE_URL}/password/reset/${token}`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/password/reset/${token}`, {
                 method: 'PATCH', // Usamos PATCH o PUT
                 headers: {
                     'Content-Type': 'application/json',

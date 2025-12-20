@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styles from './ForgotPassword.module.css'; // Usaremos estilos modulares
 
 // URL del backend (Ajusta si es necesario)
-const API_BASE_URL = 'http://localhost:4000/api/users';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/users';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
         setError('');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/password/forgot`, {
+            const response = await fetch(`${API_BASE_URL}/api/v1/password/forgot`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

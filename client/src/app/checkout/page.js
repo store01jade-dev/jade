@@ -8,6 +8,8 @@ import styles from './Checkout.module.css';
 import { useCart } from '../../components/context/CartContext'; 
 import { useAuth } from '../../context/AuthContext'; 
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function CheckoutPage() {
     const { cartItems, cartTotal, clearCart } = useCart();
     const { isAuthenticated, user, token, isLoading } = useAuth();
@@ -49,7 +51,7 @@ export default function CheckoutPage() {
         };
 
         try {
-            const response = await fetch('http://localhost:4000/api/v1/orders', {
+            const response = await fetch(`${API_URL}/api/v1/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

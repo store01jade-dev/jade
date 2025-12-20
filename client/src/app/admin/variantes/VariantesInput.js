@@ -54,7 +54,7 @@ const VariantesInput = ({ variantes, setVariantes }) => {
                     <input type="number" placeholder="Stock" name="stock" value={variante.stock} onChange={(e) => handleVarianteChange(index, e.target.name, e.target.value)} required min="0" className={styles.input} />
                     
                     {/* PRECIO */} 
-                    <input type="number" placeholder="Precio ($)" name="precio" value={variante.precio} onChange={(e) => handleVarianteChange(index, e.target.name, e.target.value)} required min="0.01" step="0.01" className={styles.input} /> 
+                    <input type="number" placeholder="Precio ($)" name="precio" value={variante.precio} onChange={(e) => handleVarianteChange(index, e.target.name, e.target.value)}  className={styles.input} /> 
                     
                     {/* PESO (Añadido por si es relevante para el envío)
                     <input type="number" placeholder="Peso (kg)" name="peso" value={variante.peso} onChange={(e) => handleVarianteChange(index, e.target.name, e.target.value)} min="0" step="0.01" className={styles.input} /> */}

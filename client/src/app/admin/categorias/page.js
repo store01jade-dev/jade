@@ -7,7 +7,8 @@ import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 // Importamos un módulo de estilos que crearemos para esta página
 import styles from './Categorias.module.css'; 
 
-const API_CATEGORIAS = 'http://localhost:4000/api/v1/categorias';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_CATEGORIAS = `${API_URL}/api/v1/categorias`;
 
 function CategoryManagementContent() {
     const { token } = useAuth();

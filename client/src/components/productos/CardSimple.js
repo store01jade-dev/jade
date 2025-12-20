@@ -10,7 +10,7 @@ import style from './CardSimple.module.css'
 export default function CardSimple({ producto }) {
   // Definir la base del servidor de archivos
   // En producción, esto debería ser tu dominio de API, pero para desarrollo es 4000.
-  const BASE_URL_API = 'http://localhost:4000';
+  const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL;
   // Asegúrate de usar las propiedades que necesitas (id, nombre, imagenUrl)
   const DEFAULT_IMAGE_URL = placeHolder; 
   

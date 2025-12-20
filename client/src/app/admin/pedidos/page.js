@@ -3,13 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import styles from './AdminOrders.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function AdminOrdersPage() {
     const [pedidos, setPedidos] = useState([]);
     const { token } = useAuth();
     const [selectedOrder, setSelectedOrder] = useState(null);
 
     const fetchAllOrders = async () => {
-        const res = await fetch('http://localhost:4000/api/v1/orders/admin/all', {
+        const res = await fetch(`${API_URL}/api/v1/orders/admin/all`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -29,7 +31,7 @@ export default function AdminOrdersPage() {
     }, [token]);
 
     const handleStatusChange = async (id, newStatus) => {
-        const res = await fetch(`http://localhost:4000/api/v1/orders/${id}/status`, {
+        const res = await fetch(`${API_URL}/api/v1/orders/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',

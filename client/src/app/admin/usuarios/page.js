@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import styles from './AdminUsuarios.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export default function AdminUsuarios() {
     const [usuarios, setUsuarios] = useState([]);
     const { token } = useAuth();
 
     const fetchUsuarios = async () => {
-        const res = await fetch('http://localhost:4000/api/users/users', {
+        const res = await fetch(`${API_URL}/api/users/users`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -21,7 +23,7 @@ export default function AdminUsuarios() {
         if (!window.confirm(`¿Estás seguro de cambiar el rol a ${nuevoRol}?`)) return;
 
         try {
-            const res = await fetch(`http://localhost:4000/api/users/${userId}/role`, {
+            const res = await fetch(`${API_URL}/api/users/${userId}/role`, {
                 method: 'PATCH',
                 headers: { 
                     'Content-Type': 'application/json',
