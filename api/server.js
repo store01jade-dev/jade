@@ -20,7 +20,7 @@ testConnection().then(() => {
     });
 });*/
 
-const startServer = async () => {
+/*const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("Conexión establecida correctamente con MySQL");
@@ -36,6 +36,28 @@ const startServer = async () => {
   } catch (error) {
     console.error("Error al conectar a la base de datos:", error);
   }
-};
+};*/
+
+async function startServer() {
+  try {
+    // 1. Desactivamos la revisión de llaves foráneas para evitar el error ER_FK_CANNOT_OPEN_PARENT
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    console.log('Revisión de FK desactivada temporalmente...');
+
+    // 2. Sincronizamos (alter: true es más seguro para no borrar datos si luego agregas algo)
+    await sequelize.sync({ alter: true });
+    console.log('Tablas sincronizadas correctamente.');
+
+    // 3. Volvemos a activar la revisión
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    console.log('Revisión de FK reactivada.');
+
+    app.listen(process.env.PORT || 3000, () => {
+      console.log('Servidor corriendo en Railway');
+    });
+  } catch (error) {
+    console.error('Error al conectar a la base de datos:', error);
+  }
+}
 
 startServer();
