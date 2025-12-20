@@ -22,7 +22,7 @@ async function startServer() {
     console.log('Tablas sincronizadas correctamente.');*/
 
     app.listen(PorToUse, '0.0.0.0', () => {
-      console.log(`🚀 Servidor activo en puerto: ${PORT}`);
+      console.log(`🚀 Servidor activo en puerto: ${PorToUse}`);
     });
   } catch (error) {
     console.error('Error al conectar:', error);
