@@ -38,7 +38,7 @@ testConnection().then(() => {
   }
 };*/
 
-async function repairDatabase() {
+/*async function repairDatabase() {
   try {
     console.log("Iniciando reparación manual de tablas...");
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
@@ -61,7 +61,11 @@ async function repairDatabase() {
   } catch (error) {
     console.error("Error en la reparación:", error);
   }
-}
+}*/
+
+app.get('/', (req, res) => {
+  res.status(200).send('Servidor Operativo');
+});
 
 async function startServer() {
   try {
