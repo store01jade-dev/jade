@@ -8,13 +8,15 @@ import { useAuth } from '../../../context/AuthContext';
 import { FaPlus, FaList, FaEdit, FaTrash, FaTag } from 'react-icons/fa';
 import styles from './ProductList.module.css'; // <-- ¡Importar CSS Modules!
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 function ProductManagementContent() {
     const { token } = useAuth();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     // CRÍTICO: Usamos v1 para coincidir con la estructura de categorías
-    const API_URL = 'http://localhost:4000/api/v1/productos'; 
+    //const API_URL = 'http://localhost:4000/api/v1/productos'; 
 
     // Función de Lectura: Obtener la lista de productos
     const fetchProducts = async () => {
@@ -31,7 +33,7 @@ function ProductManagementContent() {
             // en la respuesta GET /api/v1/productos. Si no lo está,
             // esta columna aparecerá vacía hasta que configures la asociación
             // Producto.belongsTo(Categoria) y uses { include: [Categoria] } en tu controller GET.
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_URL}/api/v1/productos`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

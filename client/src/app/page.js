@@ -1,6 +1,4 @@
-import Image from "next/image";
 import style from "./page.module.css";
-import logo from "../../public/assests/LOGO-02.png";
 import Banner from "@/components/home/Banner";
 import NewProducts from "@/components/home/NewProducts";
 import FeaturedCatalog from "@/components/home/FeaturedCatalog";
