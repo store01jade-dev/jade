@@ -72,7 +72,7 @@ async function startServer() {
     await sequelize.sync({ alter: true });
     
     console.log('Tablas sincronizadas correctamente.');
-    app.listen(process.env.PORT || 3000, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log('Servidor corriendo en Railway');
     });
   } catch (error) {
