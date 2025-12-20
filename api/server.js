@@ -66,17 +66,22 @@ async function repairDatabase() {
 async function startServer() {
   try {
     // LLAMAMOS A LA REPARACIÓN PRIMERO
-    await repairDatabase();
+    //await repairDatabase();
+
+    await sequelize.authenticate();
+    console.log('✅ Conexión a la DB establecida.');
 
     // Luego el sync normal
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
+    console.log('✅ Tablas sincronizadas.');
     
     console.log('Tablas sincronizadas correctamente.');
     app.listen(PORT, '0.0.0.0', () => {
-      console.log('Servidor corriendo en Railway');
+      console.log(`🚀 Servidor activo en puerto: ${PORT}`);
     });
   } catch (error) {
     console.error('Error al conectar:', error);
+    process.exit(1);
   }
 }
 

@@ -68,5 +68,15 @@ app.use('/api/v1/comments', commetRoutes);
 //Rutas para los pedidos
 app.use('/api/v1/orders', orderRoutes);
 
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Y asegúrate de tener una para la raíz
+app.get('/', (req, res) => {
+  res.status(200).send('Backend Jade E-commerce Online');
+});
+
 // Exportamos app para que pueda ser utilizado por server.js
 export default app;
