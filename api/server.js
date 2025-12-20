@@ -1,3 +1,7 @@
+app.get('/', (req, res) => res.send('Backend Jade Online'));
+app.get('/health', (req, res) => res.send('OK'));
+
+
 // Importamos la aplicacion Express que configuramos en app.js
 import app from "./src/app.js";
 //import { testConnection } from "./src/config/db.js";
@@ -9,8 +13,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const PORT = process.env.PORT || 8080;
-
-app.get('/', (req, res) => res.status(200).send('Servidor Vivo'));
 
 // 2. Función Principal de Arranque
 const startServer = async () => {
