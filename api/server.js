@@ -1,7 +1,7 @@
 // Importamos la aplicacion Express que configuramos en app.js
 import app from "./src/app.js";
 //import { testConnection } from "./src/config/db.js";
-import sequelize from "./src/models/index.js";
+import {sequelize} from "./src/models/index.js";
 
 // Importamos dotenv para leer variables de entorno del archivo .env
 import dotenv from "dotenv";
