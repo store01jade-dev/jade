@@ -23,7 +23,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: "https://jade-rouge.vercel.app",
+    origin: "https://jade-wheat.vercel.app",
     credentials: true
 }));
 /*CRÍTICO: Servir el directorio 'uploads'

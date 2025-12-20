@@ -65,7 +65,7 @@ function ProductManagementContent() {
         // ... (Lógica de eliminación usando token) ...
         if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
          try {
-            const response = await fetch(`${API_URL}/${productId}`, {
+            const response = await fetch(`${API_URL}/api/v1/productos/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
