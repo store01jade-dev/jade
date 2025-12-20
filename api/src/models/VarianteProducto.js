@@ -50,6 +50,7 @@ const VarianteProducto = sequelize.define(
 
     {
         tableName: "variantes_producto",
+        freezeTableName: true,
         timestamps: true
     }
 );

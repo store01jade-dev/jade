@@ -22,7 +22,10 @@ const app = express();
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: "https://jade-rouge.vercel.app",
+    credentials: true
+}));
 /*CRÍTICO: Servir el directorio 'uploads'
 // Asegúrate de que esta ruta apunte a la carpeta 'uploads' donde guardas las imágenes.
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));*/
