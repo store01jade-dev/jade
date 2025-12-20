@@ -1,7 +1,3 @@
-app.get('/', (req, res) => res.send('Backend Jade Online'));
-app.get('/health', (req, res) => res.send('OK'));
-
-
 // Importamos la aplicacion Express que configuramos en app.js
 import app from "./src/app.js";
 //import { testConnection } from "./src/config/db.js";
