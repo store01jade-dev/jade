@@ -25,40 +25,15 @@ const app = express();
 app.get('/', (req, res) => res.send('Backend Jade Online'));
 app.get('/health', (req, res) => res.send('OK'));
 
+// 1. Configuración básica de CORS (esto suele ser suficiente para la mayoría de casos)
+app.use(cors());
+
+// 2. Para solucionar el error del asterisco que te salió antes
+app.options('/*', cors());
+
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const allowedOrigins = [
-  'https://jade-wheat.vercel.app',
-  'https://jade-ewjv.onrender.com', //servidor back-end
-  'http://localhost:5173', //para pruebas locales
-  'http://localhost:3000'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // 1. Permitir peticiones sin origen (como Postman o pings de Render)
-    if (!origin) return callback(null, true);
-
-    // 2. Verificar si el origen está en la lista fija
-    const isAllowed = allowedOrigins.includes(origin);
-
-    // 3. Verificar si el origen es una URL de previsualización de Vercel (Regex)
-    // Esto acepta cualquier cosa que empiece por 'https://jade-' y termine en '.vercel.app'
-    const isVercelPreview = origin.startsWith('https://jade-') && origin.endsWith('.vercel.app');
-
-    if (isAllowed || isVercelPreview) {
-      callback(null, true);
-    } else {
-      console.log("Bloqueado por CORS:", origin);
-      callback(new Error('Error de CORS: Origen no permitido'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', "X-Requested-With"]
-}));
 
 const UPLOADS_PATH = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(UPLOADS_PATH)); 
