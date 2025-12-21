@@ -32,7 +32,7 @@ function NewProductContent() {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const API_BASE_URL = 'http://localhost:4000/api/v1'; // ¡Ajusta tu URL de Express!
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ¡Ajusta tu URL de Express!
 
     // Endpoint de productos
     const API_URL_PRODUCTOS = `${API_BASE_URL}/productos`; 

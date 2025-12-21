@@ -8,8 +8,8 @@ import ProtectedRoute from '../../../../../components/auth/ProtectedRoute';
 import VariantesInput from '../../../../../app/admin/variantes/VariantesInput'; 
 import style from '../../nuevo/NuevoProducto.module.css'; // Reutilizamos los estilos
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'; 
-const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
+const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL;
 
 function EditProductContent() {
     const router = useRouter();
