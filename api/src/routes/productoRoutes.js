@@ -63,7 +63,7 @@ router.get('/catalog-featured', getCatalogProducts);
 //Entrar al detalle del producto
 //Nueva ruta para votar/contar "Me Gusta"
 router.patch('/vote/:id', voteProduct); // Usamos PATCH para actualizar parcialmente
-router.get("/:id", multerInstance.array('images', 10), obtenerProducto);
+router.get("/:id", obtenerProducto);
 
 
 // Rutas protegidas (solo admin o dev pueden modificar productos)
