@@ -44,7 +44,7 @@ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        console.log(req.body);
+        //console.log(req.body);
 
         // validar que los campos no esten vacios
         if(!email || !password) {
