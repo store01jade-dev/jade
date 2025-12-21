@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from './PolicyModal.module.css'; 
 
-const BACKEND_API_URL = 'http://localhost:4000/api/v1';
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL;;
 
 // 1. Componente del Formulario de Contacto
 const ContactForm = ({ onClose }) => {
@@ -19,7 +19,7 @@ const ContactForm = ({ onClose }) => {
 
         try {
             // Llamada a tu Backend externo
-            const response = await fetch(`${BACKEND_API_URL}/contact/send-email`, { 
+            const response = await fetch(`${BACKEND_API_URL}/api/v1/contact/send-email`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,6 +31,10 @@ const ContactForm = ({ onClose }) => {
             const data = await response.json();
 
             if (!response.ok) {
+                // ✅ Solo si el servidor responde éxito
+                alert('✅ Mensaje enviado con éxito. ¡Pronto te contactaremos!');
+                onClose();
+            }else {
                 throw new Error(data.message || 'Error en el servidor de Backend.');
             }
             
@@ -46,9 +50,6 @@ const ContactForm = ({ onClose }) => {
         
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulación de API
         
-        alert('Mensaje enviado con éxito. ¡Pronto te contactaremos!');
-        setIsSubmitting(false);
-        onClose(); // Cerrar modal al terminar
     };
 
     return (
