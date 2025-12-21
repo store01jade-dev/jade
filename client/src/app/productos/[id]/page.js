@@ -1,24 +1,20 @@
 import ProductDetail from '../../../components/productos/ProductDetail'; 
 
 //Next.js pasa los parámetros de la URL en el objeto 'params'
-export default async function ProductDetailPage(params) {
+export default async function ProductDetailPage({params}) {
   // params.productoId contendrá el valor dinámico de la URL (ej: '1', '2', etc.)
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
   //console.log("Intentando cargar producto con ID:", id); // Verifica esto en tu terminal Next.js
 
-    console.log("-----------------------------------------");
-    console.log("Servidor Next.js: Cargando página para ID:", id);
-    console.log("-----------------------------------------");
-
-    if (!id) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <p>Error: No se pudo encontrar el ID en la URL.</p>
-            </div>
-        );
-    }
+  if (!id) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Error: No se pudo encontrar el ID en la URL.</p>
+      </div>
+    );
+  }
 
   // Renderizamos tu componente ProductDetail, pasándole el ID
   return (
