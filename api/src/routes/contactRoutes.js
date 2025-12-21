@@ -33,7 +33,7 @@ router.post('/send-email', async (req, res) => {
         // 4. Envío del correo usando Resend (Reemplaza a transporter.sendMail)
         const { data, error } = await resend.emails.send({
             from: 'Tienda Jade <onboarding@resend.dev>', // Deja este para la prueba inicial
-            to: 'tu-correo-registrado@gmail.com',         // EL CORREO DONDE QUIERES RECIBIRLO
+            to: "store01.jade@gmail.com",         // EL CORREO DONDE QUIERES RECIBIRLO
             subject: `[CONTACTO WEB] Mensaje de: ${name}`,
             html: `
                 <h3>Nuevo mensaje de contacto</h3>
