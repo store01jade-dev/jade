@@ -188,7 +188,11 @@ export default function ProductDetail({ productoId }) {
 
         // --- Obtener Imagen URL ---
         const imagenObjeto = producto?.imagenesProducto?.find((_, index) => index === selectedImageIndex) || producto?.imagenesProducto?.[0];
-        const finalSrc = imagenObjeto?.url ? `${API_BASE_URL}${imagenObjeto.url}` : DEFAULT_IMAGE_URL;
+        //const finalSrc = imagenObjeto?.url ? `${API_BASE_URL}${imagenObjeto.url}` : DEFAULT_IMAGE_URL;
+        // Lógica inteligente también aquí al añadir:
+        const finalSrc = imagenObjeto?.url.startsWith('http') 
+            ? imagenObjeto.url 
+            : `${API_BASE_URL}${imagenObjeto.url}`;
 
         // 3. Añadir al carrito
         addItemToCart(itemToAdd, producto.nombre, quantity, finalSrc); 
