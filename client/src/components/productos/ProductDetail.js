@@ -232,9 +232,20 @@ export default function ProductDetail({ productoId }) {
 
     // Lógica para obtener todas las URLs de imágenes (con Cache-Busting)
     const allImageUrls = producto?.imagenesProducto?.map(img => {
-        const imageUpdateTimestamp = new Date(img.updatedAt).getTime();
+        /*const imageUpdateTimestamp = new Date(img.updatedAt).getTime();
         // Aplicamos Cache-Busting: el timestamp cambia si la imagen es actualizada.
-        return `${API_BASE_URL}${img.url}?v=${imageUpdateTimestamp}`; 
+        return `${API_BASE_URL}${img.url}?v=${imageUpdateTimestamp}`;*/
+
+        // Si la URL ya empieza con http, la usamos directamente (Cloudinary)
+        // Si no, le concatenamos la base (para compatibilidad con imágenes viejas)
+        const isExternal = img.url.startsWith('http');
+        const finalUrl = isExternal ? img.url : `${API_BASE_URL}${img.url}`;
+        
+        // El Cache-Busting solo es necesario para imágenes locales, 
+        // Cloudinary maneja su propio versionado, pero podemos dejarlo.
+        const imageUpdateTimestamp = new Date(img.updatedAt).getTime();
+        return isExternal ? finalUrl : `${finalUrl}?v=${imageUpdateTimestamp}`;
+        
     }) || [DEFAULT_IMAGE_URL];
 
     // Esta variable solo se usa ahora para el modo escritorio/miniatura

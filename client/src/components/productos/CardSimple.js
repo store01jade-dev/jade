@@ -1,55 +1,53 @@
 // components/products/CardSimple.js
-'use client'; // Necesario si usas Link de Next.js o quieres interactividad
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import placeHolder from '../../../public/assests/placeholder.jpg'
 import style from './CardSimple.module.css'
 
-// Recibe las propiedades del producto
 export default function CardSimple({ producto }) {
-  // Definir la base del servidor de archivos
-  // En producción, esto debería ser tu dominio de API, pero para desarrollo es 4000.
   const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL;
-  // Asegúrate de usar las propiedades que necesitas (id, nombre, imagenUrl)
   const DEFAULT_IMAGE_URL = placeHolder; 
   
-  /* Buscar la imagen en el array 'imagenesProducto'
-  // El producto.imagenesProducto es un ARRAY debido al hasMany.
-  const imagenObjeto = producto.imagenesProducto ? producto.imagenesProducto[0] : null; 
+  // 1. Buscamos la imagen principal o la primera disponible
+  const imagenPrincipal = producto.imagenesProducto?.find(img => img.principal === true) || producto.imagenesProducto?.[0];
+  const urlBase = imagenPrincipal?.url;
   
-  // Asignar la URL, usando el placeholder si no existe la imagenObjeto o su URL
-  const imagenUrl = imagenObjeto?.url || DEFAULT_IMAGE_URL;*/ 
-
-  // ... lógica para obtener imagenObjeto (ya corregida)
-  //const imagenObjeto = producto.imagenesProducto ? producto.imagenesProducto[0] : null; 
-  const imagenPrincipal = producto.imagenesProducto.find(img => img.principal === true) || producto.imagenesProducto[0]; // Si no hay principal, toma la primera.
-  const imagenUrlRelativa = imagenPrincipal?.url;
-  
-  // Construye la URL absoluta
-  const finalSrc = imagenUrlRelativa 
-    ? `${BASE_URL_API}${imagenUrlRelativa}` // Ej: http://localhost:4000/uploads/...
-    : DEFAULT_IMAGE_URL;
+  // 2. CAMBIO CLAVE: Lógica de detección de URL
+  let finalSrc;
+  if (!urlBase) {
+    finalSrc = DEFAULT_IMAGE_URL;
+  } else if (urlBase.startsWith('http')) {
+    // Si ya es una URL de Cloudinary, la usamos tal cual
+    finalSrc = urlBase;
+  } else {
+    // Si es una ruta vieja local, le pegamos la base de la API
+    finalSrc = `${BASE_URL_API}${urlBase}`;
+  }
     
-  const cacheBuster = Date.now();
+  // El cacheBuster solo es realmente útil para imágenes locales que cambian de contenido 
+  // pero mantienen el mismo nombre. Para Cloudinary no es necesario, pero no estorba.
+  const cacheBuster = imagenPrincipal?.updatedAt ? new Date(imagenPrincipal.updatedAt).getTime() : Date.now();
 
   return (
     <Link href={`/productos/${producto.id}`} className={style.cardSimple}>
-      {/* 1. Imagen del Producto */}
       <div className={style.imagenWrapper}>
-        <Image src={`${finalSrc}?v=${cacheBuster}`} 
+        <Image 
+          // Solo aplicamos el cache buster si NO es una URL externa para evitar URLs extrañas en Cloudinary
+          src={urlBase?.startsWith('http') ? finalSrc : `${finalSrc}?v=${cacheBuster}`} 
           alt={`Imagen de ${producto.nombre}`} 
           width={300} 
           height={300} 
           style={{ objectFit: 'contain' }}
+          // Prioridad para que las tarjetas carguen rápido
+          priority={false} 
         />
       </div>
       
-      {/* 2. Nombre */}
       <h3 className={style.nombreProducto}>
         {producto.nombre}
       </h3>
-      
     </Link>
   );
 }

@@ -20,40 +20,6 @@ import {
   sequelize
 } from "../models/index.js";
 
-/* Listar todos los productos con categorías, variantes e imágenes
-export const listarProductos = async (req, res) => {
-  try {
-    const productos = await Producto.findAll({
-      include: [
-        { model: Categoria,
-          as: "categoria",
-          attributes: ["id", "nombre"] 
-        },
-
-        {
-          model: VarianteProducto,
-          as: "variantes",
-          attributes: ["id", "color", "talla", "precio", "stock"],
-          include: [
-            { 
-              model: ProductoImagen, 
-              as: "imagenesVariante",
-              where: {principal: true}, // solo traer la imagen principal
-              required: false,          // permite variantes sin imagenes
-              attributes: ["id", "url", "principal"] 
-            }
-          ],
-        },
-      ],
-    });
-
-    res.json(productos);
-  } catch (error) {
-    console.error("Error al listar productos:", error);
-    res.status(500).json({ error: "Error interno al listar productos" });
-  }
-};*/
-
 // Listar todos los productos con categorías, variantes e imágenes (con filtros)
 export const listarProductos = async (req, res) => {
     // 1. Leer los parámetros de la URL
@@ -192,50 +158,42 @@ export const crearProducto = async (req, res) => {
   }
 };*/
 
-// --- FUNCIÓN SIMULADA DE SUBIDA ---
-// Esta función reemplaza la lógica de subida a Cloudinary/S3, 
-// devolviendo URLs simuladas y metadatos.
-// Crear un producto con VARIANTE (usando include de Sequelize) e IMÁGENES (separado)
+
 export const crearProducto = async (req, res) => {
-    // Asegúrate de leer 'variantes' del cuerpo
     const { 
         nombre, descripcion, precio_base, activo, categoria_id, 
-        variantes // <-- LEER EL CAMPO VARIANTE
+        variantes 
     } = req.body;
+    
+    // Con Multer + CloudinaryStorage, las imágenes están en req.files
     const files = req.files; 
 
-    // Usaremos un objeto simple para el producto principal (sin variantes ni imágenes aún)
     const datosProducto = {
         nombre, 
         descripcion, 
         precio_base: precio_base ? parseFloat(precio_base) : 0.00, 
-        activo: activo === 'true', // Convertir el string 'true'/'false' de FormData a booleano
+        activo: activo === 'true', 
         categoria_id: parseInt(categoria_id),
-        // CRÍTICO: El array de variantes DEBE estar en el objeto principal
         variantes: variantes ? JSON.parse(variantes) : [] 
     };
     
-    // Si usas tu sintaxis de Sequelize, la transacción será implícita
-    // Nota: Asegúrate de que las propiedades (talla, color, etc.) coincidan con el modelo VarianteProducto.
     try {
-        // 1. CREAR PRODUCTO Y VARIANTES SIMULTÁNEAMENTE usando 'include'
+        // 1. Crear producto y variantes (Sequelize se encarga)
         const nuevoProducto = await Producto.create(datosProducto, {
-            // Asegúrate de que esta asociación 'as: "variantes"' sea la que definiste en tu modelo.
             include: [{ model: VarianteProducto, as: "variantes" }] 
         });
 
         const nuevoProductoId = nuevoProducto.id;
 
-        // 2. Procesar y Asociar Imágenes
+        // 2. Procesar y Asociar Imágenes de Cloudinary
         if (files && files.length > 0) {
-            // El Frontend debe enviar el campo 'isPrincipal' como un array de strings
             const isPrincipalArray = req.body.isPrincipal 
                 ? (Array.isArray(req.body.isPrincipal) ? req.body.isPrincipal : [req.body.isPrincipal])
                 : [];
 
             const imagenesParaGuardar = files.map((file, index) => ({
-                url: `/uploads/${file.filename}`, 
-                // APLICAR LÓGICA DE PRINCIPAL
+                // CAMBIO CLAVE: Usamos 'file.path', que es la URL de Cloudinary
+                url: file.path, 
                 principal: isPrincipalArray[index] === 'true', 
                 producto_id: nuevoProductoId,
             }));
@@ -243,7 +201,7 @@ export const crearProducto = async (req, res) => {
             await ProductoImagen.bulkCreate(imagenesParaGuardar);
         }
 
-        // 3. Devolver la respuesta completa
+        // 3. Devolver respuesta con todo incluido
         const productoFinal = await Producto.findByPk(nuevoProductoId, {
              include: [
                  { model: ProductoImagen, as: 'imagenesProducto' }, 
@@ -254,135 +212,21 @@ export const crearProducto = async (req, res) => {
         res.status(201).json(productoFinal);
 
     } catch (error) {
-        // Si falla la creación, Sequelize intenta el rollback del producto/variantes.
-        // Si falla la subida de imágenes, el producto/variantes ya se crearon. 
-        // Se recomienda usar transacciones explícitas aquí si la creación de imágenes no está acoplada al ORM.
-        console.error("Error al crear producto con imágenes/variantes:", error);
-        res.status(500).json({ error: "Error interno al crear el producto. Revisar log del servidor." });
+        console.error("Error al crear producto:", error);
+        res.status(500).json({ error: "Error interno al crear el producto." });
     }
 };
-
-//Actualizar producto
-/*export const actualizarProducto = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nombre, descripcion, categoria_id } = req.body;
-
-    const producto = await Producto.findByPk(id);
-    if (!producto) return res.status(404).json({ error: "Producto no encontrado" });
-
-    producto.nombre = nombre || producto.nombre;
-    producto.descripcion = descripcion || producto.descripcion;
-    producto.categoria_id = categoria_id || producto.categoria_id;
-
-    await producto.save();
-    res.json(producto);
-  } catch (error) {
-    console.error("Error al actualizar producto:", error);
-    res.status(500).json({ error: "Error interno al actualizar producto" });
-  }
-};*/
-
-//  PUT /api/v1/productos/:id
-//  - Actualizar un producto existente.
-
-/*export const actualizarProducto = async (req, res) => {
-    const { id } = req.params;
-    const { 
-        nombre, descripcion, precio, categoria_id, activo, 
-        variantes // JSON string de variantes
-    } = req.body;
-    const files = req.files; 
-    let transaction;
-
-    try {
-        transaction = await Producto.sequelize.transaction();
-        
-        const producto = await Producto.findByPk(id, { transaction });
-        if (!producto) {
-            await transaction.rollback();
-            return res.status(404).json({ message: "Producto no encontrado para actualizar." });
-        }
-
-        // 1. Actualizar campos principales del Producto
-        await producto.update({
-            nombre,
-            descripcion,
-            precio: parseFloat(precio),
-            categoria_id: parseInt(categoria_id),
-            activo: activo === 'true',
-        }, { transaction });
-
-        // 2. Actualizar/Reemplazar Variantes
-        if (variantes) {
-            const variantesArray = JSON.parse(variantes);
-
-            // Opción Segura: Eliminar todas las variantes antiguas y crear las nuevas
-            await VarianteProducto.destroy({ where: { producto_id: id }, transaction });
-            
-            if (variantesArray.length > 0) {
-                const nuevasVariantes = variantesArray.map(v => ({
-                    ...v,
-                    producto_id: id,
-                }));
-                await VarianteProducto.bulkCreate(nuevasVariantes, { transaction });
-            }
-        }
-        
-        // 3. Subir y Asociar Nuevas Imágenes (No borramos las antiguas aquí, solo añadimos)
-        if (files && files.length > 0) {
-            // Procesar los archivos de disco
-            const imagenesParaGuardar = files.map(file => ({
-                // CRÍTICO: '/uploads/' + el nombre de archivo que Multer guardó en disco
-                url: `/uploads/${file.filename}`, 
-                principal: true, // Asigna tu lógica de principal
-                producto_id: id,
-            }));
-            await ProductoImagen.bulkCreate(imagenesParaGuardar, { transaction });
-        }
-
-        // 4. Commit de la Transacción
-        await transaction.commit();
-
-        // 5. Devolver el producto actualizado
-        const productoFinal = await Producto.findByPk(id, {
-             include: [
-                 { model: ProductoImagen, as: 'imagenesProducto' }, 
-                 { model: VarianteProducto, as: 'variantes' },
-                 { model: Categoria, as: 'categoria' }
-             ] 
-        });
-
-        res.json(productoFinal); // 200 OK
-
-    } catch (error) {
-        if (transaction && transaction.finished !== 'commit') {
-            try {
-                // Solo intenta rollback si la transacción NO ha finalizado con commit
-                await transaction.rollback(); 
-                console.log("Transacción revertida debido a un error de ejecución.");
-            } catch (rollbackError) {
-                // Captura el error si el rollback falló por estar ya terminado, 
-                // pero no lo reporta al cliente, ya que el error original es el importante.
-                console.error("Error al intentar rollback:", rollbackError.message);
-            }
-        }
-      
-      console.error("Error al actualizar producto:", error);
-      res.status(500).json({ error: "Error interno al actualizar el producto." });
-        
-    }
-};*/
 
 export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
     
-    // ... (Extracciones de req.body y normalización de mainImageKey) ...
     const { 
         nombre, descripcion, precio_base, activo, categoria_id, 
         variantes: variantesJson,
         existingImageIds: existingImageIdsJson
     } = req.body;
+    
+    // Cloudinary nos entrega los archivos en req.files
     const newFiles = req.files || [];
     
     let { mainImageKey } = req.body;
@@ -390,19 +234,14 @@ export const actualizarProducto = async (req, res) => {
         mainImageKey = mainImageKey[0];
     }
 
-    
     try {
-        // 1. Conversión y Validación de Datos
         const variantes = variantesJson ? JSON.parse(variantesJson) : [];
         const existingImageIds = existingImageIdsJson ? JSON.parse(existingImageIdsJson) : [];
         const isActivo = activo === 'true';
         const basePrice = precio_base ? parseFloat(precio_base) : 0.00;
         const catId = categoria_id ? parseInt(categoria_id) : null;
 
-        // 2. Transacción de Sequelize (Asegura atomicidad)
         const productoFinal = await sequelize.transaction(async (t) => { 
-            
-            // --- A, B, C: Lógica de Actualización de Producto, Variantes y Limpieza de Imágenes ---
             
             const producto = await Producto.findByPk(id, { transaction: t });
             if (!producto) {
@@ -425,25 +264,27 @@ export const actualizarProducto = async (req, res) => {
                  await VarianteProducto.bulkCreate(nuevasVariantes, { transaction: t });
             }
 
-            // Gestión de imágenes (Destrucción de antiguas y creación de nuevas)
+            // Gestión de imágenes
+            // 1. Borrar de la DB las imágenes que el usuario quitó
             await ProductoImagen.destroy({
                 where: { producto_id: id, id: { [Op.notIn]: existingImageIds } },
                 transaction: t
             });
+
+            // 2. CAMBIO CLAVE: Mapear las nuevas imágenes de Cloudinary
+            // En lugar de `/uploads/${file.filename}`, usamos `file.path`
             const imagenesParaGuardar = newFiles.map(file => ({
-                url: `/uploads/${file.filename}`, principal: false, producto_id: id,
+                url: file.path, // <--- URL directa de Cloudinary (https://res.cloudinary.com/...)
+                principal: false, 
+                producto_id: id,
             }));
+
             const nuevasImagenes = await ProductoImagen.bulkCreate(imagenesParaGuardar, { transaction: t });
             
             // 3. Determinar y Asignar la Imagen PRINCIPAL
-            
-            // Limpieza: Aseguramos que todas sean false
             await ProductoImagen.update({ principal: false }, { where: { producto_id: id }, transaction: t });
 
             let targetImageId = null;
-            // ... (Tu lógica para determinar targetImageId a partir de mainImageKey) ...
-            console.log("mainImagenKey recicbido: ", mainImageKey);
-
             if (mainImageKey && typeof mainImageKey === 'string' && mainImageKey.length > 0) {
                 if (mainImageKey.startsWith('existing-')) {
                     targetImageId = parseInt(mainImageKey.split('-')[1]);
@@ -452,20 +293,12 @@ export const actualizarProducto = async (req, res) => {
                     targetImageId = nuevasImagenes[newIndex]?.id; 
                 }
             }
-            console.log("targetImagenId asignado", targetImageId);
             
-            // Asignación de principal: true
             if (targetImageId) {
                 await ProductoImagen.update({ principal: true }, { where: { id: targetImageId }, transaction: t });
             }
             
-            // PUNTO CRÍTICO DE DEBUGGING: Verificar el estado de la imagen 26 inmediatamente
-            if (targetImageId) {
-                const debugCheck = await ProductoImagen.findByPk(targetImageId, { transaction: t });
-                console.log(`[DEBUG] Estado de la Imagen ${targetImageId} después del UPDATE:`, debugCheck.get('principal'));
-            }
-            
-            // 4. Recargar el producto CON la transacción (para ver los cambios)
+            // Recargar el producto para la respuesta
             const productoRecargado = await Producto.findByPk(id, { 
                  include: [
                      { model: ProductoImagen, as: 'imagenesProducto' }, 
@@ -475,14 +308,12 @@ export const actualizarProducto = async (req, res) => {
                  transaction: t 
             });
             
-            return productoRecargado; // Devuelve el producto actualizado
-        }); // Fin de la Transacción (COMMIT)
+            return productoRecargado;
+        });
 
-        // 5. Devolver la respuesta final
         res.status(200).json(productoFinal);
         
     } catch (error) {
-        // ... (Tu manejo de errores) ...
         console.error(`Error al actualizar producto ID ${id}:`, error);
         res.status(500).json({ error: "Error interno al actualizar el producto.", details: error.message });
     }

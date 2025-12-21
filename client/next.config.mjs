@@ -10,6 +10,20 @@ const nextConfig = {
         pathname: '/uploads/**', // Permite cualquier ruta dentro de /uploads/
       },
       // Puedes añadir otros dominios externos aquí si los necesitas
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // Corregido: punto en lugar de guion
+        pathname: '/**', // Permite cualquier ruta de imagen en tu cuenta
+      },
+      {
+        protocol: 'https',
+        hostname: 'jade-ewjv.onrender.com',
+        pathname: '/**',
+      },
+    ],
+
+    domains: [
+      'res.cloudinary.com', 'jade-ewjv.onrender.com'
     ],
   },
 };
