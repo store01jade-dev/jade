@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCart } from '@/components/context/CartContext'; 
 import styles from './ProductoDetail.module.css'; 
+import sizeGuideImg from '../../../public/assests/guiaTallas.png';
 
 const BASE_URL_API = process.env.NEXT_PUBLIC_API_URL; 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -452,6 +453,26 @@ export default function ProductDetail({ productoId }) {
                         <span className={styles.ratingCount}>{currentRating}</span>
                     </div>
                 </div>
+
+                {/* SECCIÓN DE GUÍA DE TALLAS */}
+                <section className={styles.sizeGuideContainer}>
+                    <h3 className={styles.sizeGuideTitle}>Guía de Tallas</h3>
+                    
+                    <div className={styles.imageWrapper}>
+                        <Image 
+                            src={sizeGuideImg} 
+                            alt="Guía de tallas Tienda Jade"
+                            width={500}
+                            height={400}
+                            style={{ width: '100%', height: 'auto' }} // Mantiene proporción
+                            placeholder="blur" // Opcional: para carga elegante
+                        />
+                    </div>
+
+                    <p className={styles.sizeGuideText}>
+                        * Las medidas son aproximadas. Si tienes dudas, contáctanos.
+                    </p>
+                </section>
 
                 {/* 5. SKU 
                 <p className={styles.skuReference}>SKU: {producto.sku}</p>

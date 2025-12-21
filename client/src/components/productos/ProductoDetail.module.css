@@ -168,6 +168,23 @@
     font-weight: 600;
 }
 
+/* Estilos de la Guía de Tallas */
+.sizeGuideContainer {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.imageWrapper {
+    width: 100%;
+    max-width: 100%; /* En móvil usa todo el ancho disponible */
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fdfdfd;
+}
+
 .skuReference {
     font-size: 0.85rem;
     color: #999;
@@ -316,6 +333,10 @@
         width: 100%;
         padding-top: 10px;
         border-top: 1px solid #eee;
+    }
+
+    .imageWrapper {
+        max-width: 550px; /* En desktop la limitamos para que no sea gigante */
     }
 
     .infoPrincipal h1 {
