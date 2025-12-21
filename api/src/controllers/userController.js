@@ -11,25 +11,21 @@ export const registerUser = async (req, res) => {
     try {
         const {nombre, email, password, rol} = req.body;
 
-        // Validamos campos requeridos
         if(!nombre || !email || !password) {
             return res.status(400).json({error: "Todos los campos son obligatorios"});
         }
 
-        // Verificar si el email ya existe
-        const registerUser = await Usuario.findOne({ where: {email} });
-        if(registerUser){
+        const existingUser = await Usuario.findOne({ where: {email} });
+        if(existingUser){
             return res.status(400).json({ error: "El email ya esta registrado" });
         }
 
-        //Encriptar la contrasena
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        //Crear nuevo usuario en la base de datos
+        // CAMBIO AQUÍ: No uses bcrypt.hash en el controlador. 
+        // Pasa la contraseña plana y el HOOK del modelo se encargará.
         const newUser = await Usuario.create({
             nombre,
             email,
-            password_hash: passwordHash,
+            password_hash: password, // El hook 'beforeCreate' la encriptará una sola vez
             rol
         });
 
