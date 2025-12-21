@@ -41,48 +41,45 @@ export const registerUser = async (req, res) => {
 
 
 export const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-
     try {
-        console.log("=== DEBUG LOGIN START ===");
-        const usuario = await Usuario.findOne({ where: { email: email.trim() } });
+        const { email, password } = req.body;
+
+        console.log(req.body);
+
+        // validar que los campos no esten vacios
+        if(!email || !password) {
+            return res.status(400).json({ error: "Credenciales invalidas" });
+        }
+
+        // Buscar usuario en BD
+        const usuario = await Usuario.findOne({ where: { email } });
 
         if (!usuario) {
-            console.log("❌ ERROR: El email no existe en la DB de Aiven:", email);
-            return res.status(401).json({ error: "Usuario no encontrado" });
+        return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
-        console.log("✅ USUARIO ENCONTRADO:", usuario.email);
-        console.log("🔍 HASH RECUPERADO DE DB:", usuario.password_hash);
-
-        if (!usuario.password_hash) {
-            console.log("⚠️ ALERTA: El usuario existe pero el campo password_hash está VACÍO");
-            return res.status(500).json({ error: "Error en datos de usuario" });
-        }
-
+        //comparar contrasena ingresada con la guardada en la DB
         const isMatch = await bcrypt.compare(password, usuario.password_hash);
-        console.log("🧐 ¿LA CONTRASEÑA COINCIDE?:", isMatch);
-
-        if (!isMatch) {
-            return res.status(401).json({ error: "Contraseña incorrecta" });
+        if(!isMatch){
+            return res.status(401).json({ error: "Credenciales invalidas" });
         }
 
-        // ... lógica del token (JWT) ...
-        const token = jwt.sign(
-            { 
-                id: usuario.id, 
-                rol: usuario.rol  // <-- ESTA ES LA LÍNEA CLAVE
-            }, 
-            process.env.JWTSECRET || "Secreto dev", 
-            { expiresIn: '24h' }
-        );
-        
-        console.log("🚀 LOGIN EXITOSO");
-        res.json({ message: "Bienvenido" });
+        // Obtener los datos planos del usuario
+        const userData = usuario.toJSON(); // <-- ¡CRÍTICO: Convierte la instancia a un objeto JS plano!
+        //console.log("Datos del usuario para firmar JWT:", userData); 
 
+        //Crear token JWT para autenticacion 
+        const token = jwt.sign(
+            { id: userData.id, rol: userData.rol }, // Payload
+            process.env.JWTSECRET || "Secreto dev", // Clave secreta
+            { expiresIn: "1h" }  //tiempo en el que expira
+        );
+
+        //res.json({ mesaage: "Login existoso", token});
+        return res.status(200).json({ token });
     } catch (error) {
-        console.error("💥 ERROR CRÍTICO EN LOGIN:", error);
-        res.status(500).json({ error: "Error interno" });
+        console.error("Error en LoginUser: ", error);
+        res.status(500).json({ error: "Errror en el servidor"});
     }
 };
 
