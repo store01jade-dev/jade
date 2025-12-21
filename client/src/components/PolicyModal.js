@@ -1,10 +1,7 @@
 // components/PolicyModal.js (Código modificado)
 import React, { useState } from 'react';
 import styles from './PolicyModal.module.css'; 
-import dotenv from "dotenv";
 
-
-dotenv.config();
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL;;
 
