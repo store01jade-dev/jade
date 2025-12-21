@@ -1,17 +1,11 @@
 // routes/contactRoutes.js (EJEMPLO ASUMIENDO EXPRESS)
-import express from 'express'; 
-import nodemailer from 'nodemailer';
+import express from 'express';
+import { Resend } from 'resend';
+
 
 const router = express.Router();
 
-// Configuración del transportador: Asumo que tienes una función de configuración o lo haces aquí:
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // POST /api/v1/contact/send-email
 router.post('/send-email', async (req, res) => {
@@ -50,5 +44,7 @@ router.post('/send-email', async (req, res) => {
         res.status(500).json({ success: false, message: 'Fallo interno del servidor al enviar el correo.' });
     }
 });
+
+
 
 export default router;
