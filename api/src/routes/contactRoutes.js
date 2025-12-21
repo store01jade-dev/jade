@@ -6,16 +6,11 @@ const router = express.Router();
 
 // Configuración del transportador: Asumo que tienes una función de configuración o lo haces aquí:
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Usa SSL
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
     },
-    tls: {
-        rejectUnauthorized: false // Esto ayuda en entornos de hosting como Render
-    }
 });
 
 // POST /api/v1/contact/send-email
