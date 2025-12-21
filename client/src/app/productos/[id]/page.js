@@ -8,9 +8,17 @@ export default async function ProductDetailPage(params) {
 
   //console.log("Intentando cargar producto con ID:", id); // Verifica esto en tu terminal Next.js
 
-  if (!id) {
-      return <div>Error: ID de producto no proporcionado en la URL.</div>;
-  }
+    console.log("-----------------------------------------");
+    console.log("Servidor Next.js: Cargando página para ID:", id);
+    console.log("-----------------------------------------");
+
+    if (!id) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <p>Error: No se pudo encontrar el ID en la URL.</p>
+            </div>
+        );
+    }
 
   // Renderizamos tu componente ProductDetail, pasándole el ID
   return (
