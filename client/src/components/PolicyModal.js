@@ -38,7 +38,7 @@ const ContactForm = ({ onClose }) => {
                 throw new Error(data.message || 'Error en el servidor de Backend.');
             }
             
-            alert('Mensaje enviado con éxito. ¡Pronto te contactaremos!');
+            //alert('Mensaje enviado con éxito. ¡Pronto te contactaremos!');
             onClose(); 
 
         } catch (error) {
@@ -47,8 +47,6 @@ const ContactForm = ({ onClose }) => {
         } finally {
             setIsSubmitting(false);
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulación de API
         
     };
 
