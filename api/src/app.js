@@ -60,8 +60,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', "X-Requested-With"]
 }));
 
-app.options('/*', cors());
-
 const UPLOADS_PATH = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(UPLOADS_PATH)); 
 
