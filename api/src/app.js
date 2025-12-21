@@ -45,6 +45,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log("Bloqueado por CORS:", origin);
       callback(new Error('Error de CORS: Este origen no está permitido por la política de seguridad.'));
     }
   },

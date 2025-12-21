@@ -68,6 +68,15 @@ export const loginUser = async (req, res) => {
         }
 
         // ... lógica del token (JWT) ...
+        const token = jwt.sign(
+            { 
+                id: usuario.id, 
+                rol: usuario.rol  // <-- ESTA ES LA LÍNEA CLAVE
+            }, 
+            process.env.JWTSECRET || "Secreto dev", 
+            { expiresIn: '24h' }
+        );
+        
         console.log("🚀 LOGIN EXITOSO");
         res.json({ message: "Bienvenido" });
 
