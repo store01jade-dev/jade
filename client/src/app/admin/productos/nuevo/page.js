@@ -35,8 +35,8 @@ function NewProductContent() {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // ¡Ajusta tu URL de Express!
 
     // Endpoint de productos
-    const API_URL_PRODUCTOS = `${API_BASE_URL}/productos`; 
-    const API_URL_CATEGORIAS = `${API_BASE_URL}/categorias`; 
+    const API_URL_PRODUCTOS = `${API_BASE_URL}/api/v1/productos`; 
+    const API_URL_CATEGORIAS = `${API_BASE_URL}api/v1/categorias`; 
 
     // ------------------------------------------------------------------
     // FUNCIÓN PARA CARGAR CATEGORÍAS (CRUD: READ)
