@@ -47,13 +47,20 @@ export const registerUser = async (req, res) => {
 // Login de usuario
 export const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        console.log("Cuerpo de la petición:", req.body);
 
-        console.log(req.body);
+        // Asegúrate de que los nombres coincidan exactamente con lo que envías en Postman
+        const { email, password } = req.body; 
 
-        // validar que los campos no esten vacios
-        if(!email || !password) {
-            return res.status(400).json({ error: "Credenciales invalidas" });
+        console.log("Variable email:", email);
+        console.log("Variable password:", password);
+
+        // Si aquí entra al error, es porque una de las dos es undefined o vacía
+        if (!email || !password) {
+            return res.status(400).json({ 
+                error: "Faltan datos", 
+                debug: { emailRecibido: !!email, passwordRecibido: !!password } 
+            });
         }
 
         // Buscar usuario en BD
