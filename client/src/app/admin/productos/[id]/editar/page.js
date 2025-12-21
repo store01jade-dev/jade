@@ -325,12 +325,16 @@ function EditProductContent() {
                     {originalImages.map(img => {
                         const key = `existing-${img.id}`;
                         const isMain = mainImageKey === key;
+
+                        const finalImageUrl = img.url.startsWith('http') 
+                        ? img.url 
+                        : `${BASE_URL_API}${img.url}`;
                         return (
                             <div key={img.id} style={{display: 'inline-block', marginRight: '10px', position: 'relative'}}>
                                 
                                 {/* 1. CONCATENACIÓN CRÍTICA DE LA URL */}
                                 <Image 
-                                    src={`${BASE_URL_API}${img.url}`} // Esto debe mostrar la imagen
+                                    src={finalImageUrl} // Esto debe mostrar la imagen
                                     alt={`Imagen ${img.id}`} 
                                     width="100" 
                                     height="100" 
