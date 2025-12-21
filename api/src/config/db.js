@@ -22,7 +22,8 @@ export const sequelize = new Sequelize(databaseUrl, {
         require: true,
         rejectUnauthorized: false // Esto es VITAL para conexiones externas (Railway/Aiven)
     }
-  }
+  },
+  logging: false
 });
 
 

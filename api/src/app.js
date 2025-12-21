@@ -32,8 +32,9 @@ app.use(express.urlencoded({ extended: true }));
 // En tu Backend (archivo de configuración de CORS)
 const allowedOrigins = [
   'https://jade-wheat.vercel.app',    // La nueva URL que te dio Vercel
-  'https://jade-rouge.vercel.app',    // Tu URL anterior
-  'http://localhost:5173'             // Para tus pruebas locales
+  'http://localhost:5173',             // Para tus pruebas locales
+  'https://jade-ewjv.onrender.com'   // Tu propio backend
+
 ];
 
 app.use(cors({
