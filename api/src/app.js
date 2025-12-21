@@ -28,9 +28,6 @@ app.get('/health', (req, res) => res.send('OK'));
 // 1. Configuración básica de CORS (esto suele ser suficiente para la mayoría de casos)
 app.use(cors());
 
-// 2. Para solucionar el error del asterisco que te salió antes
-app.options('/*', cors());
-
 //Midleware para que Express pueda interpretar JSON en el body de las requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
