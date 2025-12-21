@@ -29,24 +29,30 @@ app.get('/health', (req, res) => res.send('OK'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// En tu Backend (archivo de configuración de CORS)
 const allowedOrigins = [
-  'https://jade-wheat.vercel.app',    // La nueva URL que te dio Vercel
-  'http://localhost:5173',             // Para tus pruebas locales
-  'https://jade-ewjv.onrender.com'   // Tu propio backend
-
+  'https://jade-wheat.vercel.app',
+  'https://jade-ewjv.onrender.com', //servidor back-end
+  'http://localhost:5173', //para pruebas locales
+  'http://localhost:3000'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir peticiones sin origen (como Postman o Insomnia)
+    // 1. Permitir peticiones sin origen (como Postman o pings de Render)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    // 2. Verificar si el origen está en la lista fija
+    const isAllowed = allowedOrigins.includes(origin);
+
+    // 3. Verificar si el origen es una URL de previsualización de Vercel (Regex)
+    // Esto acepta cualquier cosa que empiece por 'https://jade-' y termine en '.vercel.app'
+    const isVercelPreview = origin.startsWith('https://jade-') && origin.endsWith('.vercel.app');
+
+    if (isAllowed || isVercelPreview) {
       callback(null, true);
     } else {
       console.log("Bloqueado por CORS:", origin);
-      callback(new Error('Error de CORS: Este origen no está permitido por la política de seguridad.'));
+      callback(new Error('Error de CORS: Origen no permitido'));
     }
   },
   credentials: true,
