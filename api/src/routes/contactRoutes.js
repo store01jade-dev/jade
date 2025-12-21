@@ -1,6 +1,10 @@
 // routes/contactRoutes.js (EJEMPLO ASUMIENDO EXPRESS)
 import express from 'express';
 import { Resend } from 'resend';
+import dotenv from "dotenv";
+
+
+dotenv.config();
 
 
 const router = express.Router();
