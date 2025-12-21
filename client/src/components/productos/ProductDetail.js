@@ -425,16 +425,28 @@ export default function ProductDetail({ productoId }) {
                   </button>
                   
                   {/* BOTÓN DE VOTO */}
-                  <div className={styles.voteContainer}>
-                      <span 
-                      onClick={handleVote} 
-                      className={`${styles.heartIcon} ${hasVoted ? styles.heartFilled : ''}`}
-                      title={hasVoted ? "Ya votaste" : "Me gusta"}
-                      >
-                        {hasVoted ? '❤️' : '🤍'} 
-                      </span>
-                      <span className={styles.ratingCount}>{currentRating}</span>
-                  </div>
+                    <div className={styles.voteContainer}>
+                        <button 
+                            type="button" // Evita que intente enviar un formulario
+                            onClick={(e) => {
+                                e.preventDefault(); // Evita cualquier comportamiento extraño
+                                console.log("Clic detectado en el corazón"); // Para probar en consola
+                                handleVote();
+                            }} 
+                            className={`${styles.voteButton} ${hasVoted ? styles.heartFilled : ''}`}
+                            title={hasVoted ? "Ya votaste" : "Me gusta"}
+                            disabled={hasVoted} // Desactiva el botón si ya votó
+                            style={{ 
+                                background: 'none', 
+                                border: 'none', 
+                                cursor: hasVoted ? 'default' : 'pointer',
+                                fontSize: '1.5rem' 
+                            }}
+                        >
+                            {hasVoted ? '❤️' : '🤍'} 
+                        </button>
+                        <span className={styles.ratingCount}>{currentRating}</span>
+                    </div>
                 </div>
 
                 {/* 5. SKU 
