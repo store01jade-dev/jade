@@ -16,36 +16,46 @@ router.post('/send-email', async (req, res) => {
     try {
         const { name, email, message } = req.body;
 
-        // 1. Validación básica
+        // 1. Verificación de campos
         if (!name || !email || !message) {
             return res.status(400).json({ message: 'Faltan campos obligatorios.' });
         }
 
-        // 2. Configuración del correo
-        const mailOptions = {
-            from: process.env.EMAIL_USER, // Tu correo de envío (desde .env)
+        // 2. Verificación de la API Key (Seguridad)
+        if (!process.env.RESEND_API_KEY) {
+            console.error("❌ Error: RESEND_API_KEY no definida.");
+            return res.status(500).json({ message: 'Error de configuración en el servidor.' });
+        }
 
-            // 📌 Destino: store01.jade@gmail.com
-            to: 'store01.jade@gmail.com', 
+        // 3. Inicializar Resend dentro de la ruta para evitar errores al arrancar
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
+        // 4. Envío del correo usando Resend (Reemplaza a transporter.sendMail)
+        const { data, error } = await resend.emails.send({
+            from: 'Tienda Jade <onboarding@resend.dev>', // Deja este para la prueba inicial
+            to: 'tu-correo-registrado@gmail.com',         // EL CORREO DONDE QUIERES RECIBIRLO
             subject: `[CONTACTO WEB] Mensaje de: ${name}`,
             html: `
-                <h3>Detalles del Cliente:</h3>
+                <h3>Nuevo mensaje de contacto</h3>
                 <p><strong>Nombre:</strong> ${name}</p>
-                <p><strong>Correo:</strong> ${email}</p>
+                <p><strong>Correo del cliente:</strong> ${email}</p>
                 <p><strong>Mensaje:</strong></p>
                 <div style="border: 1px solid #ccc; padding: 10px;">${message}</div>
             `,
-        };
+        });
 
-        // 3. Envío
-        await transporter.sendMail(mailOptions);
+        if (error) {
+            console.error('Error de Resend:', error);
+            return res.status(500).json({ message: 'Error al enviar el correo.' });
+        }
 
+        // 5. Respuesta de éxito
         res.status(200).json({ success: true, message: 'Mensaje enviado correctamente.' });
 
     } catch (error) {
-        console.error('Error al enviar el correo de contacto:', error);
-        res.status(500).json({ success: false, message: 'Fallo interno del servidor al enviar el correo.' });
+        // AQUÍ ES DONDE ESTABA EL ERROR: Asegúrate de no usar 'transporter' aquí tampoco
+        console.error('Error interno en la ruta de contacto:', error);
+        res.status(500).json({ success: false, message: 'Fallo interno del servidor.' });
     }
 });
 
