@@ -14,6 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 // -----------------------------------------------------------
 const CartItem = ({ item }) => {
     const { updateItemQuantity, removeItemFromCart } = useCart();
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     
     // Función para manejar el cambio de cantidad
     const handleQuantityChange = (e) => {
@@ -21,10 +22,16 @@ const CartItem = ({ item }) => {
         updateItemQuantity(item.id, newQuantity);
     };
 
+    // LÓGICA DE URL INTELIGENTE
+    // Verificamos si item.image ya es una URL completa o si necesita el prefijo
+    const finalImageUrl = item.image?.startsWith('http') 
+        ? item.image 
+        : `${API_BASE_URL}${item.image}`;
+
     return (
         <div className={styles.cartItem}>
             <div className={styles.itemImage}>
-                <Image src={item.image} alt={item.name} width={80} height={80} style={{ objectFit: 'contain' }} />
+                <Image src={finalImageUrl} alt={item.name} width={80} height={80} style={{ objectFit: 'contain' }} />
             </div>
 
             <div className={styles.itemDetails}>
