@@ -61,7 +61,7 @@ export default function Footer() {
         setMessage('');
 
         try {
-            const response = await fetch(`${API_BASE_URL}api/v1/comments`, {
+            const response = await fetch(`${API_BASE_URL}/api/v1/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
