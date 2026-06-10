@@ -22,7 +22,7 @@ const DetallePedido = sequelize.define(
             type: DataTypes.INTEGER, 
             allowNull: false,
             references: {
-                model: 'variantes_productos',
+                model: 'variantes_producto',
                 key: 'id'
             } 
         },
