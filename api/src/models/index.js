@@ -2,7 +2,7 @@
 // Archivo central que carga todos los modelos y declara sus asociaciones.
 // Usa ESM (import / export). Ajusta las rutas si tu estructura es distinta.
 
-import sequelize from "../config/db.js"; // instancia Sequelize creada en src/config/db.js
+import { sequelize } from "../config/db.js"; // instancia Sequelize creada en src/config/db.js
 
 // Importar modelos (se asume que cada archivo hace: export default Modelo)
 import Usuario from "./userModel.js";

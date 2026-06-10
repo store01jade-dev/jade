@@ -17,13 +17,13 @@ if (!databaseUrl) {
 export const sequelize = new Sequelize(databaseUrl, {
   dialect: 'mysql',
   logging: false,
-  dialectOptions: {
+  /*dialectOptions: {
     ssl: {
         require: true,
         rejectUnauthorized: false // Esto es VITAL para conexiones externas (Railway/Aiven)
     }
   },
-  logging: false
+  logging: false*/
 });
 
 
