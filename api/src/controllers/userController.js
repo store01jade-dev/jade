@@ -104,7 +104,7 @@ export const updateUserRole = async (req, res) => {
         const { rol } = req.body; // El nuevo rol que viene del frontend
 
         // 1. Validar que el rol sea uno de los permitidos
-        const rolesPermitidos = ['user', 'admin', 'dev'];
+        const rolesPermitidos = ['user', 'admin', 'desarrollador'];
         if (!rolesPermitidos.includes(rol)) {
             return res.status(400).json({ error: "Rol no válido" });
         }
